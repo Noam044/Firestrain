@@ -101,3 +101,11 @@ export const BDIFF = {
   licenceUrl: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
   url: "https://bdiff.agriculture.gouv.fr/incendies",
 } as const;
+
+export const FIRMS = {
+  name: "NASA FIRMS",
+  fullName: "NASA FIRMS — Fire Information for Resource Management System, VIIRS 375 m",
+  licence: "Données ouvertes de la NASA",
+  licenceUrl: "https://www.earthdata.nasa.gov/data/tools/firms",
+  url: "https://firms.modaps.eosdis.nasa.gov/",
+} as const;

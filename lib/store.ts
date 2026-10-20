@@ -34,10 +34,12 @@ type MapState = {
   /** EFFIS id of the selected polygon (always from `year`). */
   selectedFireId: number | null;
   /**
-   * Day on the 1 June → 30 September timeline (fractional while playing, for
-   * smooth fading); null shows the whole year without FIRMS detections.
+   * Day of the year on the timeline, 1 = 1 January (fractional while playing,
+   * for smooth fading); null shows the whole year without FIRMS detections.
    */
   timelineDay: number | null;
+  /** FIRMS detections of the last 72 hours (server route), for the current year only. */
+  showRecent: boolean;
   playing: boolean;
   /** Playback speed, in timeline days per second. */
   speed: number;
@@ -50,6 +52,7 @@ type MapState = {
   setShowHistory: (showHistory: boolean) => void;
   selectFire: (id: number | null) => void;
   setTimelineDay: (day: number | null) => void;
+  setShowRecent: (showRecent: boolean) => void;
   setPlaying: (playing: boolean) => void;
   setSpeed: (speed: number) => void;
   requestCamera: (target: CameraRequest["target"]) => void;
@@ -70,17 +73,22 @@ export const useMapStore = create<MapState>()((set) => ({
   showHistory: true,
   selectedFireId: null,
   timelineDay: null,
+  showRecent: false,
   playing: false,
-  speed: 2,
+  speed: 7,
   cameraRequest: null,
   setRenderMode: (renderMode) => set({ renderMode }),
   setView: (view) => set(view),
   setCursor: (cursor) => set({ cursor }),
   // A selection belongs to one year: changing year clears it.
-  setYear: (year) => set({ year, selectedFireId: null }),
+  setYear: (year) => set((state) => ({ year, selectedFireId: null, showRecent: state.showRecent && year === LAST_YEAR })),
   setShowHistory: (showHistory) => set({ showHistory }),
   selectFire: (selectedFireId) => set({ selectedFireId }),
-  setTimelineDay: (timelineDay) => set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay }),
+  // The timeline and the last 72 hours are two views of the hotspots: one at a time.
+  setTimelineDay: (timelineDay) =>
+    set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay, showRecent: false }),
+  setShowRecent: (showRecent) =>
+    set(showRecent ? { showRecent, timelineDay: null, playing: false } : { showRecent }),
   setPlaying: (playing) => set({ playing }),
   setSpeed: (speed) => set({ speed }),
   requestCamera: (target) => set((state) => ({ cameraRequest: { id: (state.cameraRequest?.id ?? 0) + 1, target } })),

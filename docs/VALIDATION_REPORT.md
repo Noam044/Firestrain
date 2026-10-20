@@ -6,7 +6,7 @@ Généré par `scripts/06-validate.ts` le 20 oct. 2026 à partir de `public/data
 
 ## 1. Fichiers publiés
 
-49 fichiers sur 49 conformes (taille, sha256 et schéma Zod) ; 49 fichiers présents dans `public/data`.
+50 fichiers sur 50 conformes (taille, sha256 et schéma Zod) ; 50 fichiers présents dans `public/data`.
 
 ## 2. EFFIS : totaux du pipeline et statistiques officielles
 
@@ -111,25 +111,25 @@ Les polygones sans candidat sont surtout de petites surfaces (dont les brûlages
 - EFFIS, polygone 562583 (Porge, Gironde) : **37 191 ha**, mis à jour le 23 juil. 2026 (−4 809 ha, soit -11 %).
 - Explication partielle : le chiffre de presse est arrondi et ne précise pas s’il s’agit de surface parcourue ou brûlée ; EFFIS cartographie la surface brûlée détectée par satellite. À confronter en phase 4 aux communiqués de la préfecture de la Gironde.
 
-## 6. Détections FIRMS (juin – septembre)
+## 6. Détections FIRMS (années civiles)
 
 Anomalies thermiques VIIRS : des points chauds, jamais convertis en surfaces. 2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) ; les années précédentes viennent du seul S-NPP : les nombres ne se comparent pas entre ces deux périodes.
 
-| Année | Détections | Satellites | Produits |
-|---|---:|---|---|
-| 2012 | 1 950 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2013 | 2 000 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2014 | 1 566 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2015 | 2 306 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2016 | 2 563 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2017 | 2 274 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2018 | 1 854 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2019 | 2 509 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2020 | 1 789 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2021 | 1 763 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2022 | 5 748 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2023 | 1 553 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2024 | 1 149 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2025 | 2 033 | S-NPP | S-NPP, produit standard (archive annuelle) |
-| 2026 | 23 414 | S-NPP, NOAA-20, NOAA-21 | produit standard (SP) jusqu’au 2026-06-30 ; temps quasi réel (NRT) ensuite |
+| Année | Jusqu’au | Détections | Satellites | Produits |
+|---|---|---:|---|---|
+| 2012 | 31 déc. 2012 | 5 118 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2013 | 31 déc. 2013 | 3 407 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2014 | 31 déc. 2014 | 4 460 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2015 | 31 déc. 2015 | 4 722 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2016 | 31 déc. 2016 | 4 627 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2017 | 31 déc. 2017 | 6 581 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2018 | 31 déc. 2018 | 3 407 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2019 | 31 déc. 2019 | 6 990 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2020 | 31 déc. 2020 | 3 892 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2021 | 31 déc. 2021 | 4 443 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2022 | 31 déc. 2022 | 8 406 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2023 | 31 déc. 2023 | 3 908 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2024 | 31 déc. 2024 | 2 598 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2025 | 31 déc. 2025 | 4 392 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2026 | 19 oct. 2026 | 31 602 | S-NPP, NOAA-20, NOAA-21 | produit standard (SP) jusqu’au 2026-06-30 ; temps quasi réel (NRT) ensuite |
 

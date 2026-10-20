@@ -8,6 +8,7 @@ import {
   useBorders,
   useEffisYear,
   useDetections,
+  useRecentDetections,
   useEffisYears,
   useFranceOutline,
   useTerrain,
@@ -15,6 +16,7 @@ import {
   type TerrainData,
 } from "@/lib/data/queries";
 import type { DecodedFire } from "@/lib/data/fires";
+import { recentToColumns } from "@/lib/data/firms-recent";
 import { rasterizeLandMask, type LandMask } from "@/lib/data/land-mask";
 import type { Borders as BordersData } from "@/lib/data/schemas";
 import { FIRST_YEAR, useMapStore, type MapMode } from "@/lib/store";
@@ -178,10 +180,13 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
   const burn = useBurnMask(current.data?.fires, historyFires, size);
   const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
   const detections = useDetections(year, explore);
+  const showRecent = useMapStore((state) => state.showRecent);
+  const recent = useRecentDetections(explore && showRecent);
+  const recentColumns = useMemo(() => recentToColumns(recent.data), [recent.data]);
   const invalidate = useThree((state) => state.invalidate);
   // Frames are rendered on demand: redraw when the timeline moves.
   useEffect(() => useMapStore.subscribe((state, previous) => {
-    if (state.timelineDay !== previous.timelineDay) invalidate();
+    if (state.timelineDay !== previous.timelineDay || state.showRecent !== previous.showRecent) invalidate();
   }), [invalidate]);
 
   return (
@@ -201,9 +206,13 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         exaggeration={exaggeration}
         maxSegmentKm={terrain.meta.pixelSizeM / 1000}
       />
-      {detections.data && (
-        <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
-      )}
+      {showRecent
+        ? recentColumns && (
+            <FirePoints detections={recentColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
+          )
+        : detections.data && (
+            <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
+          )}
       {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
       {explore && (
         <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={current.data?.fires} />

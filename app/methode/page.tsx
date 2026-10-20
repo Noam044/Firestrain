@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
 import effisIndexJson from "@/public/data/effis/index.json";
 import matchesJson from "@/public/data/bdiff/rapprochements.json";
+import firmsIndexJson from "@/public/data/firms/index.json";
 import { formatDate, formatInteger } from "@/lib/format";
 import { manifest } from "@/lib/data/manifest";
-import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema } from "@/lib/data/schemas";
+import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema } from "@/lib/data/schemas";
 
 export const metadata: Metadata = {
   title: "Méthode",
@@ -17,6 +18,7 @@ const effisIndex = EffisIndexSchema.parse(effisIndexJson);
 const bdiffAnnual = BdiffAnnualSchema.parse(bdiffAnnualJson);
 const rule = BdiffMatchesSchema.shape.rule.parse(matchesJson.rule);
 const linkCount = Object.keys(matchesJson.matches).length;
+const firmsLatest = FirmsIndexSchema.parse(firmsIndexJson).years.at(-1);
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -149,11 +151,17 @@ export default function MethodePage() {
 
       <Section title="NASA FIRMS : la progression jour par jour">
         <p>
-          La frise de l’Explorer affiche, du 1er juin au 30 septembre, les détections d’anomalies thermiques des
-          satellites VIIRS (NASA FIRMS, résolution 375 m). Ce sont des points chauds : FireStrain ne les convertit jamais
-          en hectares. Chaque détection reste visible trois jours, en s’estompant ; la taille du symbole suit la puissance
-          radiative du feu.
+          La frise de l’Explorer couvre l’année civile entière, du 1er janvier au 31 décembre : les feux ne se limitent
+          pas à l’été (brûlages et écobuages de fin d’hiver, feux de printemps, d’automne). Elle affiche les détections
+          d’anomalies thermiques des satellites VIIRS (NASA FIRMS, résolution 375 m). Ce sont des points chauds :
+          FireStrain ne les convertit jamais en hectares. Chaque détection reste visible trois jours, en s’estompant ; la
+          taille du symbole suit la puissance radiative du feu.
         </p>
+        {firmsLatest && firmsLatest.lastDate < `${firmsLatest.year}-12-31` && (
+          <p>
+            L’année {firmsLatest.year} est en cours : ses détections s’arrêtent au {formatDate(firmsLatest.lastDate)}.
+          </p>
+        )}
         <ul className="list-disc space-y-2 pl-5">
           <li>
             2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) : produit standard jusqu’au 30 juin, temps quasi réel

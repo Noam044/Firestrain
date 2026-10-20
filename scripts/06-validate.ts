@@ -30,6 +30,7 @@ import {
   EffisStatsSchema,
   EffisYearSchema,
   FirmsIndexSchema,
+  FirmsStaticCellsSchema,
   FranceOutlineSchema,
   ManifestSchema,
   TerrainMetaSchema,
@@ -58,6 +59,7 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^bdiff\/communes\.json$/, BdiffCommunesSchema],
   [/^bdiff\/rapprochements\.json$/, BdiffMatchesSchema],
   [/^firms\/index\.json$/, FirmsIndexSchema],
+  [/^firms\/sources-fixes\.json$/, FirmsStaticCellsSchema],
 ];
 const BINARY = /^(terrain\/dem-\d+m|firms\/detections-\d{4})\.bin$/;
 
@@ -259,13 +261,15 @@ for (const figure of press.figures) {
 
 // ── 6. FIRMS ────────────────────────────────────────────────────────────────
 report.push(
-  "## 6. Détections FIRMS (juin – septembre)",
+  "## 6. Détections FIRMS (années civiles)",
   "",
   "Anomalies thermiques VIIRS : des points chauds, jamais convertis en surfaces. 2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) ; les années précédentes viennent du seul S-NPP : les nombres ne se comparent pas entre ces deux périodes.",
   "",
-  "| Année | Détections | Satellites | Produits |",
-  "|---|---:|---|---|",
-  ...firmsIndex.years.map((y) => `| ${y.year} | ${formatInteger(y.count)} | ${y.satellites.join(", ")} | ${y.products.join(" ; ")} |`),
+  "| Année | Jusqu’au | Détections | Satellites | Produits |",
+  "|---|---|---:|---|---|",
+  ...firmsIndex.years.map(
+    (y) => `| ${y.year} | ${formatDate(y.lastDate)} | ${formatInteger(y.count)} | ${y.satellites.join(", ")} | ${y.products.join(" ; ")} |`,
+  ),
   "",
 );
 

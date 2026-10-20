@@ -11,10 +11,12 @@ import { burnMaskFragmentShader, burnMaskVertexShader } from "./shaders";
  * draped by the terrain shader. Channels:
  *   R  coverage of the year shown
  *   G  coverage of the earlier years (hatched)
- *   B  255 − timeline day of first detection (1 = on or before 1 June), so that
- *      MAX blending keeps the earliest detection where polygons overlap.
+ *   B  high byte of the timeline day of first detection (1 = 1 January)
+ *   A  low byte of that day
+ * The year shown is drawn without blending, latest fire first, so the earliest
+ * detection wins where outlines overlap; the earlier years are then added with
+ * MAX blending, which only touches G.
  */
-
 
 const geometries = new WeakMap<readonly DecodedFire[], THREE.BufferGeometry>();
 
@@ -24,8 +26,9 @@ function fireGeometry(fires: readonly DecodedFire[]): THREE.BufferGeometry {
   if (cached) return cached;
   const positions: number[] = [];
   const values: number[] = [];
-  for (const fire of fires) {
-    const value = (255 - fireTimelineDay(fire)) / 255;
+  const latestFirst = [...fires].sort((a, b) => fireTimelineDay(b) - fireTimelineDay(a));
+  for (const fire of latestFirst) {
+    const value = fireTimelineDay(fire);
     for (const shape of fire.shapes) {
       const toPoints = (ring: Float32Array) => {
         const points: THREE.Vector2[] = [];
@@ -52,18 +55,22 @@ function fireGeometry(fires: readonly DecodedFire[]): THREE.BufferGeometry {
   return geometry;
 }
 
-function maskMaterial(channel: [number, number, number]) {
+function maskMaterial(history: boolean) {
   return new THREE.ShaderMaterial({
     vertexShader: burnMaskVertexShader,
     fragmentShader: burnMaskFragmentShader,
     uniforms: {
       uHalfSize: { value: new THREE.Vector2(SCENE_SIZE.width / 2, SCENE_SIZE.depth / 2) },
-      uChannel: { value: new THREE.Vector3(...channel) },
+      uHistory: { value: history ? 1 : 0 },
     },
-    blending: THREE.CustomBlending,
-    blendEquation: THREE.MaxEquation,
-    blendSrc: THREE.OneFactor,
-    blendDst: THREE.OneFactor,
+    ...(history
+      ? {
+          blending: THREE.CustomBlending,
+          blendEquation: THREE.MaxEquation,
+          blendSrc: THREE.OneFactor,
+          blendDst: THREE.OneFactor,
+        }
+      : { blending: THREE.NoBlending }),
     depthTest: false,
     depthWrite: false,
     side: THREE.DoubleSide,
@@ -92,7 +99,7 @@ export function useBurnMask(
   }, [gl, size.width, size.height]);
   useEffect(() => () => target.dispose(), [target]);
 
-  const materials = useMemo(() => ({ current: maskMaterial([1, 0, 1]), history: maskMaterial([0, 1, 0]) }), []);
+  const materials = useMemo(() => ({ current: maskMaterial(false), history: maskMaterial(true) }), []);
   useEffect(
     () => () => {
       materials.current.dispose();
@@ -103,13 +110,15 @@ export function useBurnMask(
 
   useLayoutEffect(() => {
     const scene = new THREE.Scene();
+    // The year shown first, without blending, then the history MAX-blended into G.
     const add = (geometry: THREE.BufferGeometry, material: THREE.Material) => {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.frustumCulled = false;
+      mesh.renderOrder = scene.children.length;
       scene.add(mesh);
     };
-    for (const fires of history) add(fireGeometry(fires), materials.history);
     if (current) add(fireGeometry(current), materials.current);
+    for (const fires of history) add(fireGeometry(fires), materials.history);
 
     const previousTarget = gl.getRenderTarget();
     const previousColor = gl.getClearColor(new THREE.Color());

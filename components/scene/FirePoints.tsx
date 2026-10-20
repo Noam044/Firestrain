@@ -4,7 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
-import type { Detections } from "@/lib/data/firms-codec";
 import { useMapStore } from "@/lib/store";
 import { readColorToken } from "@/lib/tokens";
 import { firePointsFragmentShader, firePointsVertexShader } from "./shaders";
@@ -12,10 +11,27 @@ import { firePointsFragmentShader, firePointsVertexShader } from "./shaders";
 /** Days over which a detection fades out after its day. */
 export const FADE_DAYS = 3;
 
-type FirePointsProps = { detections: Detections; heightTexture: THREE.Texture; exaggeration: number };
+/** Hotspots as columns; `day` may be fractional, `frp` is in 0.1 MW. */
+export type HotspotColumns = {
+  count: number;
+  positions: ArrayLike<number>;
+  day: ArrayLike<number>;
+  frp: ArrayLike<number>;
+};
 
-/** FIRMS hotspots of the year, shown only while the timeline is in use (ember: active detections). */
-export function FirePoints({ detections, heightTexture, exaggeration }: FirePointsProps) {
+type FirePointsProps = {
+  detections: HotspotColumns;
+  heightTexture: THREE.Texture;
+  exaggeration: number;
+  /** Fixed "today" instead of the timeline day (last 72 hours: days are ≤ 0, today = 0). */
+  fixedDay?: number;
+};
+
+/**
+ * FIRMS hotspots, shown only while the timeline is in use or for the last
+ * 72 hours (ember: active detections).
+ */
+export function FirePoints({ detections, heightTexture, exaggeration, fixedDay }: FirePointsProps) {
   const pointsRef = useRef<THREE.Points>(null);
 
   const geometry = useMemo(() => {
@@ -60,7 +76,7 @@ export function FirePoints({ detections, heightTexture, exaggeration }: FirePoin
     const points = pointsRef.current;
     if (!points) return;
     const uniforms = (points.material as THREE.ShaderMaterial).uniforms;
-    const day = useMapStore.getState().timelineDay;
+    const day = fixedDay ?? useMapStore.getState().timelineDay;
     uniforms.uDay.value = day ?? -1000;
     uniforms.uPixelRatio.value = state.viewport.dpr;
   });

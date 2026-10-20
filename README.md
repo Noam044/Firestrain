@@ -39,7 +39,7 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 
 | Variable | Usage | Où |
 |---|---|---|
-| `FIRMS_MAP_KEY` | Archive NASA FIRMS de l'été 2026 (phase 3) | `.env.local`, scripts et serveur uniquement, jamais dans le bundle client |
+| `FIRMS_MAP_KEY` | NASA FIRMS : année 2026 (script 03) et route serveur `/api/firms/recent` (72 dernières heures) | `.env.local`, scripts et serveur uniquement, jamais dans le bundle client |
 
 ## Sources et licences
 

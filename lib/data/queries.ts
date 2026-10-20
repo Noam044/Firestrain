@@ -13,6 +13,7 @@ import {
   FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
+  RecentDetectionsSchema,
   TerrainMetaSchema,
   type TerrainMeta,
 } from "./schemas.ts";
@@ -128,6 +129,20 @@ export function useDetections(year: number, enabled = true) {
     ...staticData,
   });
 }
+
+/** Last 72 hours of FIRMS detections, from the server route (the key stays on the server). */
+export const useRecentDetections = (enabled: boolean) =>
+  useQuery({
+    queryKey: ["firms", "recent"],
+    queryFn: async () => {
+      const response = await fetch("/api/firms/recent");
+      if (!response.ok) throw new Error(`firms/recent : HTTP ${response.status}`);
+      return RecentDetectionsSchema.parse(await response.json());
+    },
+    enabled,
+    staleTime: 15 * 60_000,
+    retry: 1,
+  });
 
 export const useBdiffAnnual = () =>
   useQuery({

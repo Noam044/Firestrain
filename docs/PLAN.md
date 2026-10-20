@@ -69,7 +69,19 @@
 4. **État URL** (nuqs) : `?year=&date=&fire=&cam=`.
 5. (Optionnel) Route Handler serveur `/api/firms/recent` avec `revalidate` pour les dernières 72 h ; la clé n'est jamais exposée au client.
 
+## Phase 3.1 — L'année entière ✅
+
+Demande de validation de la phase 3 : le sujet est le feu **toute l'année**, pas seulement l'été.
+
+1. **Frise** du 1er janvier au 31 décembre (365/366 jours), 12 mois, vitesses 2/7/15 j/s ; jour de frise = jour de l'année (heure de Paris).
+2. **Masque brûlé** : jour de première détection sur deux octets (B haut, A bas) ; l'année affichée est rastérisée sans mélange, du feu le plus tardif au plus précoce (le plus précoce l'emporte), puis l'historique en MAX dans G.
+3. **03-firms** : années civiles complètes ; 2026 du 1er janvier à la veille de l'exécution (SP jusqu'au 30 juin, NRT ensuite), `lastDate` par année dans l'index ; mailles de sources fixes publiées (`firms/sources-fixes.json`). Les écobuages de février–avril (Pays basque, Pyrénées) apparaissent : ~7 500 détections en 2026.
+4. **Route serveur** `/api/firms/recent` : NRT des 72 dernières heures (3 satellites), filtre France + sources fixes, `'use cache'` + `cacheLife('hours')`, réponse en colonnes, 503 générique en cas d'échec ; bouton « 72 h » dans la frise (année en cours), SourceTag avec l'heure d'interrogation. Clé absente de `.next/static`, de `public` et des réponses.
+5. **Profil FIRMS d'un feu** : détections de 2 jours avant à 60 jours après la date EFFIS, à moins de 400 m du contour.
+
 ## Phase 4 — Le récit
+
+Adaptation à l'année entière : la séquence suit le calendrier (écobuages de fin d'hiver → feux d'été → automne), et le graphique cumulatif couvre janvier → décembre.
 
 1. **`data/events.json`** curé : chaque fait = valeur, unité, date, URL, citation courte, date de récupération ; chaque événement = liste d'IDs EFFIS + justification sourcée du regroupement. Sources primaires en priorité (préfectures, France Assureurs).
 2. **Séquence** (ScrollTrigger + SplitText + Lenis), canvas fixe et caméra pilotée : Ouverture → Trévillach (4 juil.) → Gironde (22 juil.) → Var (Pontevès 21 juil. → Correns 1er août) → Vue d'ensemble → Sortie. Les dates suivent l'audit, pas le brief.

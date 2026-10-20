@@ -4,14 +4,14 @@ import Link from "next/link";
 import { Dialog } from "radix-ui";
 import { useMemo, type ElementType, type ReactNode } from "react";
 import { formatDate, formatDateTime, formatDecimal, formatInteger, formatLocalDateTime } from "@/lib/format";
-import type { DecodedFire } from "@/lib/data/fires";
+import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
 import { useBdiffAnnual, useBdiffMatches, useDetections, useEffisYear, useFirmsIndex, useManifest } from "@/lib/data/queries";
 import { bboxContains, pointInRings } from "@/lib/geo/polygon";
-import { dateOfTimelineDay, TIMELINE_DAYS } from "@/lib/timeline";
+import { dateOfTimelineDay, daysInYear } from "@/lib/timeline";
 import { LAND_COVER_KEYS, type LandCoverKey } from "@/lib/data/schemas";
 import { useMapStore } from "@/lib/store";
 import { useMediaQuery } from "@/lib/use-media-query";
-import { BDIFF, EFFIS, SourceTag } from "./SourceTag";
+import { BDIFF, EFFIS, FIRMS, SourceTag } from "./SourceTag";
 
 /** CORINE-based classes used by EFFIS, in French. */
 const LAND_COVER_LABELS: Record<LandCoverKey, string> = {
@@ -59,6 +59,9 @@ function LandCover({ values }: { values: DecodedFire["landCover"] }) {
 
 /** VIIRS pixel half-width: detections this close to the outline are counted (≈ 400 m). */
 const NEAR_KM = 0.4;
+/** Detections are attributed to the fire from 2 days before its EFFIS date to 60 days after. */
+const BEFORE_DAYS = 2;
+const AFTER_DAYS = 60;
 
 /** Day-by-day FIRMS detections inside the outline: hotspots, never converted to an area. */
 function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
@@ -69,20 +72,22 @@ function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
   const perDay = useMemo(() => {
     const data = detections.data;
     if (!data) return null;
-    const counts = new Uint16Array(TIMELINE_DAYS + 1);
+    const counts = new Uint16Array(daysInYear(year) + 1);
+    const first = fireTimelineDay(fire) - BEFORE_DAYS;
+    const last = fireTimelineDay(fire) + AFTER_DAYS;
     const [x0, z0, x1, z1] = fire.bbox;
     const box: [number, number, number, number] = [x0 - NEAR_KM, z0 - NEAR_KM, x1 + NEAR_KM, z1 + NEAR_KM];
     for (let k = 0; k < data.count; k++) {
       const x = data.positions[2 * k];
       const z = data.positions[2 * k + 1];
-      if (!bboxContains(box, x, z)) continue;
+      if (data.day[k] < first || data.day[k] > last || !bboxContains(box, x, z)) continue;
       const near = [[0, 0], [NEAR_KM, 0], [-NEAR_KM, 0], [0, NEAR_KM], [0, -NEAR_KM]].some(([dx, dz]) =>
         pointInRings(x + dx, z + dz, fire.rings),
       );
       if (near) counts[data.day[k]] += 1;
     }
     return counts;
-  }, [detections.data, fire]);
+  }, [detections.data, fire, year]);
 
   if (index.isSuccess && !index.data.years.some((y) => y.year === year)) {
     return <span className="text-bone-300">pas de détections VIIRS avant 2012</span>;
@@ -91,17 +96,20 @@ function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
   const days = Array.from(perDay.keys()).filter((d) => d > 0 && perDay[d] > 0);
   const total = days.reduce((sum, d) => sum + perDay[d], 0);
   if (total === 0) {
-    return <span className="text-bone-300">aucune détection VIIRS dans ce contour du 1er juin au 30 septembre</span>;
+    return <span className="text-bone-300">aucune détection VIIRS dans ce contour autour de la date EFFIS</span>;
   }
   const max = Math.max(...days.map((d) => perDay[d]));
+  // The profile spans the detections, with a margin, over at least three weeks.
+  const from = Math.max(1, days[0] - 3);
+  const span = Math.max(21, (days.at(-1) ?? days[0]) + 4 - from);
   return (
     <>
-      <svg viewBox={`0 0 ${TIMELINE_DAYS} 40`} preserveAspectRatio="none" className="h-10 w-full" aria-hidden>
-        <line x1="0" y1="39.5" x2={TIMELINE_DAYS} y2="39.5" stroke="var(--ash-700)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+      <svg viewBox={`0 0 ${span} 40`} preserveAspectRatio="none" className="h-10 w-full" aria-hidden>
+        <line x1="0" y1="39.5" x2={span} y2="39.5" stroke="var(--ash-700)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
         {days.map((d) => (
           <rect
             key={d}
-            x={d - 1}
+            x={d - from}
             y={40 - (perDay[d] / max) * 38}
             width="1"
             height={(perDay[d] / max) * 38}
@@ -117,13 +125,9 @@ function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
       <div className="mt-1">
         <SourceTag
           source={{
-            name: "NASA FIRMS",
-            fullName: "NASA FIRMS — Fire Information for Resource Management System, VIIRS 375 m",
-            licence: "Données ouvertes de la NASA",
-            licenceUrl: "https://www.earthdata.nasa.gov/data/tools/firms",
-            url: "https://firms.modaps.eosdis.nasa.gov/",
+            ...FIRMS,
             retrievedAt: manifest.data?.files[`firms/detections-${year}.bin`]?.retrievedAt,
-            note: "Détections à moins de 400 m du contour EFFIS (taille d’un pixel VIIRS).",
+            note: "Détections à moins de 400 m du contour EFFIS (taille d’un pixel VIIRS), de 2 jours avant à 60 jours après la date EFFIS.",
           }}
         />
       </div>
