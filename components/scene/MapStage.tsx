@@ -59,9 +59,9 @@ class SceneErrorBoundary extends Component<{ children: ReactNode; showFires: boo
 /** Client-only (see MapStageLoader): picks the 3D scene or the 2D fallback once. */
 export default function MapStage({ mode }: { mode: MapMode }) {
   const [choice] = useState(chooseRender);
-  if (choice.kind === "2d") return <Map2D reason={choice.reason} showFires={mode === "explore"} />;
+  if (choice.kind === "2d") return <Map2D reason={choice.reason} showFires />;
   return (
-    <SceneErrorBoundary showFires={mode === "explore"}>
+    <SceneErrorBoundary showFires>
       <MapCanvas mode={mode} />
     </SceneErrorBoundary>
   );

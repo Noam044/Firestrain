@@ -1,0 +1,260 @@
+{
+  "note": "Faits du récit, saisis à la main. Chaque fait porte sa valeur, son unité, la date de la donnée, la page source, une citation courte (vérifiée dans la page par scripts/07-story.ts) et la date de lecture. Chaque événement liste les polygones EFFIS qui le composent et la règle qui justifie ce regroupement ; le script recalcule le groupe et échoue s'il diffère. Aucun bilan humain non sourcé : les décès évoqués dans la presse n'ont pas été confirmés par une source officielle lue.",
+  "retrievedAt": "2026-10-20",
+  "events": [
+    {
+      "id": "fevrier-pyrenees-atlantiques",
+      "title": "Fin février, Pyrénées-Atlantiques",
+      "department": "Pyrénées-Atlantiques",
+      "from": "2026-02-20",
+      "to": "2026-03-04",
+      "group": {
+        "rule": "department-window",
+        "justification": "Tous les polygones EFFIS du département dont la première détection (heure de Paris) tombe entre le 20 février et le 4 mars 2026 : une série de feux distincts, regroupés par lieu et par période, pas un incendie unique."
+      },
+      "facts": []
+    },
+    {
+      "id": "trevillach",
+      "title": "Début juillet, Trévillach (Pyrénées-Orientales)",
+      "department": "Pyrénées-Orientales",
+      "from": "2026-07-04",
+      "to": "2026-07-08",
+      "group": {
+        "rule": "contiguous",
+        "seed": 555398,
+        "maxGapKm": 1,
+        "justification": "Polygones dont la première détection tombe entre le 4 et le 8 juillet et qui sont, de proche en proche, à moins d’un kilomètre du polygone principal (Montalba-le-Château, détecté le 4 juillet à 19 h 40, neuf minutes après l’heure de départ donnée par la préfecture)."
+      },
+      "effisIds": [
+        555398,
+        558914,
+        558911,
+        558913,
+        558923
+      ],
+      "facts": [
+        {
+          "id": "trevillach-depart",
+          "label": "Départ du feu",
+          "dataDate": "2026-07-04",
+          "quote": "s’est déclaré le samedi 4 juillet à 19h31 sur la commune de Trévillach",
+          "source": "Préfecture des Pyrénées-Orientales, point de situation n° 7",
+          "url": "https://www.pyrenees-orientales.gouv.fr/Actualites/Communique-de-presse/Annee-2026/Juillet-2026/Incendie-de-Trevillach-Point-de-situation-n-7-le-05.07.26.-a-23h00",
+          "published": "2026-07-06",
+          "display": "samedi 4 juillet, 19 h 31"
+        },
+        {
+          "id": "trevillach-surface",
+          "label": "Surface parcourue (préfecture)",
+          "value": 4900,
+          "unit": "ha",
+          "dataDate": "2026-07-06",
+          "quote": "4 900 hectares ont été parcourus par les flammes",
+          "source": "Préfecture des Pyrénées-Orientales, point de situation n° 10",
+          "url": "https://www.pyrenees-orientales.gouv.fr/Actualites/Communique-de-presse/Annee-2026/Juillet-2026/Incendie-de-Trevillach-Point-de-situation-n-10-le-06.07.26-a-23h00",
+          "published": "2026-07-07"
+        },
+        {
+          "id": "trevillach-evacuation",
+          "label": "Communes appelées à évacuer",
+          "value": 26,
+          "unit": "communes",
+          "dataDate": "2026-07-05",
+          "quote": "inviter les habitants de 26 communes à évacuer",
+          "source": "Préfecture des Pyrénées-Orientales, point de situation n° 7",
+          "url": "https://www.pyrenees-orientales.gouv.fr/Actualites/Communique-de-presse/Annee-2026/Juillet-2026/Incendie-de-Trevillach-Point-de-situation-n-7-le-05.07.26.-a-23h00",
+          "published": "2026-07-06"
+        },
+        {
+          "id": "trevillach-blesses",
+          "label": "Personnes légèrement blessées",
+          "value": 11,
+          "unit": "personnes",
+          "dataDate": "2026-07-06",
+          "quote": "11 personnes ont été blessés légèrement",
+          "source": "Préfecture des Pyrénées-Orientales, point de situation n° 10",
+          "url": "https://www.pyrenees-orientales.gouv.fr/Actualites/Communique-de-presse/Annee-2026/Juillet-2026/Incendie-de-Trevillach-Point-de-situation-n-10-le-06.07.26-a-23h00",
+          "published": "2026-07-07"
+        }
+      ]
+    },
+    {
+      "id": "gironde",
+      "title": "Fin juillet, Gironde",
+      "department": "Gironde",
+      "from": "2026-07-22",
+      "to": "2026-07-31",
+      "group": {
+        "rule": "contiguous",
+        "seed": 562583,
+        "maxGapKm": 1,
+        "justification": "Polygones dont la première détection tombe entre le 22 et le 31 juillet et qui sont, de proche en proche, à moins d’un kilomètre du polygone principal (Le Porge). Les petits feux simultanés situés à plus de 15 km (Captieux, Pian-Médoc, Pompéjac, Saint-Christoly-de-Blaye) sont exclus."
+      },
+      "effisIds": [
+        562583,
+        592113,
+        592370,
+        592380,
+        592379,
+        592248,
+        592247
+      ],
+      "facts": [
+        {
+          "id": "gironde-surface",
+          "label": "Surface brûlée estimée (préfecture)",
+          "value": 42000,
+          "unit": "ha",
+          "approximate": true,
+          "dataDate": "2026-07-31",
+          "quote": "reste estimée à 42 000 hectares",
+          "source": "Préfecture de la Gironde, point de situation du 31 juillet",
+          "url": "https://www.gironde.gouv.fr/Actualites/Communiques-de-presse/Communiques-de-presse-2026/Juillet-2026/Incendie-de-Gironde-Point-de-situation-ce-vendredi-31-juillet-a-20h30",
+          "published": "2026-08-01"
+        },
+        {
+          "id": "gironde-habitations",
+          "label": "Habitations détruites (bilan provisoire)",
+          "value": 240,
+          "unit": "habitations",
+          "provisional": true,
+          "dataDate": "2026-07-30",
+          "quote": "on dénombre toujours 240 habitations détruites",
+          "source": "Préfecture de la Gironde, point de situation du 30 juillet",
+          "url": "https://www.gironde.gouv.fr/Actualites/Communiques-de-presse/Communiques-de-presse-2026/Juillet-2026/Incendie-de-Saumos-point-de-situation-a-16h-ce-jeudi-30-juillet",
+          "published": "2026-07-30"
+        },
+        {
+          "id": "gironde-evacuations",
+          "label": "Personnes évacuées",
+          "value": 220000,
+          "unit": "personnes",
+          "atLeast": true,
+          "dataDate": "2026-07-31",
+          "quote": "198 000 personnes sur les plus 220 000 évacuées",
+          "source": "Préfecture de la Gironde, point de situation du 31 juillet",
+          "url": "https://www.gironde.gouv.fr/Actualites/Communiques-de-presse/Communiques-de-presse-2026/Juillet-2026/Incendie-de-Gironde-Point-de-situation-ce-vendredi-31-juillet-a-20h30",
+          "published": "2026-08-01"
+        },
+        {
+          "id": "gironde-pompiers",
+          "label": "Sapeurs-pompiers pris en charge par les services de santé",
+          "value": 264,
+          "unit": "sapeurs-pompiers",
+          "dataDate": "2026-07-31",
+          "quote": "264 sapeurs-pompiers ont été pris en charge par les services de santé",
+          "source": "Préfecture de la Gironde, point de situation du 31 juillet",
+          "url": "https://www.gironde.gouv.fr/Actualites/Communiques-de-presse/Communiques-de-presse-2026/Juillet-2026/Incendie-de-Gironde-Point-de-situation-ce-vendredi-31-juillet-a-20h30",
+          "published": "2026-08-01"
+        }
+      ]
+    },
+    {
+      "id": "var",
+      "title": "Fin juillet – août, Var",
+      "department": "Var",
+      "from": "2026-07-21",
+      "to": "2026-08-10",
+      "group": {
+        "rule": "contiguous",
+        "seed": 562293,
+        "maxGapKm": 1,
+        "justification": "Polygones dont la première détection tombe entre le 21 juillet et le 10 août et qui sont, de proche en proche, à moins d’un kilomètre du polygone principal (Pontevès) : le feu du Gros Bessillon et ses reprises vers Correns. Le feu de Brignoles, à plus de 6 km, est exclu."
+      },
+      "effisIds": [
+        562293,
+        586290,
+        595259,
+        595126,
+        574955,
+        574960,
+        574942,
+        595194,
+        574961,
+        572479,
+        595112,
+        572478,
+        572480,
+        572481,
+        584065,
+        584066,
+        595145
+      ],
+      "facts": [
+        {
+          "id": "var-depart",
+          "label": "Départ du feu",
+          "dataDate": "2026-07-21",
+          "quote": "L’incendie qui s’est déclaré mardi 21 juillet à Pontevès",
+          "source": "Préfecture du Var, point de situation du 19 août",
+          "url": "https://www.var.gouv.fr/Actions-de-l-Etat/Foret/Les-incendies-dans-le-Var-en-2026/Points-de-situation",
+          "published": "2026-08-19",
+          "display": "mardi 21 juillet, à Pontevès"
+        },
+        {
+          "id": "var-surface",
+          "label": "Surface parcourue / brûlée (préfecture)",
+          "value": 6300,
+          "unit": "ha parcourus",
+          "dataDate": "2026-08-18",
+          "quote": "a parcouru 6 300 hectares et brûlé 5700 ha",
+          "source": "Préfecture du Var, point de situation du 19 août",
+          "url": "https://www.var.gouv.fr/Actions-de-l-Etat/Foret/Les-incendies-dans-le-Var-en-2026/Points-de-situation",
+          "published": "2026-08-19",
+          "note": "dont 5 700 ha brûlés selon la préfecture"
+        },
+        {
+          "id": "var-eteint",
+          "label": "Feu déclaré éteint",
+          "dataDate": "2026-08-18",
+          "quote": "officiellement éteint ce mardi 18 août, après un mois de combat",
+          "source": "Préfecture du Var, point de situation du 19 août",
+          "url": "https://www.var.gouv.fr/Actions-de-l-Etat/Foret/Les-incendies-dans-le-Var-en-2026/Points-de-situation",
+          "published": "2026-08-19",
+          "display": "mardi 18 août"
+        },
+        {
+          "id": "var-pompiers",
+          "label": "Sapeurs-pompiers engagés au total",
+          "value": 11000,
+          "unit": "sapeurs-pompiers",
+          "atLeast": true,
+          "dataDate": "2026-08-18",
+          "quote": "l’engagement de plus de 11 000 sapeurs-pompiers",
+          "source": "Préfecture du Var, point de situation du 19 août",
+          "url": "https://www.var.gouv.fr/Actions-de-l-Etat/Foret/Les-incendies-dans-le-Var-en-2026/Points-de-situation",
+          "published": "2026-08-19"
+        }
+      ]
+    }
+  ],
+  "insurance": [
+    {
+      "id": "assurance-octobre",
+      "label": "Dommages assurés (Gironde, Landes, Var)",
+      "value": 563,
+      "unit": "M€",
+      "upTo": true,
+      "dataDate": "2026-10-16",
+      "quote": "un coût total qui pourrait atteindre 563 millions d'euros",
+      "source": "France Assureurs, cité par l’AFP (dépêche reprise par Boursorama)",
+      "url": "https://www.boursorama.com/actualite-economique/actualites/le-cout-des-incendies-en-france-cet-ete-evalue-a-563-millions-d-euros-selon-france-assureurs-0061d6c506171c19a9f22048acb97156",
+      "published": "2026-10-16",
+      "note": "environ 22 500 sinistres"
+    },
+    {
+      "id": "assurance-aout",
+      "label": "Premier bilan des assureurs",
+      "value": 500,
+      "unit": "M€",
+      "approximate": true,
+      "dataDate": "2026-08-28",
+      "quote": "près de 500 millions d’euros pour environ 25 000 sinistres",
+      "source": "France Assureurs, communiqué du 28 août 2026",
+      "url": "https://www.franceassureurs.fr/espace-presse/les-communiques-de-presse/les-incendies-en-gironde-dans-les-landes-et-dans-le-var-ont-occasionne-environ-25-000-sinistres-pour-un-cout-estime-a-pres-de-500-millions-deuros/",
+      "published": "2026-08-28",
+      "note": "environ 25 000 sinistres"
+    }
+  ]
+}

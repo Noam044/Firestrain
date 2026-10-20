@@ -79,7 +79,7 @@ Demande de validation de la phase 3 : le sujet est le feu **toute l'année**, pa
 4. **Route serveur** `/api/firms/recent` : NRT des 72 dernières heures (3 satellites), filtre France + sources fixes, `'use cache'` + `cacheLife('hours')`, réponse en colonnes, 503 générique en cas d'échec ; bouton « 72 h » dans la frise (année en cours), SourceTag avec l'heure d'interrogation. Clé absente de `.next/static`, de `public` et des réponses.
 5. **Profil FIRMS d'un feu** : détections de 2 jours avant à 60 jours après la date EFFIS, à moins de 400 m du contour.
 
-## Phase 4 — Le récit
+## Phase 4 — Le récit ✅
 
 Adaptation à l'année entière : la séquence suit le calendrier (écobuages de fin d'hiver → feux d'été → automne), et le graphique cumulatif couvre janvier → décembre.
 
@@ -88,6 +88,16 @@ Adaptation à l'année entière : la séquence suit le calendrier (écobuages de
 3. **Graphique cumulatif** (d3-scale/d3-shape, SVG) : 2026 vs moyenne 2006–2025 vs enveloppe min/max (EFFIS, ≥ 30 ha).
 4. **Mise à l'échelle Gironde** : contour d'une commune connue (Admin Express, même projection) superposé à l'échelle exacte, uniquement si le résultat est géométriquement juste.
 5. `prefers-reduced-motion` : coupes au lieu des vols, compteurs figés.
+
+Réalisé (écarts compris) :
+
+- **Séquence** : Ouverture (98 459 ha, précédent maximum 2022, 27 241 ha hors de l'été) → **fin février, Pyrénées-Atlantiques** (436 polygones, 22 181 ha, 82 % « autres espaces naturels ») → Trévillach → Gironde → **à la même échelle** (3,6 fois Paris) → Var (Gros Bessillon) → Toute l'année (graphique + dommages assurés) → Sortie. Chaque étape cadre la caméra sur l'emprise des polygones de l'événement ; le défilement fait avancer la date (FIRMS des 3 derniers jours, surfaces dès leur première détection).
+- **Faits** : 14 citations vérifiées dans leurs pages (préfectures 66, 33, 83 ; France Assureurs le 28 août, et sa mise à jour du 16 octobre via l'AFP). Aucune source officielle trouvée pour les feux de février en Pyrénées-Atlantiques : l'étape ne montre que les données EFFIS et FIRMS, sans cause.
+- **Regroupements** recalculés par `07-story` : contiguïté < 1 km dans la période (Trévillach 5 polygones, 4 307 ha ; Gironde 7, 37 500 ha ; Var 17, 5 976 ha) ou département + période (février).
+- **Graphique** : série hebdomadaire officielle EFFIS (2026, moyenne et enveloppe 2006–2025), pas un recalcul ; 2026 dépasse le maximum dès la semaine du 8 juillet.
+- **Échelle** : Paris (ADMIN EXPRESS, 10 543 ha) seulement translaté dans le même repère Lambert-93 ; écart de facteur d'échelle 0,04 %.
+- Points FIRMS plus petits et plus discrets dans le récit (densité des grands feux) ; état de la carte emprunté puis rendu à l'Explorer.
+- Lighthouse (mobile) sur le récit : 100 en accessibilité, bonnes pratiques et SEO.
 
 ## Phase 5 — Finition
 

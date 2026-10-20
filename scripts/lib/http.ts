@@ -4,7 +4,8 @@ import { join } from "node:path";
 /** Raw downloads, kept out of git; re-fetched with `--refresh`. */
 export const RAW_DIR = join(import.meta.dirname, "..", "..", "data", "raw");
 
-const USER_AGENT = "FireStrain data pipeline (personal non-commercial project)";
+// "compatible" form: some sites (e.g. France Assureurs) refuse other user agents.
+const USER_AGENT = "Mozilla/5.0 (compatible; FireStrain data pipeline)";
 
 export const refreshRequested = process.argv.includes("--refresh");
 

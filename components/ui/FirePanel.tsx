@@ -8,24 +8,13 @@ import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
 import { useBdiffAnnual, useBdiffMatches, useDetections, useEffisYear, useFirmsIndex, useManifest } from "@/lib/data/queries";
 import { bboxContains, pointInRings } from "@/lib/geo/polygon";
 import { dateOfTimelineDay, daysInYear } from "@/lib/timeline";
-import { LAND_COVER_KEYS, type LandCoverKey } from "@/lib/data/schemas";
+import { LAND_COVER_KEYS } from "@/lib/data/schemas";
+import { LAND_COVER_LABELS } from "@/lib/data/land-cover";
 import { useMapStore } from "@/lib/store";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { BDIFF, EFFIS, FIRMS, SourceTag } from "./SourceTag";
 
 /** CORINE-based classes used by EFFIS, in French. */
-const LAND_COVER_LABELS: Record<LandCoverKey, string> = {
-  broadlea: "Feuillus",
-  conifer: "Résineux",
-  mixed: "Forêt mixte",
-  scleroph: "Végétation sclérophylle",
-  transit: "Forêt et végétation arbustive en mutation",
-  othernatlc: "Autres espaces naturels",
-  agriareas: "Surfaces agricoles",
-  artifsurf: "Surfaces artificialisées",
-  otherlc: "Autres",
-};
-
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>

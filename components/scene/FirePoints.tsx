@@ -25,13 +25,23 @@ type FirePointsProps = {
   exaggeration: number;
   /** Fixed "today" instead of the timeline day (last 72 hours: days are ≤ 0, today = 0). */
   fixedDay?: number;
+  /** Smaller, fainter symbols where many detections overlap (story views of large fires). */
+  sizeScale?: number;
+  opacity?: number;
 };
 
 /**
  * FIRMS hotspots, shown only while the timeline is in use or for the last
  * 72 hours (ember: active detections).
  */
-export function FirePoints({ detections, heightTexture, exaggeration, fixedDay }: FirePointsProps) {
+export function FirePoints({
+  detections,
+  heightTexture,
+  exaggeration,
+  fixedDay,
+  sizeScale = 1,
+  opacity = 0.85,
+}: FirePointsProps) {
   const pointsRef = useRef<THREE.Points>(null);
 
   const geometry = useMemo(() => {
@@ -66,10 +76,12 @@ export function FirePoints({ detections, heightTexture, exaggeration, fixedDay }
           uDay: { value: -1000 },
           uFadeDays: { value: FADE_DAYS },
           uPixelRatio: { value: 1 },
+          uSizeScale: { value: sizeScale },
+          uOpacity: { value: opacity },
           uColor: { value: new THREE.Vector3(...readColorToken("--ember")) },
         },
       }),
-    [heightTexture, exaggeration],
+    [heightTexture, exaggeration, sizeScale, opacity],
   );
 
   useFrame((state) => {
