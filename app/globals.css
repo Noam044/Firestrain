@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — « Atlas de cendre ».
+ * Warm near-black, bone white, one accent (ember). The WebGL shaders read the
+ * same variables (lib/tokens.ts), so the map and the page share one palette.
+ * Contrast on --ash-950: bone-100 15.0:1, bone-300 8.9:1, ash-400 5.0:1, ember 6.1:1.
+ */
+:root {
+  --ash-950: #11100e;
+  --ash-900: #1a1815;
+  --ash-800: #2a2723;
+  --ash-700: #3a3631;
+  --ash-600: #4a453e;
+  --ash-400: #8a8276;
+  --bone-300: #b9b1a2;
+  --bone-100: #e9e4d8;
+  /* Burnt ground: matt charred brown-black, never a bright red. */
+  --char: #2b1810;
+  /* Sole accent: active detections and the selected element only. */
+  --ember: #ff5a1f;
+  /* Sea and lagoons, barely cooler than the background. */
+  --sea: #0e1011;
+
+  --header-h: 3.5rem;
+}
+
+/* Tailwind gets these tokens only — the default palette and fonts are removed. */
+@theme inline {
+  --color-*: initial;
+  --font-*: initial;
+
+  --color-ash-950: var(--ash-950);
+  --color-ash-900: var(--ash-900);
+  --color-ash-800: var(--ash-800);
+  --color-ash-700: var(--ash-700);
+  --color-ash-600: var(--ash-600);
+  --color-ash-400: var(--ash-400);
+  --color-bone-300: var(--bone-300);
+  --color-bone-100: var(--bone-100);
+  --color-char: var(--char);
+  --color-ember: var(--ember);
+  --color-sea: var(--sea);
+
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    background-color: var(--ash-950);
+    color: var(--bone-100);
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--bone-100);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--bone-100);
+    color: var(--ash-950);
+  }
+}
+
+/* Map labels and furniture: small capitals with generous tracking. */
+@utility label-caps {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
