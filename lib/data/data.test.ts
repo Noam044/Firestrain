@@ -8,6 +8,31 @@ import {
   metersToCode,
 } from "./heightmap-codec.ts";
 import { toHalfFloat } from "./half-float.ts";
+import { extendIntoNoData } from "./fill.ts";
+import { mipPyramid } from "./mipmaps.ts";
+
+test("mipPyramid halves down to 1 × 1 and averages 2 × 2 blocks", () => {
+  const level0 = new Float32Array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]);
+  const levels = mipPyramid([level0], 5, 3);
+  assert.deepEqual(
+    levels.map((l) => [l.width, l.height]),
+    [[5, 3], [2, 1], [1, 1]],
+  );
+  assert.deepEqual(Array.from(levels[1].channels[0]), [7, 11]);
+  assert.deepEqual(Array.from(levels[2].channels[0]), [9]);
+});
+
+test("extendIntoNoData copies the nearest valid value within the radius only", () => {
+  const N = Number.NaN;
+  // 5 × 3 grid, a single valid cell in the middle of the left column.
+  const meters = new Float32Array([N, N, N, N, N, 100, N, N, N, N, N, N, N, N, N]);
+  const filled = extendIntoNoData(meters, 5, 3, 2);
+  assert.deepEqual(
+    Array.from(filled),
+    [100, 100, 0, 0, 0, 100, 100, 100, 0, 0, 100, 100, 0, 0, 0],
+  );
+  assert.ok(Number.isNaN(meters[0]), "input left untouched");
+});
 
 test("metersToCode / codeToMeters keep 0.1 m precision and reserve 0 for no data", () => {
   assert.equal(metersToCode(0), 1000);
