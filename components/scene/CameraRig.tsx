@@ -152,5 +152,5 @@ export function CameraRig({ mode, controlsRef }: CameraRigProps) {
     );
   }, [cameraRequest, controlsRef, mode, reduceMotion]);
 
-  return <CameraControls ref={controlsRef} makeDefault enabled={mode === "explore"} regress />;
+  return <CameraControls ref={controlsRef} makeDefault enabled={mode === "explore"} />;
 }

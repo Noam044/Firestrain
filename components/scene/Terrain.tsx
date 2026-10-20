@@ -17,6 +17,9 @@ export type TerrainTextures = { height: THREE.DataTexture; mask: THREE.CanvasTex
 
 /** GPU textures shared by the relief and the draped lines. */
 export function useTerrainTextures(terrain: TerrainData, mask: LandMask): TerrainTextures {
+  // Anisotropic filtering keeps the relief sharp in the distance of oblique views,
+  // where isotropic mipmaps blur along the receding axis.
+  const anisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
   const textures = useMemo(() => {
     const [base] = terrain.levels;
     const height = new THREE.DataTexture(base.data, base.width, base.height, THREE.RGFormat, THREE.HalfFloatType);
@@ -25,6 +28,7 @@ export function useTerrainTextures(terrain: TerrainData, mask: LandMask): Terrai
     height.minFilter = THREE.LinearMipmapLinearFilter;
     height.magFilter = THREE.LinearFilter;
     height.generateMipmaps = false;
+    height.anisotropy = anisotropy;
     height.needsUpdate = true;
 
     const maskTexture = new THREE.CanvasTexture(mask.canvas);
@@ -32,8 +36,9 @@ export function useTerrainTextures(terrain: TerrainData, mask: LandMask): Terrai
     maskTexture.colorSpace = THREE.NoColorSpace;
     maskTexture.minFilter = THREE.LinearMipmapLinearFilter;
     maskTexture.magFilter = THREE.LinearFilter;
+    maskTexture.anisotropy = anisotropy;
     return { height, mask: maskTexture };
-  }, [terrain, mask]);
+  }, [terrain, mask, anisotropy]);
 
   useEffect(
     () => () => {
