@@ -1,7 +1,7 @@
 "use client";
 
-import { useThree } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
 import type { TerrainData } from "@/lib/data/queries";
@@ -59,10 +59,23 @@ type TerrainProps = {
   /** Mesh spacing in km; the shading itself uses the full DEM resolution. */
   meshKm: number;
   lightAltitudeDeg: number;
+  /** Burn mask (BurnMask.ts); an empty texture shows no burnt area. */
+  burn: THREE.Texture;
+  showHistory: boolean;
 };
 
-export function Terrain({ terrain, textures, exaggeration, meshKm, lightAltitudeDeg }: TerrainProps) {
+export function Terrain({
+  terrain,
+  textures,
+  exaggeration,
+  meshKm,
+  lightAltitudeDeg,
+  burn,
+  showHistory,
+}: TerrainProps) {
   const invalidate = useThree((state) => state.invalidate);
+  const meshRef = useRef<THREE.Mesh>(null);
+  const light = useMemo(() => lightDirection(lightAltitudeDeg), [lightAltitudeDeg]);
 
   const geometry = useMemo(() => {
     const plane = new THREE.PlaneGeometry(
@@ -88,23 +101,39 @@ export function Terrain({ terrain, textures, exaggeration, meshKm, lightAltitude
         uMask: { value: textures.mask },
         uSceneSize: { value: new THREE.Vector2(SCENE_SIZE.width, SCENE_SIZE.depth) },
         uTexel: { value: new THREE.Vector2(1 / width, 1 / height) },
-        uExag: { value: exaggeration },
-        // Shading is slightly stronger than the geometry so lowland relief stays legible.
-        uShadeExag: { value: exaggeration * 1.5 },
-        uLightDir: { value: lightDirection(lightAltitudeDeg) },
+        // Dynamic values below are refreshed every frame from props (see useFrame).
+        uExag: { value: 1 },
+        uShadeExag: { value: 1 },
+        uLightDir: { value: new THREE.Vector3(0, 1, 0) },
+        uHistory: { value: 1 },
+        uPixelRatio: { value: 1 },
+        uBurn: { value: burn },
         uColShadow: { value: vec3(readColorToken("--ash-900")) },
-        uColFlat: { value: vec3(readColorToken("--ash-800")) },
+        uColFlat: { value: vec3(readColorToken("--ash-700")) },
         uColLight: { value: vec3(readColorToken("--ash-400")) },
         uColHigh: { value: vec3(readColorToken("--bone-300")) },
         uColWater: { value: vec3(readColorToken("--sea")) },
+        uColChar: { value: vec3(readColorToken("--char")) },
+        uColHatch: { value: vec3(readColorToken("--bone-300")) },
       },
     });
-    // three.js caches compiled programs: rebuilding the material does not recompile.
-  }, [terrain, textures, exaggeration, lightAltitudeDeg]);
+  }, [terrain, textures, burn]);
 
-  useEffect(() => invalidate(), [geometry, material, invalidate]);
+  useFrame((state) => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const uniforms = (mesh.material as THREE.ShaderMaterial).uniforms;
+    uniforms.uExag.value = exaggeration;
+    // Shading is slightly stronger than the geometry so lowland relief stays legible.
+    uniforms.uShadeExag.value = exaggeration * 1.5;
+    uniforms.uLightDir.value.copy(light);
+    uniforms.uHistory.value = showHistory ? 1 : 0;
+    uniforms.uPixelRatio.value = state.viewport.dpr;
+  });
+
+  useEffect(() => invalidate(), [geometry, material, exaggeration, light, showHistory, invalidate]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => () => material.dispose(), [material]);
 
-  return <mesh geometry={geometry} material={material} frustumCulled={false} />;
+  return <mesh ref={meshRef} geometry={geometry} material={material} frustumCulled={false} />;
 }

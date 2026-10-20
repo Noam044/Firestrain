@@ -35,6 +35,11 @@ uniform vec3 uColFlat;
 uniform vec3 uColLight;
 uniform vec3 uColHigh;
 uniform vec3 uColWater;
+uniform sampler2D uBurn;
+uniform vec3 uColChar;
+uniform vec3 uColHatch;
+uniform float uHistory;
+uniform float uPixelRatio;
 varying vec2 vUv;
 varying float vHeightM;
 
@@ -65,6 +70,21 @@ void main() {
   float hasAltitude = texture2D(uHeight, vUv).g;
   color = mix(uColWater, color, step(0.5, hasAltitude));
 
+  // Burnt areas (see BurnMask.ts). Earlier years: thin 45° hatching in a lighter
+  // tone, so the distinction never relies on colour alone. Year shown: matt
+  // charred tone that keeps a trace of the hillshade so the relief stays legible.
+  vec4 burn = texture2D(uBurn, vUv);
+  float history = smoothstep(0.08, 0.5, burn.g) * uHistory;
+  float hatch = step(mod(gl_FragCoord.x - gl_FragCoord.y, 6.0 * uPixelRatio), 1.2 * uPixelRatio);
+  color = mix(color, uColHatch, history * hatch * 0.75);
+  float current = smoothstep(0.08, 0.5, burn.r);
+  vec3 charred = uColChar * mix(0.65, 1.45, clamp(relative * 0.5, 0.0, 1.0));
+  color = mix(color, charred, current);
+  // Thin outline where the coverage crosses one half, about one pixel wide at any
+  // zoom: delineates burnt areas like the contour line of a printed map.
+  float edge = 1.0 - smoothstep(0.0, 1.5 * fwidth(burn.r) + 1e-4, abs(burn.r - 0.5));
+  color = mix(color, uColHatch, edge * 0.55);
+
   // Outside metropolitan France nothing is drawn and the page shows through.
   // Discarding last keeps derivatives (fwidth, implicit LOD) well defined.
   if (texture2D(uMask, vUv).r < 0.5) discard;
@@ -77,8 +97,11 @@ uniform sampler2D uHeight;
 uniform vec2 uSceneSize;
 uniform float uExag;
 uniform float uLift;
+attribute float aProgress;
+varying float vProgress;
 
 void main() {
+  vProgress = aProgress;
   vec3 p = position;
   vec2 uv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
   p.y = texture2D(uHeight, uv).r * 0.001 * uExag;
@@ -93,8 +116,34 @@ void main() {
 export const drapedLineFragmentShader = /* glsl */ `
 uniform vec3 uColor;
 uniform float uOpacity;
+uniform float uProgress;
+varying float vProgress;
 
 void main() {
+  // Draw-on reveal: only the first uProgress of each line is visible.
+  if (vProgress > uProgress) discard;
   gl_FragColor = vec4(uColor, uOpacity);
+}
+`;
+
+/** Rasterises fire outlines straight into the burn-mask render target (clip space = scene extent). */
+export const burnMaskVertexShader = /* glsl */ `
+uniform vec2 uHalfSize;
+attribute float aValue;
+varying float vValue;
+
+void main() {
+  vValue = aValue;
+  // North (z = −depth/2) lands on row 0, matching the terrain's texture coordinates.
+  gl_Position = vec4(position.x / uHalfSize.x, position.z / uHalfSize.y, 0.0, 1.0);
+}
+`;
+
+export const burnMaskFragmentShader = /* glsl */ `
+uniform vec3 uChannel;
+varying float vValue;
+
+void main() {
+  gl_FragColor = vec4(uChannel.r, uChannel.g, uChannel.b * vValue, 1.0);
 }
 `;

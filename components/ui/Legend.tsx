@@ -1,7 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useMapStore } from "@/lib/store";
+import { FIRST_YEAR, useMapStore } from "@/lib/store";
+
+/** Same 45° hatching as the map (terrain shader and 2D pattern). */
+function HatchSwatch() {
+  return (
+    <svg width="24" height="12" aria-hidden className="shrink-0">
+      <defs>
+        <pattern id="legende-hachures" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="5" stroke="var(--bone-300)" strokeWidth="1.2" />
+        </pattern>
+      </defs>
+      <rect width="24" height="12" fill="var(--ash-700)" />
+      <rect width="24" height="12" fill="url(#legende-hachures)" />
+    </svg>
+  );
+}
 
 function LineSwatch({ color, width }: { color: string; width: number }) {
   return (
@@ -15,6 +30,8 @@ function LineSwatch({ color, width }: { color: string; width: number }) {
 export function Legend() {
   const exaggeration = useMapStore((state) => state.exaggeration);
   const flat = useMapStore((state) => state.renderMode === "2d");
+  const year = useMapStore((state) => state.year);
+  const showHistory = useMapStore((state) => state.showHistory);
   const [open, setOpen] = useState(false);
   return (
     <section aria-labelledby="legende-titre" className="w-64 max-w-[calc(100vw-2rem)] border border-ash-800 bg-ash-950 p-3">
@@ -37,6 +54,20 @@ export function Legend() {
         id="legende-contenu"
         className={`${open ? "block" : "hidden"} mt-2.5 space-y-2 text-xs leading-4 text-bone-300 md:block`}
       >
+        <li className="flex items-center gap-2">
+          <span aria-hidden className="h-3 w-6 shrink-0 border border-bone-300/60 bg-char" />
+          Surfaces brûlées en {year} (EFFIS)
+        </li>
+        {showHistory && year > FIRST_YEAR && (
+          <li className="flex items-center gap-2">
+            <HatchSwatch />
+            Surfaces brûlées de {FIRST_YEAR} à {year - 1}
+          </li>
+        )}
+        <li className="flex items-center gap-2">
+          <LineSwatch color="var(--ember)" width={1.5} />
+          Surface sélectionnée
+        </li>
         {flat ? (
           <>
             <li className="flex items-center gap-2">
@@ -50,7 +81,7 @@ export function Legend() {
             <li className="flex items-center gap-2">
               <span aria-hidden className="flex h-3 w-6 shrink-0">
                 <span className="flex-1 bg-ash-900" />
-                <span className="flex-1 bg-ash-800" />
+                <span className="flex-1 bg-ash-700" />
                 <span className="flex-1 bg-ash-400" />
               </span>
               Relief ombré, éclairage nord-ouest
