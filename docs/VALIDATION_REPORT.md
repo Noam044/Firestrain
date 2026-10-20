@@ -6,7 +6,7 @@ Généré par `scripts/06-validate.ts` le 20 oct. 2026 à partir de `public/data
 
 ## 1. Fichiers publiés
 
-50 fichiers sur 50 conformes (taille, sha256 et schéma Zod) ; 50 fichiers présents dans `public/data`.
+51 fichiers sur 51 conformes (taille, sha256 et schéma Zod) ; 51 fichiers présents dans `public/data`.
 
 ## 2. EFFIS : totaux du pipeline et statistiques officielles
 

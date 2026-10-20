@@ -298,3 +298,117 @@ export const Departements2DSchema = z.object({
 });
 
 export type Departements2D = z.infer<typeof Departements2DSchema>;
+
+// ── Story (scripts/07-story.ts) ─────────────────────────────────────────────
+
+/** A sourced fact, typed by hand in data/events.json; the quote is checked against the page. */
+export const StoryFactSchema = z
+  .object({
+    id: z.string(),
+    label: z.string(),
+    /** Numeric value with its unit, or `display` for a date or a phrase. */
+    value: z.number().optional(),
+    unit: z.string().optional(),
+    display: z.string().optional(),
+    note: z.string().optional(),
+    approximate: z.boolean().optional(),
+    atLeast: z.boolean().optional(),
+    upTo: z.boolean().optional(),
+    provisional: z.boolean().optional(),
+    /** Date the figure refers to. */
+    dataDate: z.iso.date(),
+    quote: z.string().min(8),
+    source: z.string(),
+    url: z.url(),
+    published: z.iso.date(),
+  })
+  .refine((f) => (f.value !== undefined && f.unit !== undefined) || f.display !== undefined, {
+    message: "a fact needs value + unit, or display",
+  });
+
+export type StoryFact = z.infer<typeof StoryFactSchema>;
+
+const StoryGroupSchema = z.discriminatedUnion("rule", [
+  z.object({ rule: z.literal("department-window"), justification: z.string() }),
+  z.object({
+    rule: z.literal("contiguous"),
+    seed: z.number().int(),
+    maxGapKm: z.number().positive(),
+    justification: z.string(),
+  }),
+]);
+
+/** data/events.json (hand-curated source of the story). */
+export const StorySourceSchema = z.object({
+  note: z.string(),
+  retrievedAt: z.iso.date(),
+  events: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      department: z.string(),
+      from: z.iso.date(),
+      to: z.iso.date(),
+      group: StoryGroupSchema,
+      /** Expected EFFIS ids (contiguous rule): the script recomputes and compares. */
+      effisIds: z.array(z.number().int()).optional(),
+      facts: z.array(StoryFactSchema),
+    }),
+  ),
+  insurance: z.array(StoryFactSchema),
+});
+
+export type StorySource = z.infer<typeof StorySourceSchema>;
+
+/** public/data/story/story.json: the story's figures, all derived from published data or sourced facts. */
+export const StorySchema = z.object({
+  year: z.number().int(),
+  retrievedAt: z.iso.date(),
+  /** EFFIS: last update of the year's polygons (UTC). */
+  effisDataDate: z.iso.datetime(),
+  headline: z.object({
+    /** EFFIS official convention: fires of at least 30 ha. */
+    areaHa: z.number(),
+    fires: z.number().int(),
+    allAreaHa: z.number(),
+    seasonAreaHa: z.number(),
+    previousMax: z.object({ year: z.number().int(), areaHa: z.number() }),
+    /** Area (≥ 30 ha) by month of first detection, January → December. */
+    monthlyAreaHa: z.array(z.number()).length(12),
+  }),
+  events: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      department: z.string(),
+      from: z.iso.date(),
+      to: z.iso.date(),
+      justification: z.string(),
+      effis: z.object({
+        ids: z.array(z.number().int()),
+        mainId: z.number().int(),
+        /** Sum of the polygons, all sizes (one event, so no 30 ha threshold). */
+        areaHa: z.number(),
+        polygons: z.number().int(),
+        firstDetection: z.iso.datetime(),
+        /** [xmin, zmin, xmax, zmax] in scene km. */
+        bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]),
+        /** Area-weighted land cover (%), in the order of LAND_COVER_KEYS, when EFFIS gives it. */
+        landCover: z.array(z.number()).nullable(),
+      }),
+      facts: z.array(StoryFactSchema),
+    }),
+  ),
+  insurance: z.array(StoryFactSchema),
+  /** Paris (commune), same Lambert-93 frame as the fires, for an exact-scale comparison. */
+  paris: z.object({
+    rings: z.array(z.array(z.number().int())),
+    areaHa: z.number(),
+    /** Lambert-93 linear scale factors at Paris and at the Gironde fire: their ratio bounds the error. */
+    scaleFactorParis: z.number(),
+    scaleFactorGironde: z.number(),
+    source: z.string(),
+  }),
+});
+
+export type Story = z.infer<typeof StorySchema>;
