@@ -44,7 +44,7 @@ function LandCover({ values }: { values: DecodedFire["landCover"] }) {
         <li key={row.key} className="text-xs text-bone-300">
           <div className="flex justify-between gap-3">
             <span>{LAND_COVER_LABELS[row.key]}</span>
-            <span className="font-mono tabular text-bone-100">{formatDecimal(row.value, 1)} %</span>
+            <span className="whitespace-nowrap font-mono tabular text-bone-100">{formatDecimal(row.value, 1)} %</span>
           </div>
           <div className="mt-0.5 h-1 bg-ash-800" aria-hidden>
             <div className="h-full bg-ash-400" style={{ width: `${row.value}%` }} />

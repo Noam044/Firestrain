@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Select } from "radix-ui";
+import { useState } from "react";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { formatInteger } from "@/lib/format";
 import { useBdiffAnnual, useEffisIndex, useManifest } from "@/lib/data/queries";
 import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
@@ -15,8 +17,12 @@ export function YearPanel() {
   const setYear = useMapStore((state) => state.setYear);
   const showHistory = useMapStore((state) => state.showHistory);
   const setShowHistory = useMapStore((state) => state.setShowHistory);
-  // While a burnt area is inspected, keep only the essentials to leave room for its panel.
-  const compact = useMapStore((state) => state.selectedFireId !== null);
+  // Keep only the essentials while a burnt area is inspected, and on phones unless
+  // unfolded, so the map stays visible.
+  const inspecting = useMapStore((state) => state.selectedFireId !== null);
+  const wide = useMediaQuery("(min-width: 768px)", true);
+  const [unfolded, setUnfolded] = useState(false);
+  const compact = inspecting || (!wide && !unfolded);
   const index = useEffisIndex();
   const bdiff = useBdiffAnnual();
   const manifest = useManifest();
@@ -146,6 +152,16 @@ export function YearPanel() {
       )}
       {!compact && (
         <p className="mt-2 text-[11px] text-ash-400">Sélectionnez une surface brûlée sur la carte pour l’examiner.</p>
+      )}
+      {!wide && !inspecting && (
+        <button
+          type="button"
+          aria-expanded={unfolded}
+          onClick={() => setUnfolded((value) => !value)}
+          className="label-caps mt-2 text-bone-300 underline decoration-ash-600 underline-offset-4"
+        >
+          {unfolded ? "Moins de détails" : "Plus de détails"}
+        </button>
       )}
     </section>
   );
