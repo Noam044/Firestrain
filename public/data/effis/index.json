@@ -1,0 +1,194 @@
+{
+  "thresholdHa": 30,
+  "years": [
+    {
+      "year": 2006,
+      "file": "effis/fires-2006.json",
+      "fires": 12,
+      "firesAtLeast30": 12,
+      "areaHa": 1751,
+      "areaHaAtLeast30": 1751,
+      "lastUpdate": "2006-12-31T11:10:11.414Z"
+    },
+    {
+      "year": 2007,
+      "file": "effis/fires-2007.json",
+      "fires": 12,
+      "firesAtLeast30": 12,
+      "areaHa": 2631,
+      "areaHaAtLeast30": 2631,
+      "lastUpdate": "2022-02-25T14:25:50.581Z"
+    },
+    {
+      "year": 2008,
+      "file": "effis/fires-2008.json",
+      "fires": 8,
+      "firesAtLeast30": 8,
+      "areaHa": 1694,
+      "areaHaAtLeast30": 1694,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2009,
+      "file": "effis/fires-2009.json",
+      "fires": 16,
+      "firesAtLeast30": 16,
+      "areaHa": 7974,
+      "areaHaAtLeast30": 7974,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2010,
+      "file": "effis/fires-2010.json",
+      "fires": 10,
+      "firesAtLeast30": 9,
+      "areaHa": 4677,
+      "areaHaAtLeast30": 4653,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2011,
+      "file": "effis/fires-2011.json",
+      "fires": 22,
+      "firesAtLeast30": 22,
+      "areaHa": 2205,
+      "areaHaAtLeast30": 2205,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2012,
+      "file": "effis/fires-2012.json",
+      "fires": 21,
+      "firesAtLeast30": 19,
+      "areaHa": 3355,
+      "areaHaAtLeast30": 3298,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2013,
+      "file": "effis/fires-2013.json",
+      "fires": 10,
+      "firesAtLeast30": 9,
+      "areaHa": 914,
+      "areaHaAtLeast30": 891,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2014,
+      "file": "effis/fires-2014.json",
+      "fires": 26,
+      "firesAtLeast30": 26,
+      "areaHa": 4667,
+      "areaHaAtLeast30": 4667,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2015,
+      "file": "effis/fires-2015.json",
+      "fires": 17,
+      "firesAtLeast30": 15,
+      "areaHa": 2098,
+      "areaHaAtLeast30": 2046,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2016,
+      "file": "effis/fires-2016.json",
+      "fires": 28,
+      "firesAtLeast30": 27,
+      "areaHa": 10793,
+      "areaHaAtLeast30": 10767,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2017,
+      "file": "effis/fires-2017.json",
+      "fires": 92,
+      "firesAtLeast30": 91,
+      "areaHa": 20654,
+      "areaHaAtLeast30": 20626,
+      "lastUpdate": "2022-01-26T10:57:54.973Z"
+    },
+    {
+      "year": 2018,
+      "file": "effis/fires-2018.json",
+      "fires": 23,
+      "firesAtLeast30": 21,
+      "areaHa": 2636,
+      "areaHaAtLeast30": 2581,
+      "lastUpdate": "2022-01-26T11:15:03.088Z"
+    },
+    {
+      "year": 2019,
+      "file": "effis/fires-2019.json",
+      "fires": 370,
+      "firesAtLeast30": 304,
+      "areaHa": 45230,
+      "areaHaAtLeast30": 43602,
+      "lastUpdate": "2022-03-02T10:51:40.500Z"
+    },
+    {
+      "year": 2020,
+      "file": "effis/fires-2020.json",
+      "fires": 260,
+      "firesAtLeast30": 133,
+      "areaHa": 16589,
+      "areaHaAtLeast30": 14547,
+      "lastUpdate": "2022-01-26T10:45:36.105Z"
+    },
+    {
+      "year": 2021,
+      "file": "effis/fires-2021.json",
+      "fires": 588,
+      "firesAtLeast30": 214,
+      "areaHa": 34999,
+      "areaHaAtLeast30": 30652,
+      "lastUpdate": "2022-02-03T08:19:25.546Z"
+    },
+    {
+      "year": 2022,
+      "file": "effis/fires-2022.json",
+      "fires": 1088,
+      "firesAtLeast30": 290,
+      "areaHa": 74598,
+      "areaHaAtLeast30": 66337,
+      "lastUpdate": "2023-02-22T16:25:46.122Z"
+    },
+    {
+      "year": 2023,
+      "file": "effis/fires-2023.json",
+      "fires": 675,
+      "firesAtLeast30": 219,
+      "areaHa": 27872,
+      "areaHaAtLeast30": 22350,
+      "lastUpdate": "2024-01-26T14:58:35.917Z"
+    },
+    {
+      "year": 2024,
+      "file": "effis/fires-2024.json",
+      "fires": 604,
+      "firesAtLeast30": 156,
+      "areaHa": 17137,
+      "areaHaAtLeast30": 12268,
+      "lastUpdate": "2025-01-23T07:48:12.172Z"
+    },
+    {
+      "year": 2025,
+      "file": "effis/fires-2025.json",
+      "fires": 1312,
+      "firesAtLeast30": 257,
+      "areaHa": 45172,
+      "areaHaAtLeast30": 36951,
+      "lastUpdate": "2026-01-07T13:50:15.681Z"
+    },
+    {
+      "year": 2026,
+      "file": "effis/fires-2026.json",
+      "fires": 1709,
+      "firesAtLeast30": 381,
+      "areaHa": 108609,
+      "areaHaAtLeast30": 98459,
+      "lastUpdate": "2026-10-19T06:30:02.567Z"
+    }
+  ]
+}

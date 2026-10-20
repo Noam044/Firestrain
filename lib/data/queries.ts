@@ -1,9 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query";
 import type { z } from "zod";
+import { decodeFire, type DecodedFire } from "./fires.ts";
 import {
+  BdiffAnnualSchema,
+  BdiffMatchesSchema,
   BordersSchema,
   Departements2DSchema,
+  EffisIndexSchema,
+  EffisStatsSchema,
+  EffisYearSchema,
   FranceOutlineSchema,
+  ManifestSchema,
   TerrainMetaSchema,
   type TerrainMeta,
 } from "./schemas.ts";
@@ -40,6 +47,67 @@ export const useDepartements2D = () =>
   useQuery({
     queryKey: ["data", "departements-2d"],
     queryFn: () => fetchJson("admin/departements-2d.json", Departements2DSchema),
+    ...staticData,
+  });
+
+/** Provenance of every published file (source, licence, retrieval date). */
+export const useManifest = () =>
+  useQuery({
+    queryKey: ["data", "manifest"],
+    queryFn: () => fetchJson("manifest.json", ManifestSchema),
+    ...staticData,
+  });
+
+export const useEffisIndex = () =>
+  useQuery({
+    queryKey: ["data", "effis-index"],
+    queryFn: () => fetchJson("effis/index.json", EffisIndexSchema),
+    ...staticData,
+  });
+
+export const useEffisStats = () =>
+  useQuery({
+    queryKey: ["data", "effis-stats"],
+    queryFn: () => fetchJson("effis/stats.json", EffisStatsSchema),
+    ...staticData,
+  });
+
+export type FireYear = { year: number; fires: DecodedFire[] };
+
+const effisYearQuery = (year: number, enabled: boolean) => ({
+  queryKey: ["data", "effis", year],
+  queryFn: async (): Promise<FireYear> => {
+    const data = await fetchJson(`effis/fires-${year}.json`, EffisYearSchema);
+    return { year: data.year, fires: data.fires.map(decodeFire) };
+  },
+  enabled,
+  ...staticData,
+});
+
+export const useEffisYear = (year: number, enabled = true) => useQuery(effisYearQuery(year, enabled));
+
+/** Stable combine (module scope): the result keeps its identity while the queries do. */
+function combineYears(results: UseQueryResult<FireYear>[]) {
+  return {
+    data: results.every((r) => r.data) ? results.map((r) => (r.data as FireYear).fires) : undefined,
+    error: results.find((r) => r.error)?.error ?? null,
+  };
+}
+
+export const useEffisYears = (years: readonly number[], enabled: boolean) =>
+  useQueries({ queries: years.map((year) => effisYearQuery(year, enabled)), combine: combineYears });
+
+export const useBdiffAnnual = () =>
+  useQuery({
+    queryKey: ["data", "bdiff-annual"],
+    queryFn: () => fetchJson("bdiff/annuel.json", BdiffAnnualSchema),
+    ...staticData,
+  });
+
+export const useBdiffMatches = () =>
+  useQuery({
+    queryKey: ["data", "bdiff-matches"],
+    queryFn: () => fetchJson("bdiff/rapprochements.json", BdiffMatchesSchema),
     ...staticData,
   });
 

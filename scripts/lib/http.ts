@@ -17,7 +17,26 @@ export type Fetched = {
   fromCache: boolean;
 };
 
-type CacheMeta = { url: string; retrievedAt: string; contentType: string };
+export type CacheMeta = { url: string; retrievedAt: string; contentType: string };
+
+/** Cached body for `url`, or null when absent or cached for another URL. */
+export async function readCache(cacheName: string, url: string): Promise<Fetched | null> {
+  const bodyPath = join(RAW_DIR, cacheName);
+  try {
+    const meta = JSON.parse(await readFile(`${bodyPath}.meta.json`, "utf8")) as CacheMeta;
+    if (meta.url !== url) return null;
+    return { body: await readFile(bodyPath), ...meta, fromCache: true };
+  } catch {
+    return null;
+  }
+}
+
+export async function writeCache(cacheName: string, body: Buffer, meta: CacheMeta): Promise<void> {
+  const bodyPath = join(RAW_DIR, cacheName);
+  await mkdir(RAW_DIR, { recursive: true });
+  await writeFile(bodyPath, body);
+  await writeFile(`${bodyPath}.meta.json`, `${JSON.stringify(meta, null, 2)}\n`);
+}
 
 /**
  * GET `url`, caching the body under data/raw/<cacheName> together with the
@@ -28,18 +47,9 @@ export async function fetchCached(
   cacheName: string,
   { refresh = false, accept }: { refresh?: boolean; accept?: RegExp } = {},
 ): Promise<Fetched> {
-  const bodyPath = join(RAW_DIR, cacheName);
-  const metaPath = `${bodyPath}.meta.json`;
-
   if (!refresh) {
-    try {
-      const meta = JSON.parse(await readFile(metaPath, "utf8")) as CacheMeta;
-      if (meta.url === url) {
-        return { body: await readFile(bodyPath), ...meta, fromCache: true };
-      }
-    } catch {
-      // Not cached yet.
-    }
+    const cached = await readCache(cacheName, url);
+    if (cached) return cached;
   }
 
   const attempts = 4;
@@ -58,9 +68,7 @@ export async function fetchCached(
         throw new Error(`unexpected content-type "${contentType}" — ${excerpt}`);
       }
       const meta: CacheMeta = { url, retrievedAt: new Date().toISOString(), contentType };
-      await mkdir(RAW_DIR, { recursive: true });
-      await writeFile(bodyPath, body);
-      await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
+      await writeCache(cacheName, body, meta);
       return { body, ...meta, fromCache: false };
     } catch (error) {
       lastError = error;
