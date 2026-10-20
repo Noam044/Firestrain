@@ -3,7 +3,7 @@
 import { Slider } from "radix-ui";
 import { useEffect } from "react";
 import { formatDate, formatDateTime, formatInteger } from "@/lib/format";
-import { useFirmsIndex, useRecentDetections } from "@/lib/data/queries";
+import { useFirmsIndex, useManifest, useRecentDetections } from "@/lib/data/queries";
 import { LAST_YEAR, useMapStore } from "@/lib/store";
 import { dateOfTimelineDay, daysInYear, timelineDayOfDate } from "@/lib/timeline";
 import { useMediaQuery } from "@/lib/use-media-query";
@@ -35,6 +35,7 @@ export function Timeline() {
   const recent = useRecentDetections(showRecent);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const firms = useFirmsIndex();
+  const manifest = useManifest();
   const entry = firms.data?.years.find((y) => y.year === year);
   const days = daysInYear(year);
 
@@ -191,6 +192,18 @@ export function Timeline() {
             : firms.isSuccess
               ? "Pas de détections VIIRS pour cette année (disponibles à partir de 2012)."
               : "Chargement des détections…"}
+          {entry && (
+            <span className="mt-1 block">
+              <SourceTag
+                source={{
+                  ...FIRMS,
+                  dataDate: entry.lastDate,
+                  retrievedAt: manifest.data?.files[entry.file]?.retrievedAt,
+                  note: `VIIRS 375 m, ${entry.products.join(", ")}. Sources de chaleur fixes écartées.`,
+                }}
+              />
+            </span>
+          )}
         </p>
       )}
       <p aria-live="polite" className="sr-only">

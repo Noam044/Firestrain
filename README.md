@@ -1,8 +1,18 @@
 # FireStrain
 
-Visualisation 3D des feux de forêt en France métropolitaine en 2026, comparés aux années précédentes,
-avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) · audit des données :
-[`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) · plan et décisions : [`docs/PLAN.md`](docs/PLAN.md).
+Visualisation 3D des feux de forêt et de végétation en France métropolitaine, toute l'année, centrée sur 2026 et
+comparée aux années 2006 à 2025, avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) ·
+audit des données : [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) · plan et décisions : [`docs/PLAN.md`](docs/PLAN.md) ·
+contrôles des données : [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) · revue finale :
+[`docs/REVIEW.md`](docs/REVIEW.md).
+
+| Page | Contenu |
+|---|---|
+| `/` Récit | L'année 2026 au défilement : ouverture, feux de février en Pyrénées-Atlantiques, Trévillach, Gironde (à l'échelle de Paris), Var, cumul de l'année, dommages assurés. |
+| `/explorer` | Carte en relief 2006–2026, frise jour par jour sur l'année civile, détections FIRMS, panneau de chaque feu, 72 dernières heures. État partageable dans l'adresse : `?year=2026&date=2026-07-22&fire=562583&cam=gironde`. |
+| `/liste` | Les mêmes surfaces en tableau triable et filtrable : l'alternative accessible à la carte. |
+| `/methode` | Sources, licences, limites, règles de rapprochement et de regroupement, contrôles. |
+| `/api/firms/recent` | Route serveur facultative : détections VIIRS des 72 dernières heures (clé FIRMS côté serveur). |
 
 ## Lancer le projet
 
@@ -15,9 +25,17 @@ npm test           # tests unitaires (node:test)
 npm run typecheck
 npm run lint
 npm run build
+npm run test:e2e   # Playwright, sur le build de production (lancer npm run build avant)
 ```
 
-`/explorer?rendu=2d` force la carte 2D de repli.
+`?rendu=2d` force la carte 2D de repli, `?rendu=3d` force le relief même sans accélération graphique (la 2D est
+choisie automatiquement sans WebGL 2 ou avec un rendu logiciel).
+
+Les tests de bout en bout utilisent le Chrome installé sur la machine (`channel: "chrome"`) ; pour le Chromium de
+Playwright : `npx playwright install chromium` puis `PLAYWRIGHT_CHANNEL=chromium npm run test:e2e`.
+
+Qualité : `npx lighthouse http://localhost:3000/ --form-factor=mobile` (Lighthouse est une dépendance de
+développement) ; `npx next analyze` pour le poids des bundles (analyseur intégré à Turbopack).
 
 ## Données
 
@@ -58,3 +76,8 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 - **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.
 - **Faits du récit** : communiqués des préfectures (Pyrénées-Orientales, Gironde, Var) et de France Assureurs,
   cités avec leur lien dans `data/events.json`.
+
+Attributions affichées dans l'interface (pied de carte, étiquette de source sous chaque chiffre, page Méthode) :
+« EFFIS — European Forest Fire Information System, Copernicus, Commission européenne / JRC (CC BY 4.0) », « IGN —
+BD ALTI®, ADMIN EXPRESS (Licence Ouverte Etalab 2.0) », « NASA FIRMS — Fire Information for Resource Management
+System (LANCE / ESDIS), détections VIIRS 375 m », « BDIFF — IGN, ministère de l'Agriculture (Licence Ouverte 2.0) ».

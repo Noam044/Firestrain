@@ -6,7 +6,7 @@ import { useEffisYear } from "@/lib/data/queries";
 import type { Story } from "@/lib/data/schemas";
 import { ringsBBox } from "@/lib/geo/polygon";
 import { decodeRing } from "@/lib/geo/rings";
-import { IGN_ADMIN, SourceTag } from "@/components/ui/SourceTag";
+import { EFFIS, IGN_ADMIN, SourceTag } from "@/components/ui/SourceTag";
 
 const pathOf = (rings: readonly Float32Array[], dx = 0, dz = 0) =>
   rings
@@ -76,7 +76,15 @@ export function ScaleComparison({ story, eventId, retrievedAt }: { story: Story;
         de Paris ({formatInteger(story.paris.areaHa)} ha, bois de Boulogne et de Vincennes compris), déplacée sans
         changer d’échelle. Le feu couvre {formatDecimal(ratio, 1)} fois sa surface. Même projection (Lambert-93) : l’écart
         d’échelle entre les deux lieux est de {formatDecimal(scaleGap, 2)} %.
-        <span className="mt-1 block">
+        <span className="mt-1 flex flex-col gap-2">
+          <SourceTag
+            source={{
+              ...EFFIS,
+              url: "https://forest-fire.emergency.copernicus.eu/",
+              dataDate: story.effisDataDate,
+              note: "Somme des surfaces publiées par EFFIS pour les polygones du feu (règle de regroupement : page Méthode).",
+            }}
+          />
           <SourceTag source={{ ...IGN_ADMIN, retrievedAt, note: story.paris.source }} />
         </span>
       </figcaption>

@@ -220,7 +220,7 @@ export function FiresTable() {
             ? `Les surfaces de ${safeYear} n’ont pas pu être chargées : ${fires.error.message}`
             : `${formatInteger(filtered.length)} surfaces, ${formatInteger(Math.round(shownArea))} ha selon EFFIS.`}
       </p>
-      <div className="mt-1 flex flex-col gap-1">
+      <div className="mt-1 flex flex-col gap-2">
         <SourceTag
           source={{
             ...EFFIS,
@@ -258,7 +258,7 @@ export function FiresTable() {
                       <button
                         type="button"
                         onClick={header.column.getToggleSortingHandler()}
-                        className="inline-flex items-center gap-1.5 hover:text-bone-100"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-bone-100"
                       >
                         <table.FlexRender header={header} />
                         <span aria-hidden className="w-2 font-mono text-[10px]">
@@ -278,7 +278,7 @@ export function FiresTable() {
                   <td
                     key={cell.id}
                     className={`px-3 py-2 ${
-                      NUMERIC.has(cell.column.id) ? "text-right font-mono tabular" : ""
+                      NUMERIC.has(cell.column.id) ? "whitespace-nowrap text-right font-mono tabular" : ""
                     } ${cell.column.id === "commune" ? "text-bone-100" : "text-bone-300"}`}
                   >
                     {cell.column.id === "commune" ? (
