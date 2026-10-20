@@ -57,7 +57,8 @@ function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
   const index = useFirmsIndex();
   const detections = useDetections(year);
   const manifest = useManifest();
-  const timelineDay = useMapStore((state) => state.timelineDay);
+  // Whole days only: the timeline moves by fractions while playing.
+  const timelineDay = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
   const perDay = useMemo(() => {
     const data = detections.data;
     if (!data) return null;

@@ -31,7 +31,8 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
   const showHistory = useMapStore((state) => state.showHistory);
   const selectedFireId = useMapStore((state) => state.selectedFireId);
   const selectFire = useMapStore((state) => state.selectFire);
-  const timelineDay = useMapStore((state) => state.timelineDay);
+  // Whole days only: redrawing the SVG at every animation frame would be wasted.
+  const timelineDay = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
   const detections = useDetections(year, showFires);
   const showRecent = useMapStore((state) => state.showRecent);
   const recent = useRecentDetections(showFires && showRecent);

@@ -23,7 +23,8 @@ function monthTicks(year: number) {
 /** 1 January → 31 December of the year shown: play, pause, speed, day by day. */
 export function Timeline() {
   const year = useMapStore((state) => state.year);
-  const day = useMapStore((state) => state.timelineDay);
+  // Whole days for the interface; playback reads and writes the fractional day through getState.
+  const day = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
   const playing = useMapStore((state) => state.playing);
   const speed = useMapStore((state) => state.speed);
   const setTimelineDay = useMapStore((state) => state.setTimelineDay);
