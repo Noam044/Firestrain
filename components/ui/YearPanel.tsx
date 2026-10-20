@@ -151,7 +151,13 @@ export function YearPanel() {
         </label>
       )}
       {!compact && (
-        <p className="mt-2 text-[11px] text-ash-400">Sélectionnez une surface brûlée sur la carte pour l’examiner.</p>
+        <p className="mt-2 text-[11px] text-ash-400">
+          Sélectionnez une surface brûlée sur la carte pour l’examiner, ou consultez la{" "}
+          <Link href={`/liste?year=${year}`} className="underline decoration-ash-600 underline-offset-2 hover:text-bone-300">
+            liste des feux de {year}
+          </Link>
+          .
+        </p>
       )}
       {!wide && !inspecting && (
         <button

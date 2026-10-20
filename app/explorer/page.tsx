@@ -20,6 +20,12 @@ export default function ExplorerPage() {
   return (
     <main id="contenu" className="flex h-[calc(100dvh-var(--header-h))] min-h-[520px] flex-col">
       <h1 className="sr-only">Explorer les surfaces brûlées sur la carte en relief</h1>
+      <a
+        href="/liste"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-[calc(var(--header-h)+0.75rem)] focus:z-50 focus:bg-ash-950 focus:px-3 focus:py-2"
+      >
+        Consulter les mêmes données sans carte : liste des feux
+      </a>
 
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <MapStageLoader mode="explore" />
