@@ -10,6 +10,7 @@ import {
   EffisIndexSchema,
   EffisStatsSchema,
   EffisYearSchema,
+  EventsSchema,
   FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
@@ -20,7 +21,8 @@ import {
 import type { GpuLevel, TerrainWorkerRequest, TerrainWorkerResponse } from "./terrain.worker.ts";
 
 /** Static files never change during a visit. */
-const staticData = { staleTime: Number.POSITIVE_INFINITY, gcTime: Number.POSITIVE_INFINITY, retry: 1 };
+// "static": never stale, and no clock read (Date.now() is not allowed while prerendering).
+const staticData = { staleTime: "static" as const, gcTime: Number.POSITIVE_INFINITY, retry: 1 };
 
 async function fetchData(path: string): Promise<Response> {
   const response = await fetch(`/data/${path}`);
@@ -142,6 +144,14 @@ export const useRecentDetections = (enabled: boolean) =>
     enabled,
     staleTime: 15 * 60_000,
     retry: 1,
+  });
+
+/** Sourced facts (préfectures, assureurs) attached to groups of EFFIS polygons. */
+export const useEvents = () =>
+  useQuery({
+    queryKey: ["data", "events"],
+    queryFn: () => fetchJson("events/events.json", EventsSchema),
+    ...staticData,
   });
 
 export const useBdiffAnnual = () =>

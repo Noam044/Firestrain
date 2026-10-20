@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import type { BasemapId } from "./geo/basemaps.ts";
 
-/** "explore": free camera and map furniture; "story": camera driven by the narrative. */
-export type MapMode = "explore" | "story";
-
 export const FIRST_YEAR = 2006;
 export const LAST_YEAR = 2026;
 
@@ -41,7 +38,14 @@ type MapState = {
   timelineDay: number | null;
   /** FIRMS detections of the last 72 hours (server route), for the current year only. */
   showRecent: boolean;
-  /** Base map under the burnt areas (Explorer; the story always uses the relief). */
+  /**
+   * Month filter (1–12): only the burnt areas first detected that month are shown.
+   * Exclusive with the day-by-day timeline. Kept when the year changes, to compare.
+   */
+  month: number | null;
+  /** Burnt area under the pointer, with its screen position, for the tooltip. */
+  hover: { id: number; x: number; y: number } | null;
+  /** Base map under the burnt areas. */
   basemap: BasemapId;
   playing: boolean;
   /** Playback speed, in timeline days per second. */
@@ -56,6 +60,8 @@ type MapState = {
   selectFire: (id: number | null) => void;
   setTimelineDay: (day: number | null) => void;
   setShowRecent: (showRecent: boolean) => void;
+  setMonth: (month: number | null) => void;
+  setHover: (hover: MapState["hover"]) => void;
   setBasemap: (basemap: BasemapId) => void;
   setPlaying: (playing: boolean) => void;
   setSpeed: (speed: number) => void;
@@ -65,8 +71,10 @@ type MapState = {
 export type CameraRequest = {
   id: number;
   target:
-    | { kind: "preset"; preset: string; storyOffset?: number }
-    | { kind: "bbox"; bbox: readonly [number, number, number, number] };
+    | { kind: "preset"; preset: string }
+    | { kind: "bbox"; bbox: readonly [number, number, number, number] }
+    /** Map buttons: > 1 zooms in, < 1 zooms out. */
+    | { kind: "zoom"; factor: number };
 };
 
 export const useMapStore = create<MapState>()((set) => ({
@@ -80,6 +88,8 @@ export const useMapStore = create<MapState>()((set) => ({
   selectedFireId: null,
   timelineDay: null,
   showRecent: false,
+  month: null,
+  hover: null,
   basemap: "relief",
   playing: false,
   speed: 7,
@@ -91,12 +101,14 @@ export const useMapStore = create<MapState>()((set) => ({
   setYear: (year) => set((state) => ({ year, selectedFireId: null, showRecent: state.showRecent && year === LAST_YEAR })),
   setShowHistory: (showHistory) => set({ showHistory }),
   selectFire: (selectedFireId) => set({ selectedFireId }),
-  // The timeline and the last 72 hours are two views of the hotspots: one at a time.
+  // The timeline, the month filter and the last 72 hours are exclusive views of time.
   setTimelineDay: (timelineDay) =>
-    set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay, showRecent: false }),
+    set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay, showRecent: false, month: null }),
+  setMonth: (month) => set(month === null ? { month } : { month, timelineDay: null, playing: false, showRecent: false }),
+  setHover: (hover) => set({ hover }),
   setBasemap: (basemap) => set({ basemap }),
   setShowRecent: (showRecent) =>
-    set(showRecent ? { showRecent, timelineDay: null, playing: false } : { showRecent }),
+    set(showRecent ? { showRecent, timelineDay: null, playing: false, month: null } : { showRecent }),
   setPlaying: (playing) => set({ playing }),
   setSpeed: (speed) => set({ speed }),
   requestCamera: (target) => set((state) => ({ cameraRequest: { id: (state.cameraRequest?.id ?? 0) + 1, target } })),

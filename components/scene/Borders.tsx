@@ -22,8 +22,8 @@ export function Borders({ borders, heightTexture, exaggeration, maxSegmentKm }: 
   );
   const materials = useMemo(
     () => ({
-      inner: drapedLineMaterial(heightTexture, exaggeration, "--ash-400", 0.32),
-      outer: drapedLineMaterial(heightTexture, exaggeration, "--bone-300", 0.75),
+      inner: drapedLineMaterial(heightTexture, exaggeration, "--boundary", 0.55),
+      outer: drapedLineMaterial(heightTexture, exaggeration, "--coast", 0.8),
     }),
     [heightTexture, exaggeration],
   );

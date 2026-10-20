@@ -299,7 +299,7 @@ export const Departements2DSchema = z.object({
 
 export type Departements2D = z.infer<typeof Departements2DSchema>;
 
-// ── Story (scripts/07-story.ts) ─────────────────────────────────────────────
+// ── Sourced events (scripts/07-events.ts) ─────────────────────────────────────────────
 
 /** A sourced fact, typed by hand in data/events.json; the quote is checked against the page. */
 export const StoryFactSchema = z
@@ -338,7 +338,7 @@ const StoryGroupSchema = z.discriminatedUnion("rule", [
   }),
 ]);
 
-/** data/events.json (hand-curated source of the story). */
+/** data/events.json (hand-curated sourced facts). */
 export const StorySourceSchema = z.object({
   note: z.string(),
   retrievedAt: z.iso.date(),
@@ -360,22 +360,10 @@ export const StorySourceSchema = z.object({
 
 export type StorySource = z.infer<typeof StorySourceSchema>;
 
-/** public/data/story/story.json: the story's figures, all derived from published data or sourced facts. */
-export const StorySchema = z.object({
+/** public/data/events/events.json: sourced facts attached to groups of EFFIS polygons (one fire, several polygons). */
+export const EventsSchema = z.object({
   year: z.number().int(),
   retrievedAt: z.iso.date(),
-  /** EFFIS: last update of the year's polygons (UTC). */
-  effisDataDate: z.iso.datetime(),
-  headline: z.object({
-    /** EFFIS official convention: fires of at least 30 ha. */
-    areaHa: z.number(),
-    fires: z.number().int(),
-    allAreaHa: z.number(),
-    seasonAreaHa: z.number(),
-    previousMax: z.object({ year: z.number().int(), areaHa: z.number() }),
-    /** Area (≥ 30 ha) by month of first detection, January → December. */
-    monthlyAreaHa: z.array(z.number()).length(12),
-  }),
   events: z.array(
     z.object({
       id: z.string(),
@@ -391,24 +379,12 @@ export const StorySchema = z.object({
         areaHa: z.number(),
         polygons: z.number().int(),
         firstDetection: z.iso.datetime(),
-        /** [xmin, zmin, xmax, zmax] in scene km. */
-        bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]),
-        /** Area-weighted land cover (%), in the order of LAND_COVER_KEYS, when EFFIS gives it. */
-        landCover: z.array(z.number()).nullable(),
       }),
       facts: z.array(StoryFactSchema),
     }),
   ),
+  /** Insured damage estimates for the year (not tied to one fire). */
   insurance: z.array(StoryFactSchema),
-  /** Paris (commune), same Lambert-93 frame as the fires, for an exact-scale comparison. */
-  paris: z.object({
-    rings: z.array(z.array(z.number().int())),
-    areaHa: z.number(),
-    /** Lambert-93 linear scale factors at Paris and at the Gironde fire: their ratio bounds the error. */
-    scaleFactorParis: z.number(),
-    scaleFactorGironde: z.number(),
-    source: z.string(),
-  }),
 });
 
-export type Story = z.infer<typeof StorySchema>;
+export type Events = z.infer<typeof EventsSchema>;

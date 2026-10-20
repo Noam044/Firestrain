@@ -1,27 +1,14 @@
-import { Story } from "@/components/story/Story";
-import statsJson from "@/public/data/effis/stats.json";
-import storyJson from "@/public/data/story/story.json";
-import { manifest, mapCredits } from "@/lib/data/manifest";
-import { EffisStatsSchema, StorySchema } from "@/lib/data/schemas";
+import { AppShell } from "@/components/atlas/AppShell";
+import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
+import effisIndexJson from "@/public/data/effis/index.json";
+import { BdiffAnnualSchema, EffisIndexSchema } from "@/lib/data/schemas";
 
-// Validated at build time: the page fails to build rather than tell a story with malformed figures.
-const story = StorySchema.parse(storyJson);
-const stats = EffisStatsSchema.parse(statsJson);
+// The year strip and the totals ship with the page: they are on screen before any data request.
+const initialData = {
+  effisIndex: EffisIndexSchema.parse(effisIndexJson),
+  bdiffAnnual: BdiffAnnualSchema.parse(bdiffAnnualJson),
+};
 
-export default function StoryPage() {
-  return (
-    <main id="contenu">
-      <Story
-        story={story}
-        weekly={stats.weekly}
-        credits={mapCredits({ fires: true })}
-        retrieved={{
-          effis: manifest.files[`effis/fires-${story.year}.json`]?.retrievedAt,
-          stats: manifest.files["effis/stats.json"]?.retrievedAt,
-          firms: manifest.files[`firms/detections-${story.year}.bin`]?.retrievedAt,
-          story: manifest.files["story/story.json"]?.retrievedAt,
-        }}
-      />
-    </main>
-  );
+export default function MapPage() {
+  return <AppShell initialData={initialData} />;
 }

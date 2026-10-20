@@ -14,9 +14,10 @@ export type CameraPreset = {
 export const CAMERA_PRESETS = {
   france: {
     label: "France entière",
-    target: [3.2, 45.45],
-    distanceKm: 1900,
-    polarDeg: 38,
+    // Mainland and Corsica, with room for the map controls at the bottom.
+    target: [3.4, 45.1],
+    distanceKm: 2050,
+    polarDeg: 34,
     azimuthDeg: 0,
   },
   // Targets: centres of the EFFIS 2026 outlines of the fires (computed on 2026-10-20).
@@ -39,14 +40,6 @@ export const CAMERA_PRESETS = {
     target: [6.08, 43.51],
     distanceKm: 65,
     polarDeg: 48,
-    azimuthDeg: 0,
-  },
-  /** Opening of the story: same view, slightly farther, beside the title column. */
-  franceStory: {
-    label: "France entière (récit)",
-    target: [3.2, 45.45],
-    distanceKm: 2100,
-    polarDeg: 40,
     azimuthDeg: 0,
   },
 } as const satisfies Record<string, CameraPreset>;

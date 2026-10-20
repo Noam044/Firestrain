@@ -25,7 +25,7 @@ export default defineConfig({
     {
       name: "mobile",
       use: { ...devices["Pixel 7"], channel: channel === "chromium" ? undefined : channel },
-      testMatch: /recit|liste/,
+      testMatch: /carte|liste|feu-url/,
     },
   ],
   webServer: {

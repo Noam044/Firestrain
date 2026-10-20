@@ -15,11 +15,12 @@ import {
   type DemResolution,
   type TerrainData,
 } from "@/lib/data/queries";
-import type { DecodedFire } from "@/lib/data/fires";
+import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
+import { monthRange } from "@/lib/timeline";
 import { recentToColumns } from "@/lib/data/firms-recent";
 import { rasterizeLandMask, type LandMask } from "@/lib/data/land-mask";
 import type { Borders as BordersData } from "@/lib/data/schemas";
-import { FIRST_YEAR, useMapStore, type MapMode } from "@/lib/store";
+import { FIRST_YEAR, useMapStore } from "@/lib/store";
 import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
@@ -44,7 +45,7 @@ const KEYBOARD_HELP =
   "Carte en relief de la France métropolitaine. Flèches : se déplacer. Plus et moins : zoomer. " +
   "Maj + flèches : pivoter et incliner. Zéro : vue d’ensemble.";
 
-export default function MapCanvas({ mode }: { mode: MapMode }) {
+export default function MapCanvas() {
   const [detail] = useState(chooseDetail);
   const terrain = useTerrain(detail.dem);
   const outline = useFranceOutline();
@@ -63,7 +64,7 @@ export default function MapCanvas({ mode }: { mode: MapMode }) {
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const controls = controlsRef.current;
-    if (!controls || mode !== "explore") return;
+    if (!controls) return;
     const step = controls.distance * 0.08;
     const azimuth = controls.azimuthAngle;
     const forward = new THREE.Vector3(-Math.sin(azimuth), 0, -Math.cos(azimuth));
@@ -98,19 +99,14 @@ export default function MapCanvas({ mode }: { mode: MapMode }) {
     }
   };
 
-  const interactive = mode === "explore";
   return (
     <div
       className="absolute inset-0 outline-offset-[-4px]"
-      {...(interactive
-        ? {
-            role: "application",
-            "aria-roledescription": "carte",
-            "aria-label": KEYBOARD_HELP,
-            tabIndex: 0,
-            onKeyDown,
-          }
-        : { "aria-hidden": true })}
+      role="application"
+      aria-roledescription="carte"
+      aria-label={KEYBOARD_HELP}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
     >
       <Canvas
         flat
@@ -124,8 +120,8 @@ export default function MapCanvas({ mode }: { mode: MapMode }) {
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         camera={{ fov: 30, near: 1, far: 12_000, position: [0, 1400, 1100] }}
       >
-        <CameraRig mode={mode} controlsRef={controlsRef} />
-        {ready && <Scene {...ready} mode={mode} detail={detail} />}
+        <CameraRig controlsRef={controlsRef} />
+        {ready && <Scene {...ready} detail={detail} />}
       </Canvas>
       {error ? (
         <MapStatus>Les données du relief n’ont pas pu être chargées : {error.message}</MapStatus>
@@ -140,7 +136,6 @@ type SceneProps = {
   terrain: TerrainData;
   mask: LandMask;
   borders: BordersData;
-  mode: MapMode;
   detail: Detail;
 };
 
@@ -150,7 +145,7 @@ const NO_FIRES: readonly (readonly DecodedFire[])[] = [];
 const maskSize = (detail: Detail) =>
   detail.dem === 500 ? { width: 3480, height: 3270 } : { width: 2320, height: 2180 };
 
-function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
+function Scene({ terrain, mask, borders, detail }: SceneProps) {
   const exaggeration = useMapStore((state) => state.exaggeration);
   const setRenderMode = useMapStore((state) => state.setRenderMode);
   const year = useMapStore((state) => state.year);
@@ -162,11 +157,8 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
     return () => setRenderMode(null);
   }, [setRenderMode]);
 
-  const explore = mode === "explore";
-  // Base maps are an Explorer choice; the story keeps the atlas relief.
   const basemap = useMapStore((state) => state.basemap);
-  const imagery = useImagery(basemap, explore, detail.dem !== 500);
-  // The story shows the same layers as the Explorer, driven by the scroll.
+  const imagery = useImagery(basemap, true, detail.dem !== 500);
   const current = useEffisYear(year);
   const historyYears = useMemo(
     () => Array.from({ length: Math.max(0, year - FIRST_YEAR) }, (_, i) => FIRST_YEAR + i),
@@ -177,14 +169,32 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
   const size = maskSize(detail);
   const burn = useBurnMask(current.data?.fires, historyFires, size);
   const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
+  // Only the burnt areas on screen (month filter, timeline) can be hovered and clicked.
+  const month = useMapStore((state) => state.month);
+  const day = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
+  const visibleFires = useMemo(() => {
+    const fires = current.data?.fires;
+    if (!fires) return undefined;
+    const [from, to] = month ? monthRange(year, month) : [0, day ?? Number.POSITIVE_INFINITY];
+    return fires.filter((fire) => {
+      const firstDay = fireTimelineDay(fire);
+      return firstDay >= from && firstDay <= to;
+    });
+  }, [current.data, month, day, year]);
   const detections = useDetections(year);
   const showRecent = useMapStore((state) => state.showRecent);
-  const recent = useRecentDetections(explore && showRecent);
+  const recent = useRecentDetections(showRecent);
   const recentColumns = useMemo(() => recentToColumns(recent.data), [recent.data]);
   const invalidate = useThree((state) => state.invalidate);
   // Frames are rendered on demand: redraw when the timeline moves.
   useEffect(() => useMapStore.subscribe((state, previous) => {
-    if (state.timelineDay !== previous.timelineDay || state.showRecent !== previous.showRecent) invalidate();
+    if (
+      state.timelineDay !== previous.timelineDay ||
+      state.showRecent !== previous.showRecent ||
+      state.month !== previous.month
+    ) {
+      invalidate();
+    }
   }), [invalidate]);
 
   return (
@@ -194,7 +204,7 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         textures={textures}
         exaggeration={exaggeration}
         meshKm={detail.meshKm}
-        lightAltitudeDeg={mode === "story" ? 24 : 35}
+        lightAltitudeDeg={35}
         burn={burn}
         showHistory={showHistory}
         imagery={imagery}
@@ -210,17 +220,10 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
             <FirePoints detections={recentColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
           )
         : detections.data && (
-            <FirePoints
-              detections={detections.data}
-              heightTexture={textures.height}
-              exaggeration={exaggeration}
-              {...(explore ? {} : { sizeScale: 0.65, opacity: 0.5 })}
-            />
+            <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
           )}
       {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
-      {explore && (
-        <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={current.data?.fires} />
-      )}
+      <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={visibleFires} />
     </>
   );
 }

@@ -1,48 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
-import { SiteHeader } from "@/components/ui/SiteHeader";
+import { Archivo } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-// Source Serif 4 with its optical-size axis for titles and key figures, IBM Plex
-// Mono (tabular figures) for data, IBM Plex Sans for the interface.
-const serif = Source_Serif_4({
+// One family, used across its width axis: condensed for labels, normal for
+// reading, wide for key figures.
+const archivo = Archivo({
   subsets: ["latin"],
-  axes: ["opsz"],
-  style: ["normal"],
-  variable: "--font-source-serif",
-  display: "swap",
-});
-const sans = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-plex-sans", display: "swap" });
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-plex-mono",
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: { default: "FireStrain — feux de forêt en France, 2026", template: "%s · FireStrain" },
+  title: { default: "Feux de forêt en France, 2006–2026", template: "%s · Feux de forêt en France" },
   description:
-    "Visualisation en relief des surfaces brûlées en France métropolitaine en 2026, comparées aux années précédentes, avec la source de chaque chiffre.",
+    "Carte interactive des surfaces brûlées en France métropolitaine, année par année depuis 2006, à partir des données satellite EFFIS.",
 };
 
-export const viewport: Viewport = { themeColor: "#11100e", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#f2f3ee", colorScheme: "light" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
-      <body className="min-h-dvh bg-ash-950 text-bone-100">
-        <a
-          href="#contenu"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-ash-950 focus:px-3 focus:py-2"
-        >
-          Aller au contenu
-        </a>
-        <Providers>
-          <SiteHeader />
-          {children}
-        </Providers>
+    <html lang="fr" className={archivo.variable}>
+      <body className="min-h-dvh bg-paper text-ink">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

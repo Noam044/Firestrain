@@ -38,9 +38,11 @@ uniform vec3 uColWater;
 uniform sampler2D uBurn;
 uniform vec3 uColChar;
 uniform vec3 uColHatch;
+uniform vec3 uColEdge;
 uniform float uHistory;
 uniform float uPixelRatio;
 uniform float uDay;
+uniform float uDayFrom;
 uniform float uImagery;
 uniform sampler2D uImageryFar;
 uniform sampler2D uImageryNear;
@@ -95,21 +97,23 @@ void main() {
   vec4 burn = texture2D(uBurn, vUv);
   float history = smoothstep(0.08, 0.5, burn.g) * uHistory;
   float hatch = step(mod(gl_FragCoord.x - gl_FragCoord.y, 6.0 * uPixelRatio), 1.2 * uPixelRatio);
-  color = mix(color, uColHatch, history * hatch * 0.75);
+  color = mix(color, uColHatch, history * hatch * 0.9);
   // Timeline: B and A hold the first-detection day (high and low bytes), scaled
   // by the coverage once filtered, so dividing by R recovers it on soft edges.
   // uDay = 1000 shows the whole year.
   float coverage = max(burn.r, 0.004);
   float firstDay = floor(burn.b / coverage + 0.5) * 256.0 + floor(burn.a / coverage * 255.0 + 0.5);
-  float started = step(firstDay, uDay + 0.5);
+  // Shown from uDayFrom (month filter) to uDay (timeline, or end of the month).
+  float started = step(firstDay, uDay + 0.5) * step(uDayFrom - 0.5, firstDay);
   float current = smoothstep(0.08, 0.5, burn.r) * started;
-  vec3 charred = uColChar * mix(0.65, 1.45, clamp(relative * 0.5, 0.0, 1.0));
+  vec3 charred = uColChar * mix(0.8, 1.15, clamp(relative * 0.5, 0.0, 1.0));
   // Over imagery the charred tone lets a little of the image through.
-  color = mix(color, charred, current * mix(1.0, 0.85, uImagery));
+  // Slightly translucent, so the relief (or the imagery) stays readable under the burnt ground.
+  color = mix(color, charred, current * mix(0.86, 0.8, uImagery));
   // Thin outline where the coverage crosses one half, about one pixel wide at any
   // zoom: delineates burnt areas like the contour line of a printed map.
   float edge = 1.0 - smoothstep(0.0, 1.5 * fwidth(burn.r) + 1e-4, abs(burn.r - 0.5));
-  color = mix(color, uColHatch, edge * 0.55 * started);
+  color = mix(color, uColEdge, edge * 0.8 * started);
 
   // Outside metropolitan France nothing is drawn and the page shows through.
   // Discarding last keeps derivatives (fwidth, implicit LOD) well defined.

@@ -22,3 +22,11 @@ export function timelineDayOfDate(year: number, date: string): number | null {
   const day = Math.round((Date.UTC(year, Number(match[2]) - 1, Number(match[3])) - Date.UTC(year, 0, 1)) / DAY_MS) + 1;
   return day >= 1 && day <= daysInYear(year) ? day : null;
 }
+
+/** First and last timeline days of a month (1–12) of the year. */
+export function monthRange(year: number, month: number): [number, number] {
+  const pad = (m: number) => String(m).padStart(2, "0");
+  const first = timelineDayOfDate(year, `${year}-${pad(month)}-01`) ?? 1;
+  const last = month === 12 ? daysInYear(year) : (timelineDayOfDate(year, `${year}-${pad(month + 1)}-01`) ?? 2) - 1;
+  return [first, last];
+}

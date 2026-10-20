@@ -32,7 +32,7 @@ type FirePointsProps = {
 
 /**
  * FIRMS hotspots, shown only while the timeline is in use or for the last
- * 72 hours (ember: active detections).
+ * 72 hours (amber: active detections).
  */
 export function FirePoints({
   detections,
@@ -78,7 +78,7 @@ export function FirePoints({
           uPixelRatio: { value: 1 },
           uSizeScale: { value: sizeScale },
           uOpacity: { value: opacity },
-          uColor: { value: new THREE.Vector3(...readColorToken("--ember")) },
+          uColor: { value: new THREE.Vector3(...readColorToken("--amber")) },
         },
       }),
     [heightTexture, exaggeration, sizeScale, opacity],

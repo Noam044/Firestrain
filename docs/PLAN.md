@@ -107,6 +107,20 @@ Réalisé (écarts compris) :
 - **Tests Playwright** (23, bureau et téléphone) : récit et sa source, défilement jusqu'à la Gironde, mouvement réduit, changement d'année, frise au clavier, feu via l'URL, identifiant inconnu, repli 2D (demandé, sans WebGL 2, rendu logiciel), liste, clavier.
 - **Revue** écran par écran de la liste noire et des critères d'acceptation : [`docs/REVIEW.md`](REVIEW.md). Sources ajoutées là où elles manquaient (compte FIRMS de la frise, chiffres EFFIS des chapitres du récit, comparaison d'échelle).
 
+## Refonte — carte interactive (demande du 20/10/2026)
+
+Demande : supprimer le récit et ne garder qu'un site interactif pour voir les feux de chaque année ; l'interface
+précédente (noir et braise, panneaux flottants partout, petites capitales) était jugée peu ergonomique et
+« générée ».
+
+- **Récit supprimé** (page, composants, GSAP, Lenis, d3). Les faits sourcés restent, rattachés aux feux concernés dans leur panneau (`07-events`, `events/events.json`).
+- **Une seule page, `/`** : une colonne de commandes et la carte. `/explorer` redirige.
+- **Identité « Relevé »** : papier froid, encre vert forêt, sol brûlé rouge brûlis (`#b83a1b`), années précédentes en hachures cendre, points chauds ambre ; une seule famille, Archivo, sur son axe de largeur (étroite pour les étiquettes, large pour les chiffres) ; carte en relief clair sur fond « mer ».
+- **Frise des années** : 21 barres à la surface réelle (feux ≥ 30 ha), qui sont le sélecteur d'année (clic, flèches du clavier).
+- **Mois de l'année** : chaque barre filtre la carte (seuls les feux détectés ce mois-là), lecture jour par jour avec un cumul qui monte, curseur au clavier.
+- **Panneau d'un feu** dans la colonne (retour à l'année), infobulle au survol, plus grandes surfaces de la période, clé de carte avec ses interrupteurs, commandes de carte (zoom, vue d'ensemble, fond de carte façon Google Maps).
+- Lighthouse mobile : carte 86–88 en performance (index EFFIS livré avec la page), 100 en accessibilité, bonnes pratiques et SEO ; liste 96, Méthode 97.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.
