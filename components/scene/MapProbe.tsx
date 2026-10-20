@@ -7,21 +7,31 @@ import { SCENE_SIZE, sceneToL93 } from "@/lib/geo/frame";
 import { l93ToLonLat, lonLatToScene, sceneToLonLat } from "@/lib/geo/projection";
 import { createGridSampler, intersectHeightfield, type Vec3 } from "@/lib/geo/heightfield";
 import type { TerrainData } from "@/lib/data/queries";
+import { findFireAt, type DecodedFire } from "@/lib/data/fires";
 import type { LandMask } from "@/lib/data/land-mask";
 import { useMapStore } from "@/lib/store";
 
-type MapProbeProps = { terrain: TerrainData; mask: LandMask; exaggeration: number };
+type MapProbeProps = {
+  terrain: TerrainData;
+  mask: LandMask;
+  exaggeration: number;
+  /** Fires of the year shown, clickable. */
+  fires: readonly DecodedFire[] | undefined;
+};
 
 /**
- * Measures the view for the map furniture (scale at the centre, north) and
- * reads the ground under the pointer (coordinates, BD ALTI altitude).
+ * Measures the view for the map furniture (scale at the centre, north), reads
+ * the ground under the pointer (coordinates, BD ALTI altitude) and turns a click
+ * on a burnt area into a selection.
  */
-export function MapProbe({ terrain, mask, exaggeration }: MapProbeProps) {
+export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) {
   const camera = useThree((state) => state.camera);
   const canvas = useThree((state) => state.gl.domElement);
+  const events = useThree((state) => state.events);
   const size = useThree((state) => state.size);
   const setView = useMapStore((state) => state.setView);
   const setCursor = useMapStore((state) => state.setCursor);
+  const selectFire = useMapStore((state) => state.selectFire);
 
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const sampler = useMemo(
@@ -82,17 +92,28 @@ export function MapProbe({ terrain, mask, exaggeration }: MapProbeProps) {
   useEffect(() => {
     let frame = 0;
     let lastEvent: PointerEvent | null = null;
+    let pressed: { x: number; y: number; at: number } | null = null;
     const { width, height } = terrain.meta;
+    // camera-controls captures the pointer on the element R3F listens to, so
+    // pointerup reaches that element, not the canvas.
+    const surface = (events.connected as HTMLElement | null | undefined) ?? canvas;
+
+    const groundAt = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return pick(
+        new THREE.Vector2(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          -((event.clientY - rect.top) / rect.height) * 2 + 1,
+        ),
+      );
+    };
 
     const update = () => {
       frame = 0;
       if (!lastEvent) return;
-      const rect = canvas.getBoundingClientRect();
-      const ndc = new THREE.Vector2(
-        ((lastEvent.clientX - rect.left) / rect.width) * 2 - 1,
-        -((lastEvent.clientY - rect.top) / rect.height) * 2 + 1,
-      );
-      const hit = pick(ndc);
+      const hit = groundAt(lastEvent);
+      // Hint that burnt areas can be clicked (standard pointer, no custom cursor).
+      surface.style.cursor = hit && fires && findFireAt(fires, hit.x, hit.z) ? "pointer" : "";
       if (!hit) {
         setCursor(null);
         return;
@@ -124,15 +145,33 @@ export function MapProbe({ terrain, mask, exaggeration }: MapProbeProps) {
       frame = 0;
       setCursor(null);
     };
+    // A click (no drag) selects the burnt area under the pointer, or clears the selection.
+    const onDown = (event: PointerEvent) => {
+      pressed = event.button === 0 ? { x: event.clientX, y: event.clientY, at: performance.now() } : null;
+    };
+    const onUp = (event: PointerEvent) => {
+      if (!pressed || !fires) return;
+      const moved = Math.hypot(event.clientX - pressed.x, event.clientY - pressed.y);
+      const quick = performance.now() - pressed.at < 600;
+      pressed = null;
+      if (moved > 6 || !quick) return;
+      const hit = groundAt(event);
+      selectFire(hit ? (findFireAt(fires, hit.x, hit.z)?.id ?? null) : null);
+    };
 
-    canvas.addEventListener("pointermove", onMove);
-    canvas.addEventListener("pointerleave", onLeave);
+    surface.addEventListener("pointermove", onMove);
+    surface.addEventListener("pointerleave", onLeave);
+    surface.addEventListener("pointerdown", onDown);
+    surface.addEventListener("pointerup", onUp);
     return () => {
-      canvas.removeEventListener("pointermove", onMove);
-      canvas.removeEventListener("pointerleave", onLeave);
+      surface.removeEventListener("pointermove", onMove);
+      surface.removeEventListener("pointerleave", onLeave);
+      surface.removeEventListener("pointerdown", onDown);
+      surface.removeEventListener("pointerup", onUp);
+      surface.style.cursor = "";
       onLeave();
     };
-  }, [canvas, pick, terrain, mask, setCursor]);
+  }, [canvas, events, pick, terrain, mask, fires, setCursor, selectFire]);
 
   return null;
 }

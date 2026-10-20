@@ -30,6 +30,13 @@
 - **Mipmaps de la heightmap** calculés dans un Web Worker : le GPU ne sait pas générer les niveaux d'une texture demi-flottante en WebGL 2, et sans eux l'ombrage scintille en vue d'ensemble.
 - **Indicateur du nord** : nord géographique, et non le nord du quadrillage Lambert-93 (convergence des méridiens jusqu'à ±4°).
 
+## Écarts au plan, décidés en phase 2
+
+- **Rapprochement EFFIS ↔ BDIFF durci** : la fenêtre d'un jour après la détection excluait Landiras 2022 (le polygone EFFIS, daté du 7 juillet, fusionne un petit feu antérieur) et liait un polygone de 13 116 ha à une fiche de 5,74 ha. Règle appliquée : commune touchée, alerte à ±10 jours, fiche ≥ 1 ha, surface déclarée entre 25 % et 400 % de la surface EFFIS, candidat unique (822 liens, vérifiés à la main sur les plus grands feux).
+- **BDIFF « type F »** : filtre appliqué par la BDIFF elle-même à la recherche par période ; non documenté publiquement, signalé dans la page Méthode.
+- **Lisibilité des surfaces brûlées** : `--char` assombri (#1C100A), relief plat remonté à `--ash-700`, liseré clair calculé dans le shader (contraste 8,75:1 avec le brûlé).
+- **Année d'un feu** : année de la date locale publiée par EFFIS (et non UTC), ce qui rend les totaux identiques aux statistiques officielles.
+
 ## Phase 0 — Audit des données ✅
 
 `docs/BRIEF.md`, `docs/DATA_AUDIT.md`, `docs/PLAN.md`.
@@ -45,7 +52,7 @@
 7. **Habillage cartographique** : barre d'échelle dynamique, indicateur du nord, coordonnées du curseur (WGS84 + Lambert-93), crédits en pied de carte, légende.
 8. **Repli 2D minimal** : détection WebGL → carte SVG des départements.
 
-## Phase 2 — Surfaces brûlées
+## Phase 2 — Surfaces brûlées ✅
 
 1. **Script 02-effis** : API REST (pagination, cache brut daté) → filtre métropole → reprojection → simplification → un fichier par année (2006→2026) + index léger des propriétés ; **Script stats** : API `api2` (annuel + hebdomadaire min/moy/max).
 2. **Script 04-bdiff** : export CSV 2006→2025 (session, intermédiaire TLS ajouté) → agrégats par commune, département et année. 2026 : état vide explicite.

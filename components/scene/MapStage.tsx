@@ -36,7 +36,7 @@ function chooseRender(): RenderChoice {
 }
 
 /** Switches to the 2D map if the 3D scene throws (e.g. WebGL context creation fails). */
-class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class SceneErrorBoundary extends Component<{ children: ReactNode; showFires: boolean }, { failed: boolean }> {
   state = { failed: false };
 
   static getDerivedStateFromError() {
@@ -46,7 +46,10 @@ class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: bo
   render() {
     if (this.state.failed) {
       return (
-        <Map2D reason="La scène 3D n’a pas pu démarrer sur cet appareil : la carte est affichée en 2D, sans relief." />
+        <Map2D
+          showFires={this.props.showFires}
+          reason="La scène 3D n’a pas pu démarrer sur cet appareil : la carte est affichée en 2D, sans relief."
+        />
       );
     }
     return this.props.children;
@@ -56,9 +59,9 @@ class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: bo
 /** Client-only (see MapStageLoader): picks the 3D scene or the 2D fallback once. */
 export default function MapStage({ mode }: { mode: MapMode }) {
   const [choice] = useState(chooseRender);
-  if (choice.kind === "2d") return <Map2D reason={choice.reason} />;
+  if (choice.kind === "2d") return <Map2D reason={choice.reason} showFires={mode === "explore"} />;
   return (
-    <SceneErrorBoundary>
+    <SceneErrorBoundary showFires={mode === "explore"}>
       <MapCanvas mode={mode} />
     </SceneErrorBoundary>
   );

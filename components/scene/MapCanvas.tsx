@@ -4,11 +4,22 @@ import { Canvas } from "@react-three/fiber";
 import { AdaptiveDpr, PerformanceMonitor, type CameraControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import * as THREE from "three";
-import { useBorders, useFranceOutline, useTerrain, type DemResolution, type TerrainData } from "@/lib/data/queries";
+import {
+  useBorders,
+  useEffisYear,
+  useEffisYears,
+  useFranceOutline,
+  useTerrain,
+  type DemResolution,
+  type TerrainData,
+} from "@/lib/data/queries";
+import type { DecodedFire } from "@/lib/data/fires";
 import { rasterizeLandMask, type LandMask } from "@/lib/data/land-mask";
 import type { Borders as BordersData } from "@/lib/data/schemas";
-import { useMapStore, type MapMode } from "@/lib/store";
+import { FIRST_YEAR, useMapStore, type MapMode } from "@/lib/store";
 import { Borders } from "./Borders";
+import { useBurnMask } from "./BurnMask";
+import { SelectedFire } from "./SelectedFire";
 import { CameraRig, resetView } from "./CameraRig";
 import { MapProbe } from "./MapProbe";
 import { MapStatus } from "./MapStatus";
@@ -130,14 +141,41 @@ type SceneProps = {
   detail: Detail;
 };
 
+const NO_FIRES: readonly (readonly DecodedFire[])[] = [];
+
+/** Burn-mask resolution: 1.5× the DEM on desktop (≈ 333 m), 2× on light devices (500 m). */
+const maskSize = (detail: Detail, mode: MapMode) =>
+  mode === "story"
+    ? { width: 1, height: 1 }
+    : detail.dem === 500
+      ? { width: 3480, height: 3270 }
+      : { width: 2320, height: 2180 };
+
 function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
   const exaggeration = useMapStore((state) => state.exaggeration);
   const setRenderMode = useMapStore((state) => state.setRenderMode);
+  const year = useMapStore((state) => state.year);
+  const showHistory = useMapStore((state) => state.showHistory);
+  const selectedFireId = useMapStore((state) => state.selectedFireId);
   const textures = useTerrainTextures(terrain, mask);
   useEffect(() => {
     setRenderMode("3d");
     return () => setRenderMode(null);
   }, [setRenderMode]);
+
+  // Burnt areas are an Explorer layer; the story will introduce them itself.
+  const explore = mode === "explore";
+  const current = useEffisYear(year, explore);
+  const historyYears = useMemo(
+    () => Array.from({ length: Math.max(0, year - FIRST_YEAR) }, (_, i) => FIRST_YEAR + i),
+    [year],
+  );
+  const history = useEffisYears(historyYears, explore && showHistory);
+  const historyFires = (showHistory && history.data) || NO_FIRES;
+  const size = maskSize(detail, mode);
+  const burn = useBurnMask(current.data?.fires, historyFires, size);
+  const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
+
   return (
     <>
       <Terrain
@@ -146,6 +184,8 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         exaggeration={exaggeration}
         meshKm={detail.meshKm}
         lightAltitudeDeg={mode === "story" ? 24 : 35}
+        burn={burn}
+        showHistory={showHistory}
       />
       <Borders
         borders={borders}
@@ -153,7 +193,10 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         exaggeration={exaggeration}
         maxSegmentKm={terrain.meta.pixelSizeM / 1000}
       />
-      {mode === "explore" && <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} />}
+      {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
+      {explore && (
+        <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={current.data?.fires} />
+      )}
     </>
   );
 }

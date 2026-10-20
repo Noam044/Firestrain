@@ -1,0 +1,583 @@
+{
+  "annual": [
+    {
+      "year": 2006,
+      "areaHa": 1751,
+      "fires": 12
+    },
+    {
+      "year": 2007,
+      "areaHa": 2631,
+      "fires": 12
+    },
+    {
+      "year": 2008,
+      "areaHa": 1694,
+      "fires": 8
+    },
+    {
+      "year": 2009,
+      "areaHa": 7974,
+      "fires": 16
+    },
+    {
+      "year": 2010,
+      "areaHa": 4653,
+      "fires": 9
+    },
+    {
+      "year": 2011,
+      "areaHa": 4831,
+      "fires": 23
+    },
+    {
+      "year": 2012,
+      "areaHa": 3298,
+      "fires": 19
+    },
+    {
+      "year": 2013,
+      "areaHa": 891,
+      "fires": 9
+    },
+    {
+      "year": 2014,
+      "areaHa": 4667,
+      "fires": 26
+    },
+    {
+      "year": 2015,
+      "areaHa": 2046,
+      "fires": 15
+    },
+    {
+      "year": 2016,
+      "areaHa": 10767,
+      "fires": 27
+    },
+    {
+      "year": 2017,
+      "areaHa": 20626,
+      "fires": 91
+    },
+    {
+      "year": 2018,
+      "areaHa": 2581,
+      "fires": 21
+    },
+    {
+      "year": 2019,
+      "areaHa": 43602,
+      "fires": 304
+    },
+    {
+      "year": 2020,
+      "areaHa": 14547,
+      "fires": 133
+    },
+    {
+      "year": 2021,
+      "areaHa": 30652,
+      "fires": 214
+    },
+    {
+      "year": 2022,
+      "areaHa": 66337,
+      "fires": 290
+    },
+    {
+      "year": 2023,
+      "areaHa": 22350,
+      "fires": 219
+    },
+    {
+      "year": 2024,
+      "areaHa": 12268,
+      "fires": 156
+    },
+    {
+      "year": 2025,
+      "areaHa": 36951,
+      "fires": 257
+    },
+    {
+      "year": 2026,
+      "areaHa": 98459,
+      "fires": 381
+    }
+  ],
+  "weekly": {
+    "year": 2026,
+    "referenceFrom": 2006,
+    "weeks": [
+      {
+        "week": 1,
+        "date": "2026-01-07",
+        "areaHa": 0,
+        "cumulativeHa": 0,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 202.7,
+        "cumulativeMaxHa": 1584
+      },
+      {
+        "week": 2,
+        "date": "2026-01-14",
+        "areaHa": 0,
+        "cumulativeHa": 0,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 246.9,
+        "cumulativeMaxHa": 1584
+      },
+      {
+        "week": 3,
+        "date": "2026-01-21",
+        "areaHa": 80,
+        "cumulativeHa": 80,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 327.1,
+        "cumulativeMaxHa": 1899
+      },
+      {
+        "week": 4,
+        "date": "2026-01-28",
+        "areaHa": 40,
+        "cumulativeHa": 120,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 549.15,
+        "cumulativeMaxHa": 4844
+      },
+      {
+        "week": 5,
+        "date": "2026-02-04",
+        "areaHa": 0,
+        "cumulativeHa": 120,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 950.2,
+        "cumulativeMaxHa": 5329
+      },
+      {
+        "week": 6,
+        "date": "2026-02-11",
+        "areaHa": 0,
+        "cumulativeHa": 120,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 1465.1,
+        "cumulativeMaxHa": 8573
+      },
+      {
+        "week": 7,
+        "date": "2026-02-18",
+        "areaHa": 43,
+        "cumulativeHa": 163,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 3259.4,
+        "cumulativeMaxHa": 19686
+      },
+      {
+        "week": 8,
+        "date": "2026-02-25",
+        "areaHa": 15033,
+        "cumulativeHa": 15196,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 5133.3,
+        "cumulativeMaxHa": 30149
+      },
+      {
+        "week": 9,
+        "date": "2026-03-04",
+        "areaHa": 6665,
+        "cumulativeHa": 21861,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 5784,
+        "cumulativeMaxHa": 36004
+      },
+      {
+        "week": 10,
+        "date": "2026-03-11",
+        "areaHa": 275,
+        "cumulativeHa": 22136,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 6130.25,
+        "cumulativeMaxHa": 36269
+      },
+      {
+        "week": 11,
+        "date": "2026-03-18",
+        "areaHa": 2218,
+        "cumulativeHa": 24354,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 6397.65,
+        "cumulativeMaxHa": 36720
+      },
+      {
+        "week": 12,
+        "date": "2026-03-25",
+        "areaHa": 1789,
+        "cumulativeHa": 26143,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 6768.45,
+        "cumulativeMaxHa": 38054
+      },
+      {
+        "week": 13,
+        "date": "2026-04-01",
+        "areaHa": 0,
+        "cumulativeHa": 26143,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7069.45,
+        "cumulativeMaxHa": 38810
+      },
+      {
+        "week": 14,
+        "date": "2026-04-08",
+        "areaHa": 402,
+        "cumulativeHa": 26545,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7213.5,
+        "cumulativeMaxHa": 38810
+      },
+      {
+        "week": 15,
+        "date": "2026-04-15",
+        "areaHa": 251,
+        "cumulativeHa": 26796,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7297.65,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 16,
+        "date": "2026-04-22",
+        "areaHa": 83,
+        "cumulativeHa": 26879,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7416.05,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 17,
+        "date": "2026-04-29",
+        "areaHa": 45,
+        "cumulativeHa": 26924,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7465.8,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 18,
+        "date": "2026-05-06",
+        "areaHa": 100,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7468.55,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 19,
+        "date": "2026-05-13",
+        "areaHa": 0,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7479,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 20,
+        "date": "2026-05-20",
+        "areaHa": 0,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7484.2,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 21,
+        "date": "2026-05-27",
+        "areaHa": 0,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7493.85,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 22,
+        "date": "2026-06-03",
+        "areaHa": 0,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7551.4,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 23,
+        "date": "2026-06-10",
+        "areaHa": 0,
+        "cumulativeHa": 27024,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7557.35,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 24,
+        "date": "2026-06-17",
+        "areaHa": 37,
+        "cumulativeHa": 27061,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7608.2,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 25,
+        "date": "2026-06-24",
+        "areaHa": 372,
+        "cumulativeHa": 27433,
+        "cumulativeMinHa": 0,
+        "cumulativeMeanHa": 7769.65,
+        "cumulativeMaxHa": 39039
+      },
+      {
+        "week": 26,
+        "date": "2026-07-01",
+        "areaHa": 1205,
+        "cumulativeHa": 28638,
+        "cumulativeMinHa": 86,
+        "cumulativeMeanHa": 7910.2,
+        "cumulativeMaxHa": 39249
+      },
+      {
+        "week": 27,
+        "date": "2026-07-08",
+        "areaHa": 10803,
+        "cumulativeHa": 39441,
+        "cumulativeMinHa": 86,
+        "cumulativeMeanHa": 8892.2,
+        "cumulativeMaxHa": 39282
+      },
+      {
+        "week": 28,
+        "date": "2026-07-15",
+        "areaHa": 4256,
+        "cumulativeHa": 43697,
+        "cumulativeMinHa": 86,
+        "cumulativeMeanHa": 9377.7,
+        "cumulativeMaxHa": 41124
+      },
+      {
+        "week": 29,
+        "date": "2026-07-22",
+        "areaHa": 41609,
+        "cumulativeHa": 85306,
+        "cumulativeMinHa": 86,
+        "cumulativeMeanHa": 9764.15,
+        "cumulativeMaxHa": 43648
+      },
+      {
+        "week": 30,
+        "date": "2026-07-29",
+        "areaHa": 5282,
+        "cumulativeHa": 90588,
+        "cumulativeMinHa": 137,
+        "cumulativeMeanHa": 10804.9,
+        "cumulativeMaxHa": 46466
+      },
+      {
+        "week": 31,
+        "date": "2026-08-05",
+        "areaHa": 2558,
+        "cumulativeHa": 93146,
+        "cumulativeMinHa": 137,
+        "cumulativeMeanHa": 11657.6,
+        "cumulativeMaxHa": 48419
+      },
+      {
+        "week": 32,
+        "date": "2026-08-12",
+        "areaHa": 848,
+        "cumulativeHa": 93994,
+        "cumulativeMinHa": 616,
+        "cumulativeMeanHa": 12732.5,
+        "cumulativeMaxHa": 61144
+      },
+      {
+        "week": 33,
+        "date": "2026-08-19",
+        "areaHa": 2464,
+        "cumulativeHa": 96458,
+        "cumulativeMinHa": 616,
+        "cumulativeMeanHa": 13268,
+        "cumulativeMaxHa": 61539
+      },
+      {
+        "week": 34,
+        "date": "2026-08-26",
+        "areaHa": 43,
+        "cumulativeHa": 96501,
+        "cumulativeMinHa": 616,
+        "cumulativeMeanHa": 13359.4,
+        "cumulativeMaxHa": 61573
+      },
+      {
+        "week": 35,
+        "date": "2026-09-02",
+        "areaHa": 242,
+        "cumulativeHa": 96743,
+        "cumulativeMinHa": 784,
+        "cumulativeMeanHa": 13698.6,
+        "cumulativeMaxHa": 61704
+      },
+      {
+        "week": 36,
+        "date": "2026-09-09",
+        "areaHa": 414,
+        "cumulativeHa": 97157,
+        "cumulativeMinHa": 784,
+        "cumulativeMeanHa": 13857.7,
+        "cumulativeMaxHa": 61773
+      },
+      {
+        "week": 37,
+        "date": "2026-09-16",
+        "areaHa": 439,
+        "cumulativeHa": 97596,
+        "cumulativeMinHa": 784,
+        "cumulativeMeanHa": 14075.1,
+        "cumulativeMaxHa": 65302
+      },
+      {
+        "week": 38,
+        "date": "2026-09-23",
+        "areaHa": 196,
+        "cumulativeHa": 97792,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14177.85,
+        "cumulativeMaxHa": 65604
+      },
+      {
+        "week": 39,
+        "date": "2026-09-30",
+        "areaHa": 450,
+        "cumulativeHa": 98242,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14197.8,
+        "cumulativeMaxHa": 65604
+      },
+      {
+        "week": 40,
+        "date": "2026-10-07",
+        "areaHa": 0,
+        "cumulativeHa": 98242,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14283.1,
+        "cumulativeMaxHa": 65708
+      },
+      {
+        "week": 41,
+        "date": "2026-10-14",
+        "areaHa": 155,
+        "cumulativeHa": 98397,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14317.35,
+        "cumulativeMaxHa": 65708
+      },
+      {
+        "week": 42,
+        "date": "2026-10-21",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14433.35,
+        "cumulativeMaxHa": 65708
+      },
+      {
+        "week": 43,
+        "date": "2026-10-28",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14641.9,
+        "cumulativeMaxHa": 66304
+      },
+      {
+        "week": 44,
+        "date": "2026-11-04",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14651.05,
+        "cumulativeMaxHa": 66304
+      },
+      {
+        "week": 45,
+        "date": "2026-11-11",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14655.15,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 46,
+        "date": "2026-11-18",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14656.65,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 47,
+        "date": "2026-11-25",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14661.4,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 48,
+        "date": "2026-12-02",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14671.5,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 49,
+        "date": "2026-12-09",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14708.25,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 50,
+        "date": "2026-12-16",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14726.5,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 51,
+        "date": "2026-12-23",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14731.65,
+        "cumulativeMaxHa": 66337
+      },
+      {
+        "week": 52,
+        "date": "2026-12-30",
+        "areaHa": null,
+        "cumulativeHa": null,
+        "cumulativeMinHa": 891,
+        "cumulativeMeanHa": 14746.5,
+        "cumulativeMaxHa": 66337
+      }
+    ]
+  }
+}

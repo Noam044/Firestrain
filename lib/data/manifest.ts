@@ -33,8 +33,14 @@ function credit(label: string, path: string): Credit {
 }
 
 /** Credits printed at the foot of the map, as on a printed sheet. */
-export function mapCredits(): Credit[] {
+export function mapCredits({ fires = false }: { fires?: boolean } = {}): Credit[] {
   return [
+    ...(fires
+      ? [
+          { ...credit("Surfaces brûlées", "effis/index.json"), source: "EFFIS (Copernicus, Commission européenne / JRC)" },
+          { ...credit("Feux déclarés", "bdiff/annuel.json"), source: "BDIFF (IGN, ministère de l’Agriculture)" },
+        ]
+      : []),
     credit("Relief", "terrain/dem-500m.bin"),
     credit("Limites administratives", "admin/departements-lignes.json"),
   ];

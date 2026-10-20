@@ -1,0 +1,29 @@
+{
+  "note": "Chiffres publiés par la presse, saisis à la main et confrontés aux données par scripts/06-validate.ts. Chaque entrée porte la valeur, l'unité, la date, l'URL et une citation courte. Seules figurent des sources lues lors de l'audit (20/10/2026).",
+  "figures": [
+    {
+      "id": "presse-2026-surface-totale",
+      "label": "Surface brûlée en France en 2026",
+      "value": 100000,
+      "approximate": true,
+      "unit": "ha",
+      "quote": "près de 100.000 hectares de forêt",
+      "source": "Belga, citant France Assureurs (dépêche reprise par DH)",
+      "url": "https://www.dhnet.be/dernieres-depeches/2026/10/16/le-cout-des-incendies-en-france-cet-ete-evalue-a-563-millions-deuros-X2XSWO6Z2NG6RM4IUSPWNZFVKQ/",
+      "published": "2026-10-16",
+      "compareWith": { "kind": "effis-year", "year": 2026 }
+    },
+    {
+      "id": "presse-2026-gironde",
+      "label": "Feu de Gironde, juillet 2026",
+      "value": 42000,
+      "approximate": true,
+      "unit": "ha",
+      "quote": "42.000 hectares",
+      "source": "Belga, citant France Assureurs (dépêche reprise par DH)",
+      "url": "https://www.dhnet.be/dernieres-depeches/2026/10/16/le-cout-des-incendies-en-france-cet-ete-evalue-a-563-millions-deuros-X2XSWO6Z2NG6RM4IUSPWNZFVKQ/",
+      "published": "2026-10-16",
+      "compareWith": { "kind": "effis-fire", "year": 2026, "fireId": 562583 }
+    }
+  ]
+}

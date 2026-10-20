@@ -3,6 +3,9 @@ import { create } from "zustand";
 /** "explore": free camera and map furniture; "story": camera driven by the narrative. */
 export type MapMode = "explore" | "story";
 
+export const FIRST_YEAR = 2006;
+export const LAST_YEAR = 2026;
+
 export type CursorReadout = {
   lon: number;
   lat: number;
@@ -24,9 +27,18 @@ type MapState = {
   /** Screen angle of geographic north, clockwise from up. */
   northDeg: number;
   cursor: CursorReadout | null;
+  /** Year whose burnt areas are shown in full (charred). */
+  year: number;
+  /** Earlier years (from FIRST_YEAR) drawn as hatching. */
+  showHistory: boolean;
+  /** EFFIS id of the selected polygon (always from `year`). */
+  selectedFireId: number | null;
   setRenderMode: (renderMode: "3d" | "2d" | null) => void;
   setView: (view: { kmPer100px: number | null; northDeg: number }) => void;
   setCursor: (cursor: CursorReadout | null) => void;
+  setYear: (year: number) => void;
+  setShowHistory: (showHistory: boolean) => void;
+  selectFire: (id: number | null) => void;
 };
 
 export const useMapStore = create<MapState>()((set) => ({
@@ -35,7 +47,14 @@ export const useMapStore = create<MapState>()((set) => ({
   kmPer100px: null,
   northDeg: 0,
   cursor: null,
+  year: LAST_YEAR,
+  showHistory: true,
+  selectedFireId: null,
   setRenderMode: (renderMode) => set({ renderMode }),
   setView: (view) => set(view),
   setCursor: (cursor) => set({ cursor }),
+  // A selection belongs to one year: changing year clears it.
+  setYear: (year) => set({ year, selectedFireId: null }),
+  setShowHistory: (showHistory) => set({ showHistory }),
+  selectFire: (selectedFireId) => set({ selectedFireId }),
 }));

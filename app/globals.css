@@ -16,7 +16,7 @@
   --bone-300: #b9b1a2;
   --bone-100: #e9e4d8;
   /* Burnt ground: matt charred brown-black, never a bright red. */
-  --char: #2b1810;
+  --char: #1c100a;
   /* Sole accent: active detections and the selected element only. */
   --ember: #ff5a1f;
   /* Sea and lagoons, barely cooler than the background. */
@@ -84,6 +84,11 @@
   ::selection {
     background: var(--bone-100);
     color: var(--ash-950);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ash-600) transparent;
   }
 }
 

@@ -10,6 +10,36 @@ import {
 import { toHalfFloat } from "./half-float.ts";
 import { extendIntoNoData } from "./fill.ts";
 import { mipPyramid } from "./mipmaps.ts";
+import { decodeFire, findFireAt, parisDayOfYear } from "./fires.ts";
+import { encodeRing } from "../geo/rings.ts";
+import type { EffisFire } from "./schemas.ts";
+
+const squareFire = (id: number, x: number, z: number, size: number, areaHa: number): EffisFire => ({
+  id,
+  firedate: "2026-07-22T09:55:00.000Z",
+  lastUpdate: "2026-07-23T05:45:17.536Z",
+  areaHa,
+  province: "Gironde",
+  commune: "Porge",
+  landCover: null,
+  natura2000Pct: null,
+  bbox: [x, z, x + size, z + size],
+  polygons: [[encodeRing([x, z, x + size, z, x + size, z + size, x, z + size])]],
+});
+
+test("findFireAt returns the smallest fire containing the point, or null", () => {
+  const fires = [squareFire(1, 0, 0, 10, 10_000), squareFire(2, 2, 2, 2, 400)].map(decodeFire);
+  assert.equal(findFireAt(fires, 3, 3)?.id, 2);
+  assert.equal(findFireAt(fires, 8, 8)?.id, 1);
+  assert.equal(findFireAt(fires, 11, 1), null);
+});
+
+test("parisDayOfYear counts days in Europe/Paris, across midnight UTC", () => {
+  assert.equal(parisDayOfYear("2026-01-01T00:30:00Z"), 1);
+  assert.equal(parisDayOfYear("2026-06-01T12:00:00Z"), 152);
+  // 22:30 UTC on 30 June is already 1 July in Paris (UTC+2).
+  assert.equal(parisDayOfYear("2026-06-30T22:30:00Z"), 182);
+});
 
 test("mipPyramid halves down to 1 × 1 and averages 2 × 2 blocks", () => {
   const level0 = new Float32Array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]);

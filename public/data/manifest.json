@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-20T09:33:40.342Z",
+  "updatedAt": "2026-10-20T10:36:38.953Z",
   "files": {
     "admin/departements-2d.json": {
       "title": "Départements (carte 2D de repli)",
@@ -48,6 +48,442 @@
       ],
       "bytes": 101974,
       "sha256": "7794e45a7ed458e2082f51238663cc5f86005ea5b86b2d55e9929e95a6f878f5"
+    },
+    "bdiff/annuel.json": {
+      "title": "Feux déclarés par année et par département (BDIFF)",
+      "source": "BDIFF — Base de données sur les incendies de forêt en France (IGN, ministère de l’Agriculture), export CSV de la consultation publique",
+      "sourceUrl": "https://bdiff.agriculture.gouv.fr/incendies",
+      "licence": "Licence Ouverte 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T10:28:03.323Z",
+      "transformations": [
+        "campagnes 2006–2025 (2026 non diffusée)",
+        "filtre « Type de feu : F » appliqué par la BDIFF à la recherche par période",
+        "départements d’outre-mer exclus",
+        "surfaces converties de m² en ha",
+        "agrégation par année et par département"
+      ],
+      "bytes": 38713,
+      "sha256": "3a451cdb01f8e4753f6e2b2a3b0381dc964c56207eba279cd987b20c2b0ebe83"
+    },
+    "bdiff/communes.json": {
+      "title": "Feux déclarés par commune et par année (BDIFF)",
+      "source": "BDIFF — Base de données sur les incendies de forêt en France (IGN, ministère de l’Agriculture), export CSV de la consultation publique",
+      "sourceUrl": "https://bdiff.agriculture.gouv.fr/incendies",
+      "licence": "Licence Ouverte 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T10:28:03.323Z",
+      "transformations": [
+        "campagnes 2006–2025 (2026 non diffusée)",
+        "filtre « Type de feu : F » appliqué par la BDIFF à la recherche par période",
+        "départements d’outre-mer exclus",
+        "surfaces converties de m² en ha",
+        "agrégation par commune (code INSEE de la fiche) et par année"
+      ],
+      "bytes": 484269,
+      "sha256": "99c5867c2220b9934e59c6711c28afc9166b1c9f4e80c7ce1297d3598baeb986"
+    },
+    "bdiff/rapprochements.json": {
+      "title": "Rapprochements automatiques EFFIS ↔ BDIFF",
+      "source": "BDIFF — Base de données sur les incendies de forêt en France (IGN, ministère de l’Agriculture), export CSV de la consultation publique",
+      "sourceUrl": "https://bdiff.agriculture.gouv.fr/incendies",
+      "licence": "Licence Ouverte 2.0 (BDIFF, IGN) · CC BY 4.0 (EFFIS)",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T10:28:03.323Z",
+      "transformations": [
+        "campagnes 2006–2025 (2026 non diffusée)",
+        "filtre « Type de feu : F » appliqué par la BDIFF à la recherche par période",
+        "départements d’outre-mer exclus",
+        "surfaces converties de m² en ha",
+        "communes touchées calculées avec ADMIN EXPRESS COG CARTO (simplifié à 100 m)",
+        "Fiches BDIFF de la même année dont la commune touche le polygone EFFIS (ADMIN EXPRESS, dernière édition), dont l’alerte est à 10 jours au plus de la première détection satellite, de 1 ha ou plus, et dont la surface déclarée vaut entre 25 % et 400 % de la surface EFFIS. Lien conservé seulement s’il n’existe qu’un candidat."
+      ],
+      "bytes": 260702,
+      "sha256": "c26892bdaae392046a67da1793d7cd5257fea76b656680f62a76a2ece1f3f135"
+    },
+    "effis/fires-2006.json": {
+      "title": "Surfaces brûlées 2006 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 4408,
+      "sha256": "41bc3591fdec0569b9324181867ad8136effe2a2655b5d308c98e5d7b967abe6"
+    },
+    "effis/fires-2007.json": {
+      "title": "Surfaces brûlées 2007 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 4539,
+      "sha256": "ef5e75e38f1bb34b387eeeb2d1b9b6b1914636e0f2afe107db80ed0d9df1e6d5"
+    },
+    "effis/fires-2008.json": {
+      "title": "Surfaces brûlées 2008 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 3070,
+      "sha256": "1523e58a8684be4eeb83f6a385e7c2bc273b30391564bf9ed6f4c5de1e99ddf7"
+    },
+    "effis/fires-2009.json": {
+      "title": "Surfaces brûlées 2009 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 6969,
+      "sha256": "9c2abdf15a7da8e973fcf0e6082a38c70a5d76296733161672ec6047b825ea50"
+    },
+    "effis/fires-2010.json": {
+      "title": "Surfaces brûlées 2010 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 4457,
+      "sha256": "2acd052bec60a9afb6205d19b13a76479a294029b680185dec4072b661fe8091"
+    },
+    "effis/fires-2011.json": {
+      "title": "Surfaces brûlées 2011 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 8186,
+      "sha256": "109e4d778c03a5bac3abf6d1e3a06f40810aaa736db26d1f59d7614b727dbd3a"
+    },
+    "effis/fires-2012.json": {
+      "title": "Surfaces brûlées 2012 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 8479,
+      "sha256": "c2d7039fd4f43ea90a8b22e7908ddf90861c5514d75bf2383ecac1021b9ce15e"
+    },
+    "effis/fires-2013.json": {
+      "title": "Surfaces brûlées 2013 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 3779,
+      "sha256": "b5140d01ae17f3b94e136ff899cfdb67d998ee969dbcf634878eb061a8ec2212"
+    },
+    "effis/fires-2014.json": {
+      "title": "Surfaces brûlées 2014 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 10552,
+      "sha256": "60ff08fdff643832e70b3afb09b4e86da4f291bb85cc10ccaab366559823016a"
+    },
+    "effis/fires-2015.json": {
+      "title": "Surfaces brûlées 2015 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 6424,
+      "sha256": "3071aec9e97ea4b86a8fdb7e6fab8c6266b73e6f43358d10bd701ce3af20b2ba"
+    },
+    "effis/fires-2016.json": {
+      "title": "Surfaces brûlées 2016 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 12437,
+      "sha256": "6fb36c5396cd22c5ef0a2b447d395056d4160bb964eda2c469cf59500db20d38"
+    },
+    "effis/fires-2017.json": {
+      "title": "Surfaces brûlées 2017 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 40859,
+      "sha256": "e78b88c107f94862d4e798872c23e58b46cf6c9ac0a399df9771e9c17f4166e6"
+    },
+    "effis/fires-2018.json": {
+      "title": "Surfaces brûlées 2018 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 11697,
+      "sha256": "975961f028d93cb69a4a7bbc0663ecc6ff231891de734c55a82a7d0b4c2c0200"
+    },
+    "effis/fires-2019.json": {
+      "title": "Surfaces brûlées 2019 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 259451,
+      "sha256": "796670b5ec4eb55699cab22874eb04623cfd07d10f0c58e1ad2bf1d387278d56"
+    },
+    "effis/fires-2020.json": {
+      "title": "Surfaces brûlées 2020 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 148119,
+      "sha256": "ce405e9725dc6ca5d4cc73f353f6f423251fab80b73a6f5f33e928010b973a98"
+    },
+    "effis/fires-2021.json": {
+      "title": "Surfaces brûlées 2021 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 255723,
+      "sha256": "4da09538e70942e7c3c9de00e3c54fd0f2ebdb0178e5c4a9af4646a5cd34a4a4"
+    },
+    "effis/fires-2022.json": {
+      "title": "Surfaces brûlées 2022 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 476354,
+      "sha256": "4b86a0aa855bdf8f25d379990e451a27d838dece316caa3b97d72fd10bb384b7"
+    },
+    "effis/fires-2023.json": {
+      "title": "Surfaces brûlées 2023 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 319648,
+      "sha256": "9d0194f564e0cb676d167eab1fccafc87d713fcacb6f39780821bb2399281d9e"
+    },
+    "effis/fires-2024.json": {
+      "title": "Surfaces brûlées 2024 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 267834,
+      "sha256": "6e47580284496e7de4bcc0a02c18d2707a384008285f53fb7cabd80439b82d9f"
+    },
+    "effis/fires-2025.json": {
+      "title": "Surfaces brûlées 2025 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 637270,
+      "sha256": "c017bfa77c6db838599cc41314a65fd582bc10b7eb12ecee61302b5aea4ac712"
+    },
+    "effis/fires-2026.json": {
+      "title": "Surfaces brûlées 2026 (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "sélection de la France métropolitaine",
+        "reprojection WGS84 → Lambert-93 (EPSG:2154)",
+        "simplification mapshaper, tolérance 40 m",
+        "coordonnées de scène arrondies à 10 m, codage différentiel",
+        "dates converties en UTC ; surfaces et couverts publiés par EFFIS conservés"
+      ],
+      "bytes": 789476,
+      "sha256": "7b52452a678fd2879c700c844d7af1d9b07d212cb91968bbe2fa5722bc3dcee1"
+    },
+    "effis/index.json": {
+      "title": "Index des surfaces brûlées par année (EFFIS)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API burntareas",
+      "sourceUrl": "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/?country=FR&limit=500&ordering=id&offset=0",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:18:47.281Z",
+      "transformations": [
+        "totaux recalculés à partir des polygones publiés par EFFIS (tous / ≥ 30 ha)"
+      ],
+      "bytes": 4674,
+      "sha256": "20bab4d3c4955dbd26e1a2bfdcf2f911c04a8e978f7eded12c7e182f34ea3f50"
+    },
+    "effis/stats.json": {
+      "title": "Statistiques officielles EFFIS pour la France (annuelles et hebdomadaires)",
+      "source": "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC), API du portail EFFIS Statistics",
+      "sourceUrl": "https://api2.effis.emergency.copernicus.eu/statistics/v2/effis/estimatesbycountry?country=FRA",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T10:26:05.412Z",
+      "transformations": [
+        "champs renommés (ba → areaHa, nf → fires)",
+        "série hebdomadaire 2026 : cumul, et min / moyenne / max des années de référence publiés par EFFIS"
+      ],
+      "bytes": 13125,
+      "sha256": "e7d53e3f86c28caa16e2e131823f9f979e51c7d406f2b2b2eaf2776b5073819e"
     },
     "terrain/dem-1000m.bin": {
       "title": "Relief de la France métropolitaine, maille 1000 m",
