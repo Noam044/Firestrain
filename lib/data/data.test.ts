@@ -11,14 +11,17 @@ import { toHalfFloat } from "./half-float.ts";
 import { extendIntoNoData } from "./fill.ts";
 import { mipPyramid } from "./mipmaps.ts";
 import { decodeDetections, encodeDetections } from "./firms-codec.ts";
-import { dateOfTimelineDay, timelineDayOfDate } from "../timeline.ts";
+import { dateOfTimelineDay, daysInYear, timelineDayOfDate } from "../timeline.ts";
 
-test("timeline days map to dates from 1 June to 30 September", () => {
-  assert.equal(dateOfTimelineDay(2026, 1), "2026-06-01");
-  assert.equal(dateOfTimelineDay(2026, 48.7), "2026-07-18");
-  assert.equal(dateOfTimelineDay(2026, 122), "2026-09-30");
-  assert.equal(timelineDayOfDate(2026, "2026-07-18"), 48);
-  assert.equal(timelineDayOfDate(2026, "2026-10-01"), null);
+test("timeline days cover the calendar year, leap years included", () => {
+  assert.equal(daysInYear(2026), 365);
+  assert.equal(daysInYear(2024), 366);
+  assert.equal(dateOfTimelineDay(2026, 1), "2026-01-01");
+  assert.equal(dateOfTimelineDay(2026, 199.7), "2026-07-18");
+  assert.equal(dateOfTimelineDay(2026, 365), "2026-12-31");
+  assert.equal(dateOfTimelineDay(2024, 366), "2024-12-31");
+  assert.equal(timelineDayOfDate(2026, "2026-07-18"), 199);
+  assert.equal(timelineDayOfDate(2026, "2026-02-25"), 56);
   assert.equal(timelineDayOfDate(2026, "2025-07-18"), null, "other year");
   assert.equal(timelineDayOfDate(2026, "18/07/2026"), null);
 });
@@ -142,4 +145,28 @@ test("toHalfFloat matches reference binary16 encodings", () => {
   assert.equal(toHalfFloat(65504), 0x7bff);
   assert.equal(toHalfFloat(1e6), 0x7c00);
   assert.equal(toHalfFloat(4807), 0x6cb2);
+});
+
+import { acquisitionMinutes, selectRecent, staticCellTest } from "./firms-recent.ts";
+
+test("selectRecent keeps the last 72 h in France, away from static sources, once", () => {
+  const csv = [
+    "latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight",
+    "44.5,-1.0,330,0.4,0.4,2026-10-19,1342,N,VIIRS,n,2.0NRT,290,12.34,D", // kept
+    "44.5,-1.0,330,0.4,0.4,2026-10-19,1342,N,VIIRS,n,2.0NRT,290,12.34,D", // duplicate
+    "44.5,-1.0,330,0.4,0.4,2026-10-16,0900,N20,VIIRS,n,2.0NRT,290,5,N", // older than 72 h
+    "50.0,8.0,330,0.4,0.4,2026-10-19,1200,N21,VIIRS,n,2.0NRT,290,5,D", // outside France
+    "45.0,2.0,330,0.4,0.4,2026-10-19,1200,N21,VIIRS,n,2.0NRT,290,5,D", // static source
+  ].join("\n");
+  const recent = selectRecent([csv], new Date("2026-10-20T12:00:00Z"), {
+    inFrance: (x) => x < 5,
+    nearStatic: staticCellTest([[2, 45]], 1),
+    lonLatToL93: ([lon, lat]) => [lon, lat],
+    l93ToScene: ([x, y]) => ({ x, z: -y }),
+  });
+  assert.equal(recent.count, 1);
+  assert.deepEqual([recent.x[0], recent.z[0], recent.frp[0]], [-1, -44.5, 12.3]);
+  assert.equal(recent.t[0], acquisitionMinutes("2026-10-19", "1342"));
+  assert.deepEqual(recent.satellites, ["S-NPP"]);
+  assert.throws(() => selectRecent(["Invalid MAP_KEY."], new Date(), {} as never));
 });

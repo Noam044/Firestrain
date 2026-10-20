@@ -1,15 +1,12 @@
 {
   "codec": "fs-firms-1",
-  "timeline": {
-    "from": "06-01",
-    "to": "09-30",
-    "days": 122
-  },
+  "timeline": "calendar-year",
   "years": [
     {
       "year": 2012,
       "file": "firms/detections-2012.bin",
-      "count": 1950,
+      "count": 5118,
+      "lastDate": "2012-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -20,7 +17,8 @@
     {
       "year": 2013,
       "file": "firms/detections-2013.bin",
-      "count": 2000,
+      "count": 3407,
+      "lastDate": "2013-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -31,7 +29,8 @@
     {
       "year": 2014,
       "file": "firms/detections-2014.bin",
-      "count": 1566,
+      "count": 4460,
+      "lastDate": "2014-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -42,7 +41,8 @@
     {
       "year": 2015,
       "file": "firms/detections-2015.bin",
-      "count": 2306,
+      "count": 4722,
+      "lastDate": "2015-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -53,7 +53,8 @@
     {
       "year": 2016,
       "file": "firms/detections-2016.bin",
-      "count": 2563,
+      "count": 4627,
+      "lastDate": "2016-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -64,7 +65,8 @@
     {
       "year": 2017,
       "file": "firms/detections-2017.bin",
-      "count": 2274,
+      "count": 6581,
+      "lastDate": "2017-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -75,7 +77,8 @@
     {
       "year": 2018,
       "file": "firms/detections-2018.bin",
-      "count": 1854,
+      "count": 3407,
+      "lastDate": "2018-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -86,7 +89,8 @@
     {
       "year": 2019,
       "file": "firms/detections-2019.bin",
-      "count": 2509,
+      "count": 6990,
+      "lastDate": "2019-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -97,7 +101,8 @@
     {
       "year": 2020,
       "file": "firms/detections-2020.bin",
-      "count": 1789,
+      "count": 3892,
+      "lastDate": "2020-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -108,7 +113,8 @@
     {
       "year": 2021,
       "file": "firms/detections-2021.bin",
-      "count": 1763,
+      "count": 4443,
+      "lastDate": "2021-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -119,7 +125,8 @@
     {
       "year": 2022,
       "file": "firms/detections-2022.bin",
-      "count": 5748,
+      "count": 8406,
+      "lastDate": "2022-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -130,7 +137,8 @@
     {
       "year": 2023,
       "file": "firms/detections-2023.bin",
-      "count": 1553,
+      "count": 3908,
+      "lastDate": "2023-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -141,7 +149,8 @@
     {
       "year": 2024,
       "file": "firms/detections-2024.bin",
-      "count": 1149,
+      "count": 2598,
+      "lastDate": "2024-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -152,7 +161,8 @@
     {
       "year": 2025,
       "file": "firms/detections-2025.bin",
-      "count": 2033,
+      "count": 4392,
+      "lastDate": "2025-12-31",
       "satellites": [
         "S-NPP"
       ],
@@ -163,7 +173,8 @@
     {
       "year": 2026,
       "file": "firms/detections-2026.bin",
-      "count": 23414,
+      "count": 31602,
+      "lastDate": "2026-10-19",
       "satellites": [
         "S-NPP",
         "NOAA-20",

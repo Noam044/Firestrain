@@ -10,6 +10,9 @@ import { readColorToken } from "@/lib/tokens";
 import { useMapStore } from "@/lib/store";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
+/** uDay beyond any day of the year: every burnt area of the year is shown. */
+const WHOLE_YEAR = 1000;
+
 export type TerrainTextures = { height: THREE.DataTexture; mask: THREE.CanvasTexture };
 
 /** GPU textures shared by the relief and the draped lines. */
@@ -108,7 +111,7 @@ export function Terrain({
         uLightDir: { value: new THREE.Vector3(0, 1, 0) },
         uHistory: { value: 1 },
         uPixelRatio: { value: 1 },
-        uDay: { value: 255 },
+        uDay: { value: WHOLE_YEAR },
         uBurn: { value: burn },
         uColShadow: { value: vec3(readColorToken("--ash-900")) },
         uColFlat: { value: vec3(readColorToken("--ash-700")) },
@@ -131,8 +134,8 @@ export function Terrain({
     uniforms.uLightDir.value.copy(light);
     uniforms.uHistory.value = showHistory ? 1 : 0;
     uniforms.uPixelRatio.value = state.viewport.dpr;
-    // Timeline day (255 = whole year), read without re-rendering React.
-    uniforms.uDay.value = useMapStore.getState().timelineDay ?? 255;
+    // Timeline day (WHOLE_YEAR when no day is chosen), read without re-rendering React.
+    uniforms.uDay.value = useMapStore.getState().timelineDay ?? WHOLE_YEAR;
   });
 
   useEffect(() => invalidate(), [geometry, material, exaggeration, light, showHistory, invalidate]);

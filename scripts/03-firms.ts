@@ -2,19 +2,20 @@
  * 03-firms — thermal anomalies detected by NASA FIRMS (VIIRS), day by day.
  *
  * 2026: FIRMS area API (key in .env.local as FIRMS_MAP_KEY, never published),
- * S-NPP, NOAA-20 and NOAA-21, 1 June → 30 September; standard product (SP)
- * while available (to 30 June at the time of writing), near-real-time (NRT)
- * afterwards. 2012–2025: yearly S-NPP country archives (no key needed).
+ * S-NPP, NOAA-20 and NOAA-21, from 1 January to yesterday; standard product
+ * (SP) while available (to 30 June at the time of writing), near-real-time
+ * (NRT) afterwards. 2012–2025: yearly S-NPP country archives (no key needed).
  *
  * Kept: detections inside metropolitan France (ADMIN EXPRESS outline), local
- * date in Paris between 1 June and 30 September, presumed vegetation fires.
+ * date in Paris within the calendar year, presumed vegetation fires.
  * Static heat sources (industry) are flagged `type = 2` in standard products;
  * NRT has no type, so NRT detections falling in a 750 m cell (or a neighbour)
  * where a static source was flagged are dropped.
  *
  * Detections are hotspots, not burnt areas: they are never converted to hectares.
  *
- * Output: firms/detections-<year>.bin (fs-firms-1 + gzip) and firms/index.json
+ * Output: firms/detections-<year>.bin (fs-firms-1 + gzip), firms/index.json and
+ * firms/sources-fixes.json (static cells, reused by the 72 h server route).
  * Usage: node scripts/03-firms.ts [--refresh]   (run 05-admin first)
  */
 import { readFile } from "node:fs/promises";
@@ -24,8 +25,8 @@ import { l93ToScene } from "../lib/geo/frame.ts";
 import { lonLatToL93 } from "../lib/geo/projection.ts";
 import { pointInRings, ringsBBox, bboxContains } from "../lib/geo/polygon.ts";
 import { parseCsv } from "../lib/data/csv.ts";
-import { encodeDetections, FIRMS_CODEC, SATELLITES, type Detections } from "../lib/data/firms-codec.ts";
-import { FirmsIndexSchema, FranceOutlineSchema, type FirmsIndex } from "../lib/data/schemas.ts";
+import { encodeDetections, FIRMS_CODEC, SATELLITE_CODES, SATELLITES, type Detections } from "../lib/data/firms-codec.ts";
+import { FirmsIndexSchema, FirmsStaticCellsSchema, FranceOutlineSchema, type FirmsIndex } from "../lib/data/schemas.ts";
 import { fetchCached, refreshRequested } from "./lib/http.ts";
 import { PUBLIC_DATA_DIR, writeDataFile } from "./lib/manifest.ts";
 
@@ -35,6 +36,9 @@ const BBOX = "-5.5,41,10,51.5";
 const WINDOW_DAYS = 5; // API maximum per request
 const SP_AVAILABLE_UNTIL = "2026-06-30"; // /api/data_availability, checked on 2026-10-20
 const STATIC_CELL_M = 750;
+const DAY_MS = 86_400_000;
+/** Yesterday (UTC): today's passes are still arriving. */
+const LAST_DATE = new Date(Date.now() - DAY_MS).toISOString().slice(0, 10);
 
 const FIRMS_LICENCE = {
   licence: "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
@@ -67,16 +71,19 @@ const dayOfYear = (isoDate: string) => {
   const [y, m, d] = isoDate.split("-").map(Number);
   return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 1)) / 86_400_000) + 1;
 };
-/** Timeline day of a UTC acquisition (acq_date + acq_time HHMM): 1 = 1 June in Paris. */
-function timelineDay(acqDate: string, acqTime: string): number {
+/**
+ * Timeline day of a UTC acquisition (acq_date + acq_time HHMM): its day of the
+ * year in Paris, or null when the local date falls in another year or after lastDate.
+ */
+function timelineDay(acqDate: string, acqTime: string, year: number, lastDate: string): number | null {
   const [y, m, d] = acqDate.split("-").map(Number);
   const hhmm = acqTime.padStart(4, "0");
   const local = parisDate.format(new Date(Date.UTC(y, m - 1, d, Number(hhmm.slice(0, 2)), Number(hhmm.slice(2)))));
-  return dayOfYear(local) - dayOfYear(`${local.slice(0, 4)}-05-31`);
+  if (Number(local.slice(0, 4)) !== year || local > lastDate) return null;
+  return dayOfYear(local);
 }
 
 const CONFIDENCE: Record<string, number> = { l: 0, low: 0, n: 1, nominal: 1, h: 2, high: 2 };
-const SATELLITE: Record<string, number> = { N: 0, "Suomi NPP": 0, N20: 1, "NOAA-20": 1, N21: 2, "NOAA-21": 2 };
 
 type Row = Record<string, string>;
 function rowsOf(csv: string): Row[] {
@@ -109,13 +116,13 @@ const archive = async (year: number) =>
 // ── Collect ──────────────────────────────────────────────────────────────────
 type Point = { x: number; z: number; day: number; frp: number; confidence: number; satellite: number; night: number; key: string };
 
-function toPoint(row: Row, satelliteFallback?: number): Point | null {
+function toPoint(row: Row, year: number, lastDate: string, satelliteFallback?: number): Point | null {
+  const day = timelineDay(row.acq_date, row.acq_time, year, lastDate);
+  if (day === null) return null;
   const [x, y] = lonLatToL93([Number(row.longitude), Number(row.latitude)]);
   const { x: sx, z: sz } = l93ToScene([x, y]);
   if (!inFrance(sx, sz)) return null;
-  const day = timelineDay(row.acq_date, row.acq_time);
-  if (day < 1 || day > 122) return null;
-  const satellite = SATELLITE[row.satellite] ?? satelliteFallback;
+  const satellite = SATELLITE_CODES[row.satellite] ?? satelliteFallback;
   const confidence = CONFIDENCE[row.confidence];
   if (satellite === undefined || confidence === undefined) throw new Error(`unknown satellite/confidence: ${JSON.stringify(row)}`);
   return {
@@ -155,10 +162,16 @@ function pack(points: Point[]): Detections {
 }
 
 const yearEntries: FirmsIndex["years"] = [];
-async function publish(year: number, detections: Detections, products: string[], provenance: { sourceUrl: string; retrievedAt: string; source: string; transformations: string[] }) {
+async function publish(
+  year: number,
+  lastDate: string,
+  detections: Detections,
+  products: string[],
+  provenance: { sourceUrl: string; retrievedAt: string; source: string; transformations: string[] },
+) {
   const file = `firms/detections-${year}.bin`;
   await writeDataFile(file, gzipSync(encodeDetections(detections), { level: 9 }), {
-    title: `Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre ${year}`,
+    title: `Détections d’anomalies thermiques VIIRS, année ${year}${lastDate < `${year}-12-31` ? ` (jusqu’au ${lastDate})` : ""}`,
     ...FIRMS_LICENCE,
     ...provenance,
   });
@@ -166,13 +179,14 @@ async function publish(year: number, detections: Detections, products: string[],
     year,
     file,
     count: detections.count,
+    lastDate,
     satellites: [...new Set(Array.from(detections.satellite))].sort().map((s) => SATELLITES[s]),
     products,
   });
   console.log(`  ${year} : ${String(detections.count).padStart(6)} détections (${products.join(", ")})`);
 }
 
-console.log("NASA FIRMS — détections VIIRS (France métropolitaine, juin–septembre)");
+console.log(`NASA FIRMS — détections VIIRS (France métropolitaine, années civiles, ${LAST_YEAR} jusqu’au ${LAST_DATE})`);
 
 // Static sources: 2025 S-NPP archive, then the 2026 standard product as it is read.
 for (const row of rowsOf((await archive(2025)).body.toString("utf8"))) flagStatic(row);
@@ -180,7 +194,9 @@ for (const row of rowsOf((await archive(2025)).body.toString("utf8"))) flagStati
 // 2026 through the area API.
 const SOURCES = ["VIIRS_SNPP", "VIIRS_NOAA20", "VIIRS_NOAA21"] as const;
 const windows: string[] = [];
-for (let t = Date.UTC(LAST_YEAR, 5, 1); t <= Date.UTC(LAST_YEAR, 8, 30); t += WINDOW_DAYS * 86_400_000) {
+// Windows start on 31 December (UTC): passes after 23:00 UTC that day already
+// fall on 1 January in Paris.
+for (let t = Date.UTC(LAST_YEAR - 1, 11, 31); t <= Date.parse(LAST_DATE); t += WINDOW_DAYS * DAY_MS) {
   windows.push(new Date(t).toISOString().slice(0, 10));
 }
 const raw2026: { row: Row; product: "SP" | "NRT"; satellite: number }[] = [];
@@ -189,10 +205,12 @@ for (const [s, source] of SOURCES.entries()) {
   for (const start of windows) {
     const product = start <= SP_AVAILABLE_UNTIL ? "SP" : "NRT";
     const path = `${source}_${product}/${BBOX}/${WINDOW_DAYS}/${start}`;
+    // A window that reaches today is still filling: always fetched again.
+    const open = Date.parse(start) + WINDOW_DAYS * DAY_MS > Date.parse(LAST_DATE);
     const fetched = await fetchCached(
       `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${KEY}/${path}`,
       `firms-${source}_${product}-${start}.csv`,
-      { refresh: refreshRequested, publicUrl: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/[MAP_KEY]/${path}` },
+      { refresh: refreshRequested || open, publicUrl: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/[MAP_KEY]/${path}` },
     );
     retrieved.push(fetched.retrievedAt);
     for (const row of rowsOf(fetched.body.toString("utf8"))) {
@@ -204,7 +222,7 @@ for (const [s, source] of SOURCES.entries()) {
 const kept2026: Point[] = [];
 for (const { row, product, satellite } of raw2026) {
   if (product === "SP" ? row.type !== "0" : false) continue;
-  const point = toPoint(row, satellite);
+  const point = toPoint(row, LAST_YEAR, LAST_DATE, satellite);
   if (!point) continue;
   if (product === "NRT") {
     const [x, y] = lonLatToL93([Number(row.longitude), Number(row.latitude)]);
@@ -218,21 +236,21 @@ for (let year = FIRST_HISTORY_YEAR; year < LAST_YEAR; year++) {
   const fetched = await archive(year);
   const points = rowsOf(fetched.body.toString("utf8"))
     .filter((row) => row.type === "0")
-    .map((row) => toPoint(row, 0))
+    .map((row) => toPoint(row, year, `${year}-12-31`, 0))
     .filter((p): p is Point => p !== null);
-  await publish(year, pack(points), ["S-NPP, produit standard (archive annuelle)"], {
+  await publish(year, `${year}-12-31`, pack(points), ["S-NPP, produit standard (archive annuelle)"], {
     source: `${FIRMS_CITATION}, archive annuelle par pays`,
     sourceUrl: archiveUrl(year),
     retrievedAt: fetched.retrievedAt,
     transformations: [
       "détections de type 0 (feu de végétation présumé)",
-      "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+      "France métropolitaine (contour ADMIN EXPRESS), année civile (dates locales de Paris)",
       "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip",
     ],
   });
 }
 
-await publish(LAST_YEAR, pack(kept2026), [`produit standard (SP) jusqu’au ${SP_AVAILABLE_UNTIL}`, "temps quasi réel (NRT) ensuite"], {
+await publish(LAST_YEAR, LAST_DATE, pack(kept2026), [`produit standard (SP) jusqu’au ${SP_AVAILABLE_UNTIL}`, "temps quasi réel (NRT) ensuite"], {
   source: `${FIRMS_CITATION}, API par zone (S-NPP, NOAA-20, NOAA-21)`,
   sourceUrl: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/[MAP_KEY]/VIIRS_SNPP_SP/${BBOX}/${WINDOW_DAYS}/${windows[0]}`,
   retrievedAt: retrieved.sort()[0],
@@ -240,14 +258,14 @@ await publish(LAST_YEAR, pack(kept2026), [`produit standard (SP) jusqu’au ${SP
     `requêtes de ${WINDOW_DAYS} jours, produit standard jusqu’au ${SP_AVAILABLE_UNTIL} puis temps quasi réel`,
     "produit standard : détections de type 0 seulement",
     `temps quasi réel : exclusion des mailles de ${STATIC_CELL_M} m (et voisines) où une source fixe a été signalée (archive 2025, produit standard 2026)`,
-    "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris), doublons retirés",
+    `France métropolitaine (contour ADMIN EXPRESS), du 1er janvier au ${LAST_DATE} (dates locales de Paris), doublons retirés`,
     "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip",
   ],
 });
 
 const index = FirmsIndexSchema.parse({
   codec: FIRMS_CODEC,
-  timeline: { from: "06-01", to: "09-30", days: 122 },
+  timeline: "calendar-year",
   years: yearEntries.sort((a, b) => a.year - b.year),
 });
 await writeDataFile("firms/index.json", `${JSON.stringify(index, null, 2)}\n`, {
@@ -257,5 +275,21 @@ await writeDataFile("firms/index.json", `${JSON.stringify(index, null, 2)}\n`, {
   ...FIRMS_LICENCE,
   retrievedAt: retrieved.sort()[0],
   transformations: ["nombre de détections retenues par année"],
+});
+
+const cells = FirmsStaticCellsSchema.parse({
+  cellMeters: STATIC_CELL_M,
+  cells: [...staticCells].map((cell) => cell.split(":").map(Number)).sort((a, b) => a[0] - b[0] || a[1] - b[1]),
+});
+await writeDataFile("firms/sources-fixes.json", `${JSON.stringify(cells)}\n`, {
+  title: "Mailles de 750 m où FIRMS signale une source de chaleur fixe",
+  source: FIRMS_CITATION,
+  sourceUrl: archiveUrl(2025),
+  ...FIRMS_LICENCE,
+  retrievedAt: retrieved.sort()[0],
+  transformations: [
+    "détections de type 2 (source fixe présumée) de l’archive S-NPP 2025 et du produit standard 2026",
+    `mailles Lambert-93 de ${STATIC_CELL_M} m : [floor(x / ${STATIC_CELL_M}), floor(y / ${STATIC_CELL_M})]`,
+  ],
 });
 console.log(`  mailles « source fixe » : ${staticCells.size}`);

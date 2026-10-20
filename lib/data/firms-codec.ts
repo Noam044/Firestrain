@@ -4,7 +4,7 @@
  *
  * Layout for n detections (all little-endian, every column naturally aligned):
  *   Float32 × 2n  scene x, z (km)
- *   Uint16  × n   timeline day (1 = 1 June, local date in Paris)
+ *   Uint16  × n   timeline day (1 = 1 January, local date in Paris)
  *   Uint16  × n   fire radiative power, in 0.1 MW
  *   Uint8   × n   confidence (0 low, 1 nominal, 2 high)
  *   Uint8   × n   satellite (index in SATELLITES)
@@ -13,6 +13,15 @@
 
 export const FIRMS_CODEC = "fs-firms-1";
 export const SATELLITES = ["S-NPP", "NOAA-20", "NOAA-21"] as const;
+/** FIRMS CSV `satellite` values → index in SATELLITES. */
+export const SATELLITE_CODES: Readonly<Record<string, number>> = {
+  N: 0,
+  "Suomi NPP": 0,
+  N20: 1,
+  "NOAA-20": 1,
+  N21: 2,
+  "NOAA-21": 2,
+};
 export const CONFIDENCE_LABELS = ["faible", "nominale", "élevée"] as const;
 
 export type Detections = {

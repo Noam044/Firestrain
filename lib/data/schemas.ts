@@ -237,16 +237,18 @@ export const BdiffMatchesSchema = z.object({
 
 export type BdiffMatches = z.infer<typeof BdiffMatchesSchema>;
 
-/** NASA FIRMS detections published per year (June → September). */
+/** NASA FIRMS detections published per calendar year (1 January → 31 December). */
 export const FirmsIndexSchema = z.object({
   codec: z.literal("fs-firms-1"),
-  /** Timeline covered every year, as MM-DD (local dates in Paris). */
-  timeline: z.object({ from: z.literal("06-01"), to: z.literal("09-30"), days: z.literal(122) }),
+  /** Timeline day 1 = 1 January, local dates in Paris. */
+  timeline: z.literal("calendar-year"),
   years: z.array(
     z.object({
       year: z.number().int(),
       file: z.string(),
       count: z.number().int().nonnegative(),
+      /** Last local date covered: 31 December, or earlier for the year in progress. */
+      lastDate: z.iso.date(),
       satellites: z.array(z.string()),
       products: z.array(z.string()),
     }),
@@ -254,6 +256,33 @@ export const FirmsIndexSchema = z.object({
 });
 
 export type FirmsIndex = z.infer<typeof FirmsIndexSchema>;
+
+/** 750 m Lambert-93 cells where FIRMS flagged a static heat source (type = 2). */
+export const FirmsStaticCellsSchema = z.object({
+  cellMeters: z.number().positive(),
+  /** [column, row] = floor(L93 x / cellMeters), floor(L93 y / cellMeters). */
+  cells: z.array(z.tuple([z.number().int(), z.number().int()])),
+});
+
+export type FirmsStaticCells = z.infer<typeof FirmsStaticCellsSchema>;
+
+/** Answer of /api/firms/recent: near-real-time VIIRS detections of the last 72 hours, as columns. */
+export const RecentDetectionsSchema = z.object({
+  /** When the server queried FIRMS (the answer is cached for about an hour). */
+  generatedAt: z.iso.datetime(),
+  hours: z.literal(72),
+  satellites: z.array(z.string()),
+  count: z.number().int().nonnegative(),
+  /** Scene coordinates (km), rounded to 10 m. */
+  x: z.array(z.number()),
+  z: z.array(z.number()),
+  /** Acquisition time, minutes since the Unix epoch (UTC). */
+  t: z.array(z.number().int()),
+  /** Fire radiative power, MW. */
+  frp: z.array(z.number().nonnegative()),
+});
+
+export type RecentDetections = z.infer<typeof RecentDetectionsSchema>;
 
 export const Departements2DSchema = z.object({
   /** SVG user units = km, origin at the north-west corner of the Lambert-93 extent. */

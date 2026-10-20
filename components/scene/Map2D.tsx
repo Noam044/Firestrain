@@ -3,7 +3,8 @@
 import { useEffect, useMemo } from "react";
 import { SCENE_SIZE } from "@/lib/geo/frame";
 import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
-import { useDepartements2D, useDetections, useEffisYear, useEffisYears } from "@/lib/data/queries";
+import { useDepartements2D, useDetections, useEffisYear, useEffisYears, useRecentDetections } from "@/lib/data/queries";
+import { recentToColumns } from "@/lib/data/firms-recent";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
 
 /** Scene km → SVG user units (km from the north-west corner of the extent, y towards south). */
@@ -32,6 +33,8 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
   const selectFire = useMapStore((state) => state.selectFire);
   const timelineDay = useMapStore((state) => state.timelineDay);
   const detections = useDetections(year, showFires);
+  const showRecent = useMapStore((state) => state.showRecent);
+  const recent = useRecentDetections(showFires && showRecent);
   useEffect(() => {
     setRenderMode("2d");
     return () => setRenderMode(null);
@@ -58,14 +61,16 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
     [showFires, showHistory, history.data],
   );
   const selected = currentPaths.find((p) => p.id === selectedFireId);
-  // Same timeline as the 3D scene: fires from their first detection, hotspots of the last 3 days.
-  const shownDay = timelineDay ?? 255;
+  // Same timeline as the 3D scene: fires from their first detection, hotspots of the last 3 days
+  // (of the timeline day, or of now for the last 72 hours).
+  const shownDay = timelineDay ?? Infinity;
   const activePoints = useMemo(() => {
-    const data = detections.data;
-    if (!data || timelineDay === null) return [];
+    const data = showRecent ? recentToColumns(recent.data) : detections.data;
+    const today = showRecent ? 0 : timelineDay;
+    if (!data || today === null) return [];
     const points: { x: number; y: number; r: number; opacity: number }[] = [];
     for (let k = 0; k < data.count; k++) {
-      const age = timelineDay - data.day[k];
+      const age = today - data.day[k];
       if (age < 0 || age > 3) continue;
       points.push({
         x: data.positions[2 * k] + SCENE_SIZE.width / 2,
@@ -75,7 +80,7 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
       });
     }
     return points;
-  }, [detections.data, timelineDay]);
+  }, [detections.data, timelineDay, showRecent, recent.data]);
 
   return (
     <figure className="absolute inset-0 m-0 flex flex-col">

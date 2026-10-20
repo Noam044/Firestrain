@@ -78,9 +78,11 @@ void main() {
   float history = smoothstep(0.08, 0.5, burn.g) * uHistory;
   float hatch = step(mod(gl_FragCoord.x - gl_FragCoord.y, 6.0 * uPixelRatio), 1.2 * uPixelRatio);
   color = mix(color, uColHatch, history * hatch * 0.75);
-  // Timeline: B holds (255 − first-detection day) scaled by the coverage, so
-  // B / R recovers the day even on filtered edges. uDay = 255 shows the whole year.
-  float firstDay = burn.r > 0.004 ? 255.0 * (1.0 - burn.b / burn.r) : 255.0;
+  // Timeline: B and A hold the first-detection day (high and low bytes), scaled
+  // by the coverage once filtered, so dividing by R recovers it on soft edges.
+  // uDay = 1000 shows the whole year.
+  float coverage = max(burn.r, 0.004);
+  float firstDay = floor(burn.b / coverage + 0.5) * 256.0 + floor(burn.a / coverage * 255.0 + 0.5);
   float started = step(firstDay, uDay + 0.5);
   float current = smoothstep(0.08, 0.5, burn.r) * started;
   vec3 charred = uColChar * mix(0.65, 1.45, clamp(relative * 0.5, 0.0, 1.0));
@@ -189,10 +191,16 @@ void main() {
 `;
 
 export const burnMaskFragmentShader = /* glsl */ `
-uniform vec3 uChannel;
+uniform float uHistory;
 varying float vValue;
 
 void main() {
-  gl_FragColor = vec4(uChannel.r, uChannel.g, uChannel.b * vValue, 1.0);
+  if (uHistory > 0.5) {
+    gl_FragColor = vec4(0.0, 1.0, 0.0, 0.0);
+    return;
+  }
+  // vValue is a whole day (1 – 366): high byte in B, low byte in A.
+  float high = floor(vValue / 256.0 + 0.001);
+  gl_FragColor = vec4(1.0, 0.0, high, (vValue - 256.0 * high) / 255.0);
 }
 `;
