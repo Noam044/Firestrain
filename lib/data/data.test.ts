@@ -10,6 +10,39 @@ import {
 import { toHalfFloat } from "./half-float.ts";
 import { extendIntoNoData } from "./fill.ts";
 import { mipPyramid } from "./mipmaps.ts";
+import { decodeDetections, encodeDetections } from "./firms-codec.ts";
+import { dateOfTimelineDay, timelineDayOfDate } from "../timeline.ts";
+
+test("timeline days map to dates from 1 June to 30 September", () => {
+  assert.equal(dateOfTimelineDay(2026, 1), "2026-06-01");
+  assert.equal(dateOfTimelineDay(2026, 48.7), "2026-07-18");
+  assert.equal(dateOfTimelineDay(2026, 122), "2026-09-30");
+  assert.equal(timelineDayOfDate(2026, "2026-07-18"), 48);
+  assert.equal(timelineDayOfDate(2026, "2026-10-01"), null);
+  assert.equal(timelineDayOfDate(2026, "2025-07-18"), null, "other year");
+  assert.equal(timelineDayOfDate(2026, "18/07/2026"), null);
+});
+
+test("fs-firms-1 round-trips detections column by column", () => {
+  const detections = {
+    count: 3,
+    positions: new Float32Array([-12.5, 34.25, 400, -500, 0, 0]),
+    day: new Uint16Array([1, 52, 122]),
+    frp: new Uint16Array([12, 65535, 0]),
+    confidence: new Uint8Array([0, 1, 2]),
+    satellite: new Uint8Array([2, 1, 0]),
+    night: new Uint8Array([1, 0, 0]),
+  };
+  const bytes = encodeDetections(detections);
+  assert.equal(bytes.length, 45);
+  // Decoding from an unaligned view must still work.
+  const shifted = new Uint8Array(bytes.length + 1);
+  shifted.set(bytes, 1);
+  const decoded = decodeDetections(shifted.subarray(1), 3);
+  for (const key of ["positions", "day", "frp", "confidence", "satellite", "night"] as const) {
+    assert.deepEqual(Array.from(decoded[key]), Array.from(detections[key]), key);
+  }
+});
 import { decodeFire, findFireAt, parisDayOfYear } from "./fires.ts";
 import { encodeRing } from "../geo/rings.ts";
 import type { EffisFire } from "./schemas.ts";

@@ -6,7 +6,7 @@ Généré par `scripts/06-validate.ts` le 20 oct. 2026 à partir de `public/data
 
 ## 1. Fichiers publiés
 
-33 fichiers sur 33 conformes (taille, sha256 et schéma Zod) ; 33 fichiers présents dans `public/data`.
+49 fichiers sur 49 conformes (taille, sha256 et schéma Zod) ; 49 fichiers présents dans `public/data`.
 
 ## 2. EFFIS : totaux du pipeline et statistiques officielles
 
@@ -110,4 +110,26 @@ Les polygones sans candidat sont surtout de petites surfaces (dont les brûlages
 
 - EFFIS, polygone 562583 (Porge, Gironde) : **37 191 ha**, mis à jour le 23 juil. 2026 (−4 809 ha, soit -11 %).
 - Explication partielle : le chiffre de presse est arrondi et ne précise pas s’il s’agit de surface parcourue ou brûlée ; EFFIS cartographie la surface brûlée détectée par satellite. À confronter en phase 4 aux communiqués de la préfecture de la Gironde.
+
+## 6. Détections FIRMS (juin – septembre)
+
+Anomalies thermiques VIIRS : des points chauds, jamais convertis en surfaces. 2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) ; les années précédentes viennent du seul S-NPP : les nombres ne se comparent pas entre ces deux périodes.
+
+| Année | Détections | Satellites | Produits |
+|---|---:|---|---|
+| 2012 | 1 950 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2013 | 2 000 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2014 | 1 566 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2015 | 2 306 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2016 | 2 563 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2017 | 2 274 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2018 | 1 854 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2019 | 2 509 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2020 | 1 789 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2021 | 1 763 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2022 | 5 748 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2023 | 1 553 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2024 | 1 149 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2025 | 2 033 | S-NPP | S-NPP, produit standard (archive annuelle) |
+| 2026 | 23 414 | S-NPP, NOAA-20, NOAA-21 | produit standard (SP) jusqu’au 2026-06-30 ; temps quasi réel (NRT) ensuite |
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-20T10:36:38.953Z",
+  "updatedAt": "2026-10-20T14:13:02.889Z",
   "files": {
     "admin/departements-2d.json": {
       "title": "Départements (carte 2D de repli)",
@@ -484,6 +484,246 @@
       ],
       "bytes": 13125,
       "sha256": "e7d53e3f86c28caa16e2e131823f9f979e51c7d406f2b2b2eaf2776b5073819e"
+    },
+    "firms/detections-2012.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2012",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2012/viirs-snpp_2012_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:51.037Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 16481,
+      "sha256": "4fd4efe7b4701c4927c4d8ca68a9193747a036427025d442275ea90167d142d5"
+    },
+    "firms/detections-2013.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2013",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2013/viirs-snpp_2013_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:53.105Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 16925,
+      "sha256": "577298c085938d2502eb35fd7d3aa905099faf85f74e5d9ccfa897e707ca22e3"
+    },
+    "firms/detections-2014.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2014",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2014/viirs-snpp_2014_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:54.771Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 13448,
+      "sha256": "08fffa014df9e768dbac80fc1d9620261ba12276d20560d740a37a4d59a15039"
+    },
+    "firms/detections-2015.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2015",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2015/viirs-snpp_2015_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:55.940Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 19036,
+      "sha256": "1f23385687ab47c607b9164a533cc991526d8877abaa9aa1774142be46c26e41"
+    },
+    "firms/detections-2016.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2016",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2016/viirs-snpp_2016_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:56.898Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 21279,
+      "sha256": "40f57f5eb972b647826ef30e69217aa3d5c07186c774748d7f2229ae75dab6ec"
+    },
+    "firms/detections-2017.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2017",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2017/viirs-snpp_2017_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:57.880Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 18662,
+      "sha256": "241383ee5f66364f0db1e2795158d78f279384e796fe87fb875eb8086f7fa874"
+    },
+    "firms/detections-2018.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2018",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2018/viirs-snpp_2018_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:58.768Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 15680,
+      "sha256": "ad1481b955f5addb2795a07b7ad126e1e0ca0c31e875681d0334273e226c8a44"
+    },
+    "firms/detections-2019.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2019",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2019/viirs-snpp_2019_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:12:59.456Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 20802,
+      "sha256": "60d1a66922b10046f9edad2439129b45fecd0b46305a40909ce244e522661a4c"
+    },
+    "firms/detections-2020.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2020",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2020/viirs-snpp_2020_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:13:00.124Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 15355,
+      "sha256": "4f8b70944d6bc0d2f9689fc13ba3f57505472f9efa371d4fe4746c517553e203"
+    },
+    "firms/detections-2021.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2021",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2021/viirs-snpp_2021_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:13:00.797Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 14608,
+      "sha256": "77b4c9e454d546d533b3a39071f969a22ada9b31dd651df1a8159ec7c71967af"
+    },
+    "firms/detections-2022.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2022",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2022/viirs-snpp_2022_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:13:01.507Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 41570,
+      "sha256": "9f40d2612af91d39d2e3e32c6b2440803cd75f34940fc060fe588fdb6ea00edb"
+    },
+    "firms/detections-2023.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2023",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2023/viirs-snpp_2023_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:13:02.199Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 13327,
+      "sha256": "ca5a2ee00762b2217e7e58e8b45a1a689526281b286f15efe3514ee9611ee42a"
+    },
+    "firms/detections-2024.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2024",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2024/viirs-snpp_2024_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:13:02.660Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 9965,
+      "sha256": "6ffb4cbc50c16a6250a117af579fd0fc41d46b5da1782b06120672c0b4df82fc"
+    },
+    "firms/detections-2025.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2025",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2025/viirs-snpp_2025_France.csv",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:11:49.804Z",
+      "transformations": [
+        "détections de type 0 (feu de végétation présumé)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris)",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 17065,
+      "sha256": "6f810b8a17967db500650af8ea8078c3085cbcd54576df9666dba3ca1aaf9955"
+    },
+    "firms/detections-2026.bin": {
+      "title": "Détections d’anomalies thermiques VIIRS, 1er juin – 30 septembre 2026",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, API par zone (S-NPP, NOAA-20, NOAA-21)",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/[MAP_KEY]/VIIRS_SNPP_SP/-5.5,41,10,51.5/5/2026-06-01",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:11:50.138Z",
+      "transformations": [
+        "requêtes de 5 jours, produit standard jusqu’au 2026-06-30 puis temps quasi réel",
+        "produit standard : détections de type 0 seulement",
+        "temps quasi réel : exclusion des mailles de 750 m (et voisines) où une source fixe a été signalée (archive 2025, produit standard 2026)",
+        "France métropolitaine (contour ADMIN EXPRESS), 1er juin – 30 septembre (dates locales de Paris), doublons retirés",
+        "Lambert-93 → coordonnées de scène arrondies à 10 m, encodage fs-firms-1 + gzip"
+      ],
+      "bytes": 164527,
+      "sha256": "f318ba7d851c9a03e42c83dd68906fe694000227070f1da33f4949c2b812a376"
+    },
+    "firms/index.json": {
+      "title": "Index des détections FIRMS par année",
+      "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m",
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/",
+      "licence": "Données ouvertes de la NASA (réutilisation libre, citation demandée)",
+      "licenceUrl": "https://www.earthdata.nasa.gov/data/tools/firms",
+      "retrievedAt": "2026-10-20T14:11:50.138Z",
+      "transformations": [
+        "nombre de détections retenues par année"
+      ],
+      "bytes": 3580,
+      "sha256": "c89de5a421eddfeaf521b01b0a598e262f68b7533346453e440169206682ec19"
     },
     "terrain/dem-1000m.bin": {
       "title": "Relief de la France métropolitaine, maille 1000 m",

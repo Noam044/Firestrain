@@ -61,7 +61,7 @@
 5. **Sélection** : clic → raycast → point-dans-polygone (index par bbox) → `FirePanel` (Sheet sur mobile) : commune EFFIS (libellée comme telle), première détection, surface EFFIS, couverts, Natura 2000, surface BDIFF si rapprochement univoque (voir question 4), « non renseigné » sinon.
 6. **Sélecteur d'année** (Radix Select), **`SourceTag`** (source · date de la donnée · date de récupération · lien) sur chaque chiffre.
 
-## Phase 3 — Le temps
+## Phase 3 — Le temps ✅
 
 1. **Script 03-firms** : API (clé côté script uniquement) VIIRS NOAA-20/NOAA-21/S-NPP, SP si disponible sinon NRT, 1/06→30/09/2026, emprise France → dédoublonnage, filtre des sources fixes → binaire compact (x, y en km Float32 ; jour Uint16 ; FRP ; confiance Uint8). Historique 2012→2025 depuis les archives annuelles S-NPP (sans clé, `type = 0`).
 2. **`FirePoints`** : `Points` avec attributs `day`, `frp` ; filtre `uCurrentDay` dans le shader ; taille ∝ FRP ; fondu sur quelques jours ; bloom très léger réservé à ces points (optionnel).
