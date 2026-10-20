@@ -16,11 +16,25 @@
 | Git | Une branche par phase (`phase-N/…`), commits conventionnels, fusion dans `main` après ta validation | |
 | Données brutes | `data/raw/` (non versionné) ; sorties dans `public/data/` + `manifest.json` (source, licence, date de récupération, sha256) | |
 
-## Phase 0 — Audit des données ✅ (cette livraison)
+## Décisions validées (20/10/2026)
+
+- **Chiffre d'ouverture** : année civile (98 459 ha, EFFIS ≥ 30 ha) en grand, saison 1/06→30/09 en sous-titre ; le récit parle de « l'année 2026 ».
+- **Relief** : France seule (MNT IGN), sans les pays voisins.
+- **BDIFF par feu** : rapprochement avec un polygone EFFIS seulement s'il n'y a qu'un candidat, signalé « rapprochement automatique » ; sinon agrégats commune/département.
+- **FIRMS** : clé `MAP_KEY` en cours de création ; elle ira dans `.env.local` (`FIRMS_MAP_KEY`), jamais côté client.
+
+## Écarts au plan, décidés en phase 1
+
+- **Format de la heightmap** : binaire maison `fs-dem-1` (codes Uint16 au 0,1 m, prédiction planaire, plans d'octets, gzip) plutôt qu'un PNG 8 bits RGB. Le décodage est exact, sans risque de gestion des couleurs par le navigateur, et pèse 2,66 Mo à 500 m (0,72 Mo à 1 000 m pour le mobile).
+- **Masque terre/mer** : rastérisation du contour ADMIN EXPRESS dans le navigateur, et non le *nodata* du MNT. Les dalles BD ALTI côtières codent la mer à exactement 0,0 m, et les dalles frontalières contiennent du terrain étranger.
+- **Mipmaps de la heightmap** calculés dans un Web Worker : le GPU ne sait pas générer les niveaux d'une texture demi-flottante en WebGL 2, et sans eux l'ombrage scintille en vue d'ensemble.
+- **Indicateur du nord** : nord géographique, et non le nord du quadrillage Lambert-93 (convergence des méridiens jusqu'à ±4°).
+
+## Phase 0 — Audit des données ✅
 
 `docs/BRIEF.md`, `docs/DATA_AUDIT.md`, `docs/PLAN.md`.
 
-## Phase 1 — Socle
+## Phase 1 — Socle ✅
 
 1. **Scaffold** Next 16 (App Router, TS strict, Tailwind 4, ESLint), arborescence du brief (`app/`, `components/{scene,story,ui}`, `lib/{geo,data}`, `scripts/`, `fixtures/`).
 2. **Direction artistique** : tokens CSS sur `:root` (`--ash-950/800/600/400`, `--bone-100`, `--char`, `--ember`, `--sea`), contrastes AA vérifiés ; polices via `next/font` (Source Serif 4 avec axe optique, IBM Plex Mono, IBM Plex Sans) ; layout éditorial vide (en-tête, grille, pied de crédits).
