@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { Dialog } from "radix-ui";
-import type { ElementType, ReactNode } from "react";
-import { formatDateTime, formatDecimal, formatInteger, formatLocalDateTime } from "@/lib/format";
+import { useMemo, type ElementType, type ReactNode } from "react";
+import { formatDate, formatDateTime, formatDecimal, formatInteger, formatLocalDateTime } from "@/lib/format";
 import type { DecodedFire } from "@/lib/data/fires";
-import { useBdiffAnnual, useBdiffMatches, useEffisYear, useManifest } from "@/lib/data/queries";
+import { useBdiffAnnual, useBdiffMatches, useDetections, useEffisYear, useFirmsIndex, useManifest } from "@/lib/data/queries";
+import { bboxContains, pointInRings } from "@/lib/geo/polygon";
+import { dateOfTimelineDay, TIMELINE_DAYS } from "@/lib/timeline";
 import { LAND_COVER_KEYS, type LandCoverKey } from "@/lib/data/schemas";
 import { useMapStore } from "@/lib/store";
 import { useMediaQuery } from "@/lib/use-media-query";
@@ -55,6 +57,80 @@ function LandCover({ values }: { values: DecodedFire["landCover"] }) {
   );
 }
 
+/** VIIRS pixel half-width: detections this close to the outline are counted (≈ 400 m). */
+const NEAR_KM = 0.4;
+
+/** Day-by-day FIRMS detections inside the outline: hotspots, never converted to an area. */
+function FireActivity({ fire, year }: { fire: DecodedFire; year: number }) {
+  const index = useFirmsIndex();
+  const detections = useDetections(year);
+  const manifest = useManifest();
+  const timelineDay = useMapStore((state) => state.timelineDay);
+  const perDay = useMemo(() => {
+    const data = detections.data;
+    if (!data) return null;
+    const counts = new Uint16Array(TIMELINE_DAYS + 1);
+    const [x0, z0, x1, z1] = fire.bbox;
+    const box: [number, number, number, number] = [x0 - NEAR_KM, z0 - NEAR_KM, x1 + NEAR_KM, z1 + NEAR_KM];
+    for (let k = 0; k < data.count; k++) {
+      const x = data.positions[2 * k];
+      const z = data.positions[2 * k + 1];
+      if (!bboxContains(box, x, z)) continue;
+      const near = [[0, 0], [NEAR_KM, 0], [-NEAR_KM, 0], [0, NEAR_KM], [0, -NEAR_KM]].some(([dx, dz]) =>
+        pointInRings(x + dx, z + dz, fire.rings),
+      );
+      if (near) counts[data.day[k]] += 1;
+    }
+    return counts;
+  }, [detections.data, fire]);
+
+  if (index.isSuccess && !index.data.years.some((y) => y.year === year)) {
+    return <span className="text-bone-300">pas de détections VIIRS avant 2012</span>;
+  }
+  if (!perDay) return <span className="font-mono text-xs text-ash-400">Chargement…</span>;
+  const days = Array.from(perDay.keys()).filter((d) => d > 0 && perDay[d] > 0);
+  const total = days.reduce((sum, d) => sum + perDay[d], 0);
+  if (total === 0) {
+    return <span className="text-bone-300">aucune détection VIIRS dans ce contour du 1er juin au 30 septembre</span>;
+  }
+  const max = Math.max(...days.map((d) => perDay[d]));
+  return (
+    <>
+      <svg viewBox={`0 0 ${TIMELINE_DAYS} 40`} preserveAspectRatio="none" className="h-10 w-full" aria-hidden>
+        <line x1="0" y1="39.5" x2={TIMELINE_DAYS} y2="39.5" stroke="var(--ash-700)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        {days.map((d) => (
+          <rect
+            key={d}
+            x={d - 1}
+            y={40 - (perDay[d] / max) * 38}
+            width="1"
+            height={(perDay[d] / max) * 38}
+            fill={timelineDay !== null && Math.floor(timelineDay) === d ? "var(--ember)" : "var(--bone-300)"}
+          />
+        ))}
+      </svg>
+      <p className="mt-1 text-xs leading-4 text-bone-300">
+        {formatInteger(total)} détections, du {formatDate(dateOfTimelineDay(year, days[0]))} au{" "}
+        {formatDate(dateOfTimelineDay(year, days.at(-1) ?? days[0]))} (dates locales). Ce sont des points chauds vus
+        par satellite, pas une surface ni une date de fin.
+      </p>
+      <div className="mt-1">
+        <SourceTag
+          source={{
+            name: "NASA FIRMS",
+            fullName: "NASA FIRMS — Fire Information for Resource Management System, VIIRS 375 m",
+            licence: "Données ouvertes de la NASA",
+            licenceUrl: "https://www.earthdata.nasa.gov/data/tools/firms",
+            url: "https://firms.modaps.eosdis.nasa.gov/",
+            retrievedAt: manifest.data?.files[`firms/detections-${year}.bin`]?.retrievedAt,
+            note: "Détections à moins de 400 m du contour EFFIS (taille d’un pixel VIIRS).",
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
 function FireDetails({ fire, year, Title, onClose }: { fire: DecodedFire; year: number; Title: ElementType; onClose: ReactNode }) {
   const manifest = useManifest();
   const matches = useBdiffMatches();
@@ -94,6 +170,9 @@ function FireDetails({ fire, year, Title, onClose }: { fire: DecodedFire; year: 
         <Row label="Première détection satellite">{formatDateTime(fire.firedate)}</Row>
         <Row label="Fin du feu">
           non renseignée <span className="text-bone-300">(EFFIS ne publie pas de date de fin)</span>
+        </Row>
+        <Row label="Détections satellite (FIRMS)">
+          <FireActivity fire={fire} year={year} />
         </Row>
         <Row label="Surface déclarée (BDIFF)">
           {bdiffPublished === false ? (

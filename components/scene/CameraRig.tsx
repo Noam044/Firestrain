@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
 import { lonLatToScene } from "@/lib/geo/projection";
 import { CAMERA_PRESETS, type CameraPreset, type CameraPresetId } from "@/lib/geo/presets";
-import type { MapMode } from "@/lib/store";
+import { useMapStore, type MapMode } from "@/lib/store";
 
 /** Values of camera-controls' ACTION enum (public API, stable across v2–v3). */
 const ACTION = {
@@ -110,6 +110,35 @@ export function CameraRig({ mode, controlsRef }: CameraRigProps) {
       void controls.setFocalOffset(wide ? -190 : 0, wide ? 0 : 0.15 * distance, 0, false);
     }
   }, [controlsRef, mode, reduceMotion]);
+
+  // One-shot moves asked by the URL (?cam=…, ?fire=…) or by the interface.
+  const cameraRequest = useMapStore((state) => state.cameraRequest);
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls || !cameraRequest || mode !== "explore") return;
+    const animate = !reduceMotion;
+    const { target } = cameraRequest;
+    if (target.kind === "preset") {
+      if (target.preset in CAMERA_PRESETS) resetView(controls, animate, target.preset as CameraPresetId);
+      return;
+    }
+    // Frame a fire: keep the current azimuth, oblique view, distance from its size.
+    const [x0, z0, x1, z1] = target.bbox;
+    const cx = (x0 + x1) / 2;
+    const cz = (z0 + z1) / 2;
+    const distance = Math.max(30, 3 * Math.max(x1 - x0, z1 - z0));
+    const polar = THREE.MathUtils.degToRad(45);
+    const azimuth = controls.azimuthAngle;
+    void controls.setLookAt(
+      cx + distance * Math.sin(polar) * Math.sin(azimuth),
+      distance * Math.cos(polar),
+      cz + distance * Math.sin(polar) * Math.cos(azimuth),
+      cx,
+      0,
+      cz,
+      animate,
+    );
+  }, [cameraRequest, controlsRef, mode, reduceMotion]);
 
   return <CameraControls ref={controlsRef} makeDefault enabled={mode === "explore"} regress />;
 }

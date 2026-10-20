@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
-import { parisDayOfYear, parisYear, type DecodedFire } from "@/lib/data/fires";
+import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
 import { burnMaskFragmentShader, burnMaskVertexShader } from "./shaders";
 
 /**
@@ -15,12 +15,6 @@ import { burnMaskFragmentShader, burnMaskVertexShader } from "./shaders";
  *      MAX blending keeps the earliest detection where polygons overlap.
  */
 
-/** Day index on the June → September timeline: 1 = 1 June (or earlier), capped at 255. */
-export function timelineDay(fire: DecodedFire): number {
-  const year = parisYear(fire.firedate);
-  const mayEnd = parisDayOfYear(`${year}-05-31T12:00:00Z`);
-  return Math.min(255, Math.max(1, parisDayOfYear(fire.firedate) - mayEnd));
-}
 
 const geometries = new WeakMap<readonly DecodedFire[], THREE.BufferGeometry>();
 
@@ -31,7 +25,7 @@ function fireGeometry(fires: readonly DecodedFire[]): THREE.BufferGeometry {
   const positions: number[] = [];
   const values: number[] = [];
   for (const fire of fires) {
-    const value = (255 - timelineDay(fire)) / 255;
+    const value = (255 - fireTimelineDay(fire)) / 255;
     for (const shape of fire.shapes) {
       const toPoints = (ring: Float32Array) => {
         const points: THREE.Vector2[] = [];
