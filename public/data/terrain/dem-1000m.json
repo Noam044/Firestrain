@@ -1,0 +1,22 @@
+{
+  "codec": "fs-dem-1",
+  "file": "terrain/dem-1000m.bin",
+  "width": 1160,
+  "height": 1090,
+  "pixelSizeM": 1000,
+  "extentL93": {
+    "xmin": 90000,
+    "ymin": 6030000,
+    "xmax": 1250000,
+    "ymax": 7120000
+  },
+  "quantization": {
+    "scale": 0.1,
+    "offset": -100
+  },
+  "stats": {
+    "minM": -11.7,
+    "maxM": 4406.1,
+    "landPixels": 586086
+  }
+}

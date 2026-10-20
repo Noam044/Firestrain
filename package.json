@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test \"lib/**/*.test.ts\" \"scripts/**/*.test.ts\"",
     "data:dem": "node scripts/01-dem.ts",
     "data:admin": "node scripts/05-admin.ts",

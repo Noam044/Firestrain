@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-20T09:33:40.342Z",
+  "files": {
+    "admin/departements-2d.json": {
+      "title": "Départements (carte 2D de repli)",
+      "source": "IGN — ADMIN EXPRESS COG CARTO, dernière édition (WFS Géoplateforme, couche ADMINEXPRESS-COG-CARTO.LATEST:departement)",
+      "sourceUrl": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ADMINEXPRESS-COG-CARTO.LATEST%3Adepartement&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG%3A2154&COUNT=200",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:33:01.049Z",
+      "transformations": [
+        "sélection des 96 départements métropolitains",
+        "simplification mapshaper, tolérance 800 m",
+        "chemins SVG en km, arrondis à 100 m"
+      ],
+      "bytes": 165474,
+      "sha256": "79885074c781648d4c4e5ca90069bc765e024c8e3d03281d9f3b61378921ba5c"
+    },
+    "admin/departements-lignes.json": {
+      "title": "Limites départementales (scène 3D)",
+      "source": "IGN — ADMIN EXPRESS COG CARTO, dernière édition (WFS Géoplateforme, couche ADMINEXPRESS-COG-CARTO.LATEST:departement)",
+      "sourceUrl": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ADMINEXPRESS-COG-CARTO.LATEST%3Adepartement&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG%3A2154&COUNT=200",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:33:01.049Z",
+      "transformations": [
+        "sélection des 96 départements métropolitains",
+        "simplification mapshaper, tolérance 250 m",
+        "conversion en lignes (limites intérieures / contour national)",
+        "coordonnées de scène en km, arrondies à 10 m"
+      ],
+      "bytes": 388588,
+      "sha256": "99298a7914bf5adc466225d903f902bdc1187f52a71534e0b412e98f76e601af"
+    },
+    "admin/france-contour.json": {
+      "title": "Contour de la France métropolitaine (masque terre)",
+      "source": "IGN — ADMIN EXPRESS COG CARTO, dernière édition (WFS Géoplateforme, couche ADMINEXPRESS-COG-CARTO.LATEST:departement)",
+      "sourceUrl": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ADMINEXPRESS-COG-CARTO.LATEST%3Adepartement&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG%3A2154&COUNT=200",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:33:01.049Z",
+      "transformations": [
+        "sélection des 96 départements métropolitains",
+        "fusion (dissolve) des départements",
+        "simplification mapshaper, tolérance 250 m",
+        "coordonnées de scène en km, arrondies à 10 m"
+      ],
+      "bytes": 101974,
+      "sha256": "7794e45a7ed458e2082f51238663cc5f86005ea5b86b2d55e9929e95a6f878f5"
+    },
+    "terrain/dem-1000m.bin": {
+      "title": "Relief de la France métropolitaine, maille 1000 m",
+      "source": "IGN — BD ALTI® (Géoplateforme, WMS-Raster, couche ELEVATION.ELEVATIONGRIDCOVERAGE)",
+      "sourceUrl": "https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE&STYLES=&CRS=EPSG%3A2154&BBOX=90000%2C6030000%2C1250000%2C7120000&WIDTH=1160&HEIGHT=1090&FORMAT=image%2Fx-bil%3Bbits%3D32",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:31:24.006Z",
+      "transformations": [
+        "reprojection en Lambert-93 (EPSG:2154) par le service IGN",
+        "rééchantillonnage à 1000 m par le service IGN",
+        "valeurs exactement nulles (mer dans les dalles côtières) traitées comme absence de donnée",
+        "quantification à 0,1 m",
+        "encodage fs-dem-1 + gzip"
+      ],
+      "bytes": 717290,
+      "sha256": "1624640a101469d34eec711aeb6e3ed5189b4236854502945c01d1850a3e1838"
+    },
+    "terrain/dem-1000m.json": {
+      "title": "Métadonnées — Relief de la France métropolitaine, maille 1000 m",
+      "source": "IGN — BD ALTI® (Géoplateforme, WMS-Raster, couche ELEVATION.ELEVATIONGRIDCOVERAGE)",
+      "sourceUrl": "https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE&STYLES=&CRS=EPSG%3A2154&BBOX=90000%2C6030000%2C1250000%2C7120000&WIDTH=1160&HEIGHT=1090&FORMAT=image%2Fx-bil%3Bbits%3D32",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:31:24.006Z",
+      "transformations": [
+        "reprojection en Lambert-93 (EPSG:2154) par le service IGN",
+        "rééchantillonnage à 1000 m par le service IGN",
+        "valeurs exactement nulles (mer dans les dalles côtières) traitées comme absence de donnée",
+        "quantification à 0,1 m",
+        "encodage fs-dem-1 + gzip"
+      ],
+      "bytes": 365,
+      "sha256": "8c8115ae6da6edce1354dfcc593e7afc75c1ea18846bd6a518f1f494210dc1f7"
+    },
+    "terrain/dem-500m.bin": {
+      "title": "Relief de la France métropolitaine, maille 500 m",
+      "source": "IGN — BD ALTI® (Géoplateforme, WMS-Raster, couche ELEVATION.ELEVATIONGRIDCOVERAGE)",
+      "sourceUrl": "https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE&STYLES=&CRS=EPSG%3A2154&BBOX=90000%2C6030000%2C1250000%2C7120000&WIDTH=2320&HEIGHT=2180&FORMAT=image%2Fx-bil%3Bbits%3D32",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:31:20.557Z",
+      "transformations": [
+        "reprojection en Lambert-93 (EPSG:2154) par le service IGN",
+        "rééchantillonnage à 500 m par le service IGN",
+        "valeurs exactement nulles (mer dans les dalles côtières) traitées comme absence de donnée",
+        "quantification à 0,1 m",
+        "encodage fs-dem-1 + gzip"
+      ],
+      "bytes": 2661280,
+      "sha256": "41db1cd949f0174f5fe9423f2abbcc1600715bdefc808fba0e1802d2b75778f4"
+    },
+    "terrain/dem-500m.json": {
+      "title": "Métadonnées — Relief de la France métropolitaine, maille 500 m",
+      "source": "IGN — BD ALTI® (Géoplateforme, WMS-Raster, couche ELEVATION.ELEVATIONGRIDCOVERAGE)",
+      "sourceUrl": "https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE&STYLES=&CRS=EPSG%3A2154&BBOX=90000%2C6030000%2C1250000%2C7120000&WIDTH=2320&HEIGHT=2180&FORMAT=image%2Fx-bil%3Bbits%3D32",
+      "licence": "Licence Ouverte Etalab 2.0",
+      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+      "retrievedAt": "2026-10-20T09:31:20.557Z",
+      "transformations": [
+        "reprojection en Lambert-93 (EPSG:2154) par le service IGN",
+        "rééchantillonnage à 500 m par le service IGN",
+        "valeurs exactement nulles (mer dans les dalles côtières) traitées comme absence de donnée",
+        "quantification à 0,1 m",
+        "encodage fs-dem-1 + gzip"
+      ],
+      "bytes": 362,
+      "sha256": "fc5cfac09f6d7dae7c7189480ee14e4d0c506aeef47af219c1e8da078af0504a"
+    }
+  }
+}
