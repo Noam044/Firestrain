@@ -234,6 +234,14 @@ export default function MethodePage() {
             pour forcer l’un ou l’autre.
           </li>
           <li>
+            Fonds de carte (Explorer) : relief ombré calculé à partir de la BD ALTI, ou une couche de la Géoplateforme de
+            l’IGN demandée directement en Lambert-93 — Plan IGN, images satellite SPOT 2025 (ORTHO-SAT, 1,5 m) ou
+            photographies aériennes (BD ORTHO). Toutes sont sous Licence Ouverte 2.0 ; les images sont antérieures aux
+            feux de 2026, qui n’y apparaissent pas : les surfaces brûlées viennent toujours d’EFFIS. Une image de toute la
+            France sert de fond, et une image nette de la zone regardée est chargée quand la caméra s’arrête ; ces
+            images sont demandées par le navigateur aux serveurs de l’IGN.
+          </li>
+          <li>
             Avec la préférence « réduire les animations », les déplacements de caméra deviennent des coupes, le compteur
             ne défile pas, le défilement doux est désactivé et la frise avance jour par jour.
           </li>

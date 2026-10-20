@@ -95,6 +95,8 @@ export function useBurnMask(
       generateMipmaps: true,
       minFilter: THREE.LinearMipmapLinearFilter,
       magFilter: THREE.LinearFilter,
+      // Sharp outlines in the distance of oblique views.
+      anisotropy: gl.capabilities.getMaxAnisotropy(),
     });
   }, [gl, size.width, size.height]);
   useEffect(() => () => target.dispose(), [target]);

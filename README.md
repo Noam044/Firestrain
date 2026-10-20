@@ -71,6 +71,8 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
+- **Fonds de carte** (choix dans l'Explorer, `?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
+  BD ORTHO — IGN / CNES, Licence Ouverte 2.0, demandés par le navigateur au WMS de la Géoplateforme (sans clé).
 - **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
 - **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.
 - **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.

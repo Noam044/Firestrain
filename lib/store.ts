@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { BasemapId } from "./geo/basemaps.ts";
 
 /** "explore": free camera and map furniture; "story": camera driven by the narrative. */
 export type MapMode = "explore" | "story";
@@ -40,6 +41,8 @@ type MapState = {
   timelineDay: number | null;
   /** FIRMS detections of the last 72 hours (server route), for the current year only. */
   showRecent: boolean;
+  /** Base map under the burnt areas (Explorer; the story always uses the relief). */
+  basemap: BasemapId;
   playing: boolean;
   /** Playback speed, in timeline days per second. */
   speed: number;
@@ -53,6 +56,7 @@ type MapState = {
   selectFire: (id: number | null) => void;
   setTimelineDay: (day: number | null) => void;
   setShowRecent: (showRecent: boolean) => void;
+  setBasemap: (basemap: BasemapId) => void;
   setPlaying: (playing: boolean) => void;
   setSpeed: (speed: number) => void;
   requestCamera: (target: CameraRequest["target"]) => void;
@@ -76,6 +80,7 @@ export const useMapStore = create<MapState>()((set) => ({
   selectedFireId: null,
   timelineDay: null,
   showRecent: false,
+  basemap: "relief",
   playing: false,
   speed: 7,
   cameraRequest: null,
@@ -89,6 +94,7 @@ export const useMapStore = create<MapState>()((set) => ({
   // The timeline and the last 72 hours are two views of the hotspots: one at a time.
   setTimelineDay: (timelineDay) =>
     set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay, showRecent: false }),
+  setBasemap: (basemap) => set({ basemap }),
   setShowRecent: (showRecent) =>
     set(showRecent ? { showRecent, timelineDay: null, playing: false } : { showRecent }),
   setPlaying: (playing) => set({ playing }),

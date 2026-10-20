@@ -41,6 +41,12 @@ uniform vec3 uColHatch;
 uniform float uHistory;
 uniform float uPixelRatio;
 uniform float uDay;
+uniform float uImagery;
+uniform sampler2D uImageryFar;
+uniform sampler2D uImageryNear;
+uniform vec4 uNearRect;
+uniform float uHasNear;
+uniform float uImageryShade;
 varying vec2 vUv;
 varying float vHeightM;
 
@@ -71,6 +77,18 @@ void main() {
   float hasAltitude = texture2D(uHeight, vUv).g;
   color = mix(uColWater, color, step(0.5, hasAltitude));
 
+  // Imagery base map (Plan, Satellite, aerial photos): the sharp image around the
+  // camera target, feathered into the whole-France image, with some hillshading
+  // laid over so the relief stays readable. Both are always sampled (uniform
+  // control flow keeps the mipmap derivatives valid).
+  vec2 nearUv = (vUv - uNearRect.xy) / max(uNearRect.zw - uNearRect.xy, vec2(1e-6));
+  vec3 farImage = texture2D(uImageryFar, vUv).rgb;
+  vec3 nearImage = texture2D(uImageryNear, clamp(nearUv, 0.0, 1.0)).rgb;
+  float inset = min(min(nearUv.x, 1.0 - nearUv.x), min(nearUv.y, 1.0 - nearUv.y));
+  vec3 image = mix(farImage, nearImage, uHasNear * smoothstep(0.0, 0.03, inset));
+  float imageShade = mix(1.0, clamp(0.55 + 0.45 * relative, 0.4, 1.35), uImageryShade);
+  color = mix(color, image * imageShade, uImagery);
+
   // Burnt areas (see BurnMask.ts). Earlier years: thin 45° hatching in a lighter
   // tone, so the distinction never relies on colour alone. Year shown: matt
   // charred tone that keeps a trace of the hillshade so the relief stays legible.
@@ -86,7 +104,8 @@ void main() {
   float started = step(firstDay, uDay + 0.5);
   float current = smoothstep(0.08, 0.5, burn.r) * started;
   vec3 charred = uColChar * mix(0.65, 1.45, clamp(relative * 0.5, 0.0, 1.0));
-  color = mix(color, charred, current);
+  // Over imagery the charred tone lets a little of the image through.
+  color = mix(color, charred, current * mix(1.0, 0.85, uImagery));
   // Thin outline where the coverage crosses one half, about one pixel wide at any
   // zoom: delineates burnt areas like the contour line of a printed map.
   float edge = 1.0 - smoothstep(0.0, 1.5 * fwidth(burn.r) + 1e-4, abs(burn.r - 0.5));

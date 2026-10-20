@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { SCENE_SIZE } from "@/lib/geo/frame";
+import { L93_EXTENT, SCENE_SIZE } from "@/lib/geo/frame";
+import { basemapById, wmsUrl } from "@/lib/geo/basemaps";
 import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
 import { useDepartements2D, useDetections, useEffisYear, useEffisYears, useRecentDetections } from "@/lib/data/queries";
 import { recentToColumns } from "@/lib/data/firms-recent";
@@ -34,6 +35,12 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
   // Whole days only: redrawing the SVG at every animation frame would be wasted.
   const timelineDay = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
   const detections = useDetections(year, showFires);
+  // Imagery base maps in 2D: one whole-France image, clipped to the departments.
+  const basemap = useMapStore((state) => basemapById(state.basemap));
+  const imageUrl =
+    showFires && basemap.layer
+      ? wmsUrl(basemap, [L93_EXTENT.xmin, L93_EXTENT.ymin], [L93_EXTENT.xmax, L93_EXTENT.ymax], 1600, Math.round((1600 * SCENE_SIZE.depth) / SCENE_SIZE.width))
+      : null;
   const showRecent = useMapStore((state) => state.showRecent);
   const recent = useRecentDetections(showFires && showRecent);
   useEffect(() => {
@@ -107,12 +114,30 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
               >
                 <line x1="0" y1="0" x2="0" y2="2" stroke="var(--bone-300)" strokeWidth="0.5" />
               </pattern>
+              {imageUrl && (
+                <clipPath id="carte-2d-france">
+                  {data.features.map((feature) => (
+                    <path key={feature.code} d={feature.d} />
+                  ))}
+                </clipPath>
+              )}
             </defs>
+            {imageUrl && (
+              <image
+                href={imageUrl}
+                x={0}
+                y={0}
+                width={SCENE_SIZE.width}
+                height={SCENE_SIZE.depth}
+                preserveAspectRatio="none"
+                clipPath="url(#carte-2d-france)"
+              />
+            )}
             {data.features.map((feature) => (
               <path
                 key={feature.code}
                 d={feature.d}
-                fill="var(--ash-700)"
+                fill={imageUrl ? "none" : "var(--ash-700)"}
                 stroke="var(--ash-400)"
                 strokeWidth={0.75}
                 fillRule="evenodd"

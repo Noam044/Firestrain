@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
-import { AdaptiveDpr, PerformanceMonitor, type CameraControls } from "@react-three/drei";
+import type { CameraControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import * as THREE from "three";
 import {
@@ -24,6 +24,7 @@ import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
 import { FirePoints } from "./FirePoints";
+import { useImagery } from "./Imagery";
 import { CameraRig, resetView } from "./CameraRig";
 import { MapProbe } from "./MapProbe";
 import { MapStatus } from "./MapStatus";
@@ -49,7 +50,6 @@ export default function MapCanvas({ mode }: { mode: MapMode }) {
   const outline = useFranceOutline();
   const borders = useBorders();
   const controlsRef = useRef<CameraControls | null>(null);
-  const [dprCap, setDprCap] = useState(2);
 
   const mask = useMemo(
     () =>
@@ -116,15 +116,14 @@ export default function MapCanvas({ mode }: { mode: MapMode }) {
         flat
         linear
         frameloop="demand"
-        dpr={[1, dprCap]}
-        performance={{ min: 0.5 }}
+        // Full device resolution (capped at 2) at all times: frames are drawn on demand, so
+        // dropping the pixel ratio while the camera moves only blurred the map during navigation.
+        dpr={[1, 2]}
         // Shown by browsers without <canvas> support; WebGL failures are caught by MapStage.
         fallback={<p>Carte en relief indisponible : ce navigateur ne gère pas le dessin en canvas.</p>}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         camera={{ fov: 30, near: 1, far: 12_000, position: [0, 1400, 1100] }}
       >
-        <PerformanceMonitor onDecline={() => setDprCap(1)} onIncline={() => setDprCap(2)} flipflops={3} />
-        <AdaptiveDpr />
         <CameraRig mode={mode} controlsRef={controlsRef} />
         {ready && <Scene {...ready} mode={mode} detail={detail} />}
       </Canvas>
@@ -163,8 +162,10 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
     return () => setRenderMode(null);
   }, [setRenderMode]);
 
-  // Burnt areas are an Explorer layer; the story will introduce them itself.
   const explore = mode === "explore";
+  // Base maps are an Explorer choice; the story keeps the atlas relief.
+  const basemap = useMapStore((state) => state.basemap);
+  const imagery = useImagery(basemap, explore, detail.dem !== 500);
   // The story shows the same layers as the Explorer, driven by the scroll.
   const current = useEffisYear(year);
   const historyYears = useMemo(
@@ -196,6 +197,7 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         lightAltitudeDeg={mode === "story" ? 24 : 35}
         burn={burn}
         showHistory={showHistory}
+        imagery={imagery}
       />
       <Borders
         borders={borders}
