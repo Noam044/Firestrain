@@ -8,10 +8,15 @@ import type { TerrainData } from "@/lib/data/queries";
 import type { LandMask } from "@/lib/data/land-mask";
 import { readColorToken } from "@/lib/tokens";
 import { useMapStore } from "@/lib/store";
+import type { Imagery } from "./Imagery";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
 /** uDay beyond any day of the year: every burnt area of the year is shown. */
 const WHOLE_YEAR = 1000;
+
+/** Bound to the imagery samplers until an image has loaded (a sampler needs a texture). */
+const NO_IMAGE = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
+NO_IMAGE.needsUpdate = true;
 
 export type TerrainTextures = { height: THREE.DataTexture; mask: THREE.CanvasTexture };
 
@@ -71,6 +76,8 @@ type TerrainProps = {
   /** Burn mask (BurnMask.ts); an empty texture shows no burnt area. */
   burn: THREE.Texture;
   showHistory: boolean;
+  /** Base-map imagery (Imagery.ts); the shaded relief when absent. */
+  imagery: Imagery;
 };
 
 export function Terrain({
@@ -81,6 +88,7 @@ export function Terrain({
   lightAltitudeDeg,
   burn,
   showHistory,
+  imagery,
 }: TerrainProps) {
   const invalidate = useThree((state) => state.invalidate);
   const meshRef = useRef<THREE.Mesh>(null);
@@ -118,6 +126,12 @@ export function Terrain({
         uPixelRatio: { value: 1 },
         uDay: { value: WHOLE_YEAR },
         uBurn: { value: burn },
+        uImagery: { value: 0 },
+        uImageryFar: { value: NO_IMAGE },
+        uImageryNear: { value: NO_IMAGE },
+        uNearRect: { value: new THREE.Vector4() },
+        uHasNear: { value: 0 },
+        uImageryShade: { value: 0 },
         uColShadow: { value: vec3(readColorToken("--ash-900")) },
         uColFlat: { value: vec3(readColorToken("--ash-700")) },
         uColLight: { value: vec3(readColorToken("--ash-400")) },
@@ -141,9 +155,19 @@ export function Terrain({
     uniforms.uPixelRatio.value = state.viewport.dpr;
     // Timeline day (WHOLE_YEAR when no day is chosen), read without re-rendering React.
     uniforms.uDay.value = useMapStore.getState().timelineDay ?? WHOLE_YEAR;
+    // Imagery replaces the shaded relief once the whole-France image is there.
+    uniforms.uImagery.value = imagery.far ? 1 : 0;
+    uniforms.uImageryFar.value = imagery.far ?? NO_IMAGE;
+    uniforms.uImageryNear.value = imagery.near ?? NO_IMAGE;
+    uniforms.uHasNear.value = imagery.near ? 1 : 0;
+    uniforms.uNearRect.value.copy(imagery.nearRect);
+    uniforms.uImageryShade.value = imagery.shade;
   });
 
-  useEffect(() => invalidate(), [geometry, material, exaggeration, light, showHistory, invalidate]);
+  useEffect(
+    () => invalidate(),
+    [geometry, material, exaggeration, light, showHistory, imagery.far, imagery.near, invalidate],
+  );
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => () => material.dispose(), [material]);
 

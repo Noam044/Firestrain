@@ -24,6 +24,7 @@ import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
 import { FirePoints } from "./FirePoints";
+import { useImagery } from "./Imagery";
 import { CameraRig, resetView } from "./CameraRig";
 import { MapProbe } from "./MapProbe";
 import { MapStatus } from "./MapStatus";
@@ -161,8 +162,10 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
     return () => setRenderMode(null);
   }, [setRenderMode]);
 
-  // Burnt areas are an Explorer layer; the story will introduce them itself.
   const explore = mode === "explore";
+  // Base maps are an Explorer choice; the story keeps the atlas relief.
+  const basemap = useMapStore((state) => state.basemap);
+  const imagery = useImagery(basemap, explore, detail.dem !== 500);
   // The story shows the same layers as the Explorer, driven by the scroll.
   const current = useEffisYear(year);
   const historyYears = useMemo(
@@ -194,6 +197,7 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         lightAltitudeDeg={mode === "story" ? 24 : 35}
         burn={burn}
         showHistory={showHistory}
+        imagery={imagery}
       />
       <Borders
         borders={borders}
