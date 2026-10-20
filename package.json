@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:e2e": "playwright test",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test \"lib/**/*.test.ts\" \"scripts/**/*.test.ts\"",
     "data:dem": "node scripts/01-dem.ts",
@@ -26,6 +27,7 @@
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "@tanstack/react-query": "^5.104.5",
+    "@tanstack/react-table": "^9.3.1",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "gsap": "^3.15.0",
@@ -41,6 +43,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@types/d3-scale": "^4.0.9",
     "@types/d3-shape": "^3.2.0",
@@ -50,6 +53,7 @@
     "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "lighthouse": "^13.5.0",
     "mapshaper": "^0.7.91",
     "tailwindcss": "^4",
     "typescript": "^5"

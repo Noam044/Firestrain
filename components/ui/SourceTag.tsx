@@ -40,7 +40,8 @@ export function SourceTag({ source }: { source: SourceInfo }) {
       )}
       <Popover.Root>
         <Popover.Trigger
-          className="underline decoration-ash-600 underline-offset-2 hover:text-bone-300"
+          // 24 px tall hit area (WCAG 2.5.8) without changing the line height.
+          className="-my-1 py-1 underline decoration-ash-600 underline-offset-2 hover:text-bone-300"
           aria-label={`Détails de la source ${source.name}`}
         >
           détails
@@ -54,7 +55,7 @@ export function SourceTag({ source }: { source: SourceInfo }) {
             className="z-50 w-72 border border-ash-700 bg-ash-950 p-3 text-xs leading-5 text-bone-300"
           >
             <p className="font-medium text-bone-100">{source.fullName}</p>
-            {source.quote && <p className="mt-1 font-serif italic text-bone-100">« {source.quote} »</p>}
+            {source.quote && <p className="mt-1 font-serif text-bone-100">« {source.quote} »</p>}
             {source.note && <p className="mt-1">{source.note}</p>}
             <dl className="mt-2 grid grid-cols-[6.5rem_1fr] gap-x-2 font-mono text-[11px] leading-4">
               {source.licence && (

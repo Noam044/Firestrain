@@ -99,9 +99,13 @@ Réalisé (écarts compris) :
 - Points FIRMS plus petits et plus discrets dans le récit (densité des grands feux) ; état de la carte emprunté puis rendu à l'Explorer.
 - Lighthouse (mobile) sur le récit : 100 en accessibilité, bonnes pratiques et SEO.
 
-## Phase 5 — Finition
+## Phase 5 — Finition ✅
 
-Liste des feux (TanStack Table 9) comme alternative accessible · page Méthode · navigation clavier complète, focus stylé · audit reduced-motion · perf (React Scan, bundle analyzer, Lighthouse mobile) · Playwright (Récit, Explorer, `?fire=` via URL, repli 2D) · vérification « aucune clé dans `.next/static` » · revue écran par écran de la liste noire · README (lancement, scripts, variables d'environnement, licences et attributions).
+- **Liste des feux** (`/liste`, TanStack Table 9) : tri, filtre texte, mois de première détection, seuil 30 ha, pagination ; surface BDIFF quand le rapprochement est univoque (jamais additionnée) ; la commune mène au feu sur la carte. Liens depuis la navigation, le panneau Année et un lien d'évitement de l'Explorer.
+- **Accessibilité** : anneau de focus 2 px ; test Playwright de chaque arrêt de tabulation (récit, Explorer, liste, Méthode) ; carte aux flèches ; annonces `aria-live` de la date et du feu ; section « Rendu et accessibilité » dans Méthode.
+- **Performance** : sans accélération graphique (rendu WebGL logiciel), la carte passe en 2D — chaque image du relief y coûtait plusieurs secondes (TBT Lighthouse 10 s → 140 ms) ; `rendu=3d` force le relief. Police serif sans italique (−122 Ko préchargés), favicon. React Scan : la frise, la légende et la carte 2D ne se re-rendent plus à chaque image de lecture (≈ 250 → ≈ 32 rendus en 4 s). Lighthouse mobile : récit 86–89, Explorer 88, liste 91, Méthode 96 en performance ; 100 en accessibilité, bonnes pratiques et SEO.
+- **Tests Playwright** (23, bureau et téléphone) : récit et sa source, défilement jusqu'à la Gironde, mouvement réduit, changement d'année, frise au clavier, feu via l'URL, identifiant inconnu, repli 2D (demandé, sans WebGL 2, rendu logiciel), liste, clavier.
+- **Revue** écran par écran de la liste noire et des critères d'acceptation : [`docs/REVIEW.md`](REVIEW.md). Sources ajoutées là où elles manquaient (compte FIRMS de la frise, chiffres EFFIS des chapitres du récit, comparaison d'échelle).
 
 ## Questions ouvertes (elles changent l'architecture)
 

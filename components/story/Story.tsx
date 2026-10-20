@@ -324,7 +324,7 @@ export function Story({ story, weekly, credits, retrieved }: StoryProps) {
             </p>
           )}
           <p className="mt-3 text-sm leading-6 text-ash-400">EFFIS ne publie pas la cause des feux.</p>
-          <div className="mt-3 flex flex-col gap-1">
+          <div className="mt-3 flex flex-col gap-2">
             <SourceTag source={effisSource} />
             <SourceTag source={firmsSource} />
           </div>
@@ -340,6 +340,9 @@ export function Story({ story, weekly, credits, retrieved }: StoryProps) {
             polygones. {landCoverPhrase(trevillach, { scleroph: "garrigue, maquis" })} La préfecture parle de surface
             parcourue, estimée sur le terrain pendant la crise : les deux chiffres ne mesurent pas la même chose.
           </p>
+          <div className="mt-2">
+            <SourceTag source={effisSource} />
+          </div>
           <FactList facts={trevillach.facts} retrievedAt={story.retrievedAt} />
         </Chapter>
 
@@ -353,6 +356,9 @@ export function Story({ story, weekly, credits, retrieved }: StoryProps) {
             {formatInteger(gironde.effis.areaHa)} ha brûlés en {gironde.effis.polygons} polygones.{" "}
             {landCoverPhrase(gironde)}
           </p>
+          <div className="mt-2">
+            <SourceTag source={effisSource} />
+          </div>
           <FactList facts={gironde.facts} retrievedAt={story.retrievedAt} />
         </Chapter>
 
@@ -373,6 +379,9 @@ export function Story({ story, weekly, credits, retrieved }: StoryProps) {
             Parti de Pontevès, le feu s’étend par reprises jusqu’à Correns, Montfort-sur-Argens et Châteauvert. EFFIS
             cartographie {formatInteger(varFire.effis.areaHa)} ha brûlés en {varFire.effis.polygons} polygones.
           </p>
+          <div className="mt-2">
+            <SourceTag source={effisSource} />
+          </div>
           <FactList facts={varFire.facts} retrievedAt={story.retrievedAt} />
         </Chapter>
 

@@ -32,7 +32,7 @@ export function Legend() {
   const flat = useMapStore((state) => state.renderMode === "2d");
   const year = useMapStore((state) => state.year);
   const showHistory = useMapStore((state) => state.showHistory);
-  const timelineDay = useMapStore((state) => state.timelineDay);
+  const timelineActive = useMapStore((state) => state.timelineDay !== null);
   const showRecent = useMapStore((state) => state.showRecent);
   const [open, setOpen] = useState(false);
   return (
@@ -70,7 +70,7 @@ export function Legend() {
           <LineSwatch color="var(--ember)" width={1.5} />
           Surface sélectionnée
         </li>
-        {(timelineDay !== null || showRecent) && (
+        {(timelineActive || showRecent) && (
           <li className="flex items-center gap-2">
             <svg width="24" height="12" aria-hidden className="shrink-0">
               <circle cx="7" cy="6" r="2.2" fill="none" stroke="var(--ember)" strokeWidth="1.2" />

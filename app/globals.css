@@ -76,9 +76,10 @@
     text-decoration-thickness: 1px;
   }
 
+  /* 2 px bone ring on the warm black: visible on every surface, never colour alone. */
   :focus-visible {
-    outline: 1px solid var(--bone-100);
-    outline-offset: 3px;
+    outline: 2px solid var(--bone-100);
+    outline-offset: 2px;
   }
 
   ::selection {

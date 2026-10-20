@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
 import effisIndexJson from "@/public/data/effis/index.json";
@@ -215,6 +216,32 @@ export default function MethodePage() {
           Le graphique cumulatif reprend tel quel le cumul hebdomadaire publié par EFFIS pour la France (feux de 30 ha ou
           plus), avec la moyenne et l’enveloppe des années précédentes calculées par EFFIS.
         </p>
+      </Section>
+
+      <Section title="Rendu et accessibilité">
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            La{" "}
+            <Link href="/liste" className="underline decoration-ash-600 underline-offset-4 hover:text-bone-100">
+              liste des feux
+            </Link> donne les mêmes données que la carte sous forme de tableau triable, utilisable au clavier et avec un
+            lecteur d’écran ; chaque commune mène au feu sur la carte.
+          </li>
+          <li>
+            Sans WebGL 2, ou sans accélération graphique (rendu logiciel, où chaque image du relief coûte plusieurs
+            secondes), la carte s’affiche en 2D : mêmes surfaces, mêmes détections, sans relief. L’adresse accepte{" "}
+            <code className="font-mono text-[13px]">rendu=2d</code> et <code className="font-mono text-[13px]">rendu=3d</code>{" "}
+            pour forcer l’un ou l’autre.
+          </li>
+          <li>
+            Avec la préférence « réduire les animations », les déplacements de caméra deviennent des coupes, le compteur
+            ne défile pas, le défilement doux est désactivé et la frise avance jour par jour.
+          </li>
+          <li>
+            La carte en relief se manipule au clavier : flèches pour se déplacer, plus et moins pour zoomer, Maj et
+            flèches pour pivoter et incliner, zéro pour revenir à la vue d’ensemble.
+          </li>
+        </ul>
       </Section>
 
       <Section title="Contrôles">

@@ -16,23 +16,49 @@ const Map2D = dynamic(() => import("./Map2D"), {
 
 type RenderChoice = { kind: "3d" } | { kind: "2d"; reason: string };
 
-function chooseRender(): RenderChoice {
-  if (new URLSearchParams(window.location.search).get("rendu") === "2d") {
-    return { kind: "2d", reason: "Rendu 2D demandé dans l’adresse (rendu=2d)." };
-  }
+/** Software rasterisers behind WebGL (no GPU): SwiftShader, Mesa llvmpipe/softpipe, Windows WARP. */
+const SOFTWARE_RENDERER = /SwiftShader|llvmpipe|softpipe|Software Rasterizer|Microsoft Basic Render/i;
+
+/**
+ * Creates a throwaway WebGL 2 context: "none" when unsupported, "software" without
+ * graphics acceleration (Chrome does not always flag SwiftShader as a performance caveat).
+ */
+function probeWebGL2(): "none" | "software" | "hardware" {
   try {
-    const gl = document.createElement("canvas").getContext("webgl2");
-    if (gl) {
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
-      return { kind: "3d" };
-    }
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2");
+    if (!gl) return "none";
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    const caveat = document.createElement("canvas").getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+    caveat?.getExtension("WEBGL_lose_context")?.loseContext();
+    return !caveat || SOFTWARE_RENDERER.test(renderer) ? "software" : "hardware";
   } catch {
-    // Treated as unsupported below.
+    return "none";
   }
-  return {
-    kind: "2d",
-    reason: "WebGL 2 n’est pas disponible sur cet appareil : la carte est affichée en 2D, sans relief.",
-  };
+}
+
+function chooseRender(): RenderChoice {
+  const requested = new URLSearchParams(window.location.search).get("rendu");
+  if (requested === "2d") return { kind: "2d", reason: "Rendu 2D demandé dans l’adresse (rendu=2d)." };
+  const webgl = probeWebGL2();
+  if (webgl === "none") {
+    return {
+      kind: "2d",
+      reason: "WebGL 2 n’est pas disponible sur cet appareil : la carte est affichée en 2D, sans relief.",
+    };
+  }
+  // Without graphics acceleration (software WebGL), every frame of the relief costs
+  // seconds of main thread: the 2D map is the better experience, unless asked otherwise.
+  if (requested !== "3d" && webgl === "software") {
+    return {
+      kind: "2d",
+      reason:
+        "Pas d’accélération graphique sur cet appareil : la carte est affichée en 2D, sans relief (rendu=3d dans l’adresse pour forcer le relief).",
+    };
+  }
+  return { kind: "3d" };
 }
 
 /** Switches to the 2D map if the 3D scene throws (e.g. WebGL context creation fails). */
