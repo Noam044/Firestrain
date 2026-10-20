@@ -45,10 +45,19 @@ export async function writeCache(cacheName: string, body: Buffer, meta: CacheMet
 export async function fetchCached(
   url: string,
   cacheName: string,
-  { refresh = false, accept }: { refresh?: boolean; accept?: RegExp } = {},
+  {
+    refresh = false,
+    accept,
+    publicUrl = url,
+  }: {
+    refresh?: boolean;
+    accept?: RegExp;
+    /** URL recorded in the cache, in errors and in provenance — e.g. with an API key redacted. */
+    publicUrl?: string;
+  } = {},
 ): Promise<Fetched> {
   if (!refresh) {
-    const cached = await readCache(cacheName, url);
+    const cached = await readCache(cacheName, publicUrl);
     if (cached) return cached;
   }
 
@@ -67,7 +76,7 @@ export async function fetchCached(
       if (accept && !accept.test(contentType)) {
         throw new Error(`unexpected content-type "${contentType}" — ${excerpt}`);
       }
-      const meta: CacheMeta = { url, retrievedAt: new Date().toISOString(), contentType };
+      const meta: CacheMeta = { url: publicUrl, retrievedAt: new Date().toISOString(), contentType };
       await writeCache(cacheName, body, meta);
       return { body, ...meta, fromCache: false };
     } catch (error) {
@@ -79,5 +88,7 @@ export async function fetchCached(
       }
     }
   }
-  throw new Error(`could not download ${url}`, { cause: lastError });
+  throw new Error(`could not download ${publicUrl}`, {
+    cause: lastError instanceof Error ? new Error(lastError.message.replaceAll(url, publicUrl)) : lastError,
+  });
 }

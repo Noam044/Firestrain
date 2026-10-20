@@ -237,6 +237,24 @@ export const BdiffMatchesSchema = z.object({
 
 export type BdiffMatches = z.infer<typeof BdiffMatchesSchema>;
 
+/** NASA FIRMS detections published per year (June → September). */
+export const FirmsIndexSchema = z.object({
+  codec: z.literal("fs-firms-1"),
+  /** Timeline covered every year, as MM-DD (local dates in Paris). */
+  timeline: z.object({ from: z.literal("06-01"), to: z.literal("09-30"), days: z.literal(122) }),
+  years: z.array(
+    z.object({
+      year: z.number().int(),
+      file: z.string(),
+      count: z.number().int().nonnegative(),
+      satellites: z.array(z.string()),
+      products: z.array(z.string()),
+    }),
+  ),
+});
+
+export type FirmsIndex = z.infer<typeof FirmsIndexSchema>;
+
 export const Departements2DSchema = z.object({
   /** SVG user units = km, origin at the north-west corner of the Lambert-93 extent. */
   crs: z.literal("l93-km-svg"),

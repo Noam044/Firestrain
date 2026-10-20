@@ -1,12 +1,13 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { AdaptiveDpr, PerformanceMonitor, type CameraControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import * as THREE from "three";
 import {
   useBorders,
   useEffisYear,
+  useDetections,
   useEffisYears,
   useFranceOutline,
   useTerrain,
@@ -20,6 +21,7 @@ import { FIRST_YEAR, useMapStore, type MapMode } from "@/lib/store";
 import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
+import { FirePoints } from "./FirePoints";
 import { CameraRig, resetView } from "./CameraRig";
 import { MapProbe } from "./MapProbe";
 import { MapStatus } from "./MapStatus";
@@ -175,6 +177,12 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
   const size = maskSize(detail, mode);
   const burn = useBurnMask(current.data?.fires, historyFires, size);
   const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
+  const detections = useDetections(year, explore);
+  const invalidate = useThree((state) => state.invalidate);
+  // Frames are rendered on demand: redraw when the timeline moves.
+  useEffect(() => useMapStore.subscribe((state, previous) => {
+    if (state.timelineDay !== previous.timelineDay) invalidate();
+  }), [invalidate]);
 
   return (
     <>
@@ -193,6 +201,9 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
         exaggeration={exaggeration}
         maxSegmentKm={terrain.meta.pixelSizeM / 1000}
       />
+      {detections.data && (
+        <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
+      )}
       {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
       {explore && (
         <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={current.data?.fires} />

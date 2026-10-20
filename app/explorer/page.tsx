@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { MapStageLoader } from "@/components/scene/MapStageLoader";
 import { FirePanel } from "@/components/ui/FirePanel";
 import { Legend } from "@/components/ui/Legend";
 import { MapCredits } from "@/components/ui/MapCredits";
 import { MapFurniture } from "@/components/ui/MapFurniture";
+import { Timeline } from "@/components/ui/Timeline";
+import { UrlSync } from "@/components/ui/UrlSync";
 import { YearPanel } from "@/components/ui/YearPanel";
 import { mapCredits } from "@/lib/data/manifest";
 
@@ -34,8 +37,15 @@ export default function ExplorerPage() {
           </div>
         </div>
 
+        <div className="pointer-events-auto absolute inset-x-4 bottom-24 md:inset-x-6 xl:bottom-4 xl:left-1/2 xl:right-auto xl:w-[38rem] xl:-translate-x-1/2">
+          <Timeline />
+        </div>
         <MapFurniture />
       </div>
+      {/* Reads the query string: rendered on the client, outside the static shell. */}
+      <Suspense fallback={null}>
+        <UrlSync />
+      </Suspense>
 
       {/* Credits sit below the map frame, as on a printed sheet. */}
       <footer className="border-t border-ash-800 px-4 py-2 md:px-6">

@@ -16,7 +16,9 @@
 import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { z } from "zod";
+import { BYTES_PER_DETECTION } from "../lib/data/firms-codec.ts";
 import { formatDate, formatInteger } from "../lib/format.ts";
 import {
   BdiffAnnualSchema,
@@ -27,6 +29,7 @@ import {
   EffisIndexSchema,
   EffisStatsSchema,
   EffisYearSchema,
+  FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
   TerrainMetaSchema,
@@ -54,8 +57,9 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^bdiff\/annuel\.json$/, BdiffAnnualSchema],
   [/^bdiff\/communes\.json$/, BdiffCommunesSchema],
   [/^bdiff\/rapprochements\.json$/, BdiffMatchesSchema],
+  [/^firms\/index\.json$/, FirmsIndexSchema],
 ];
-const BINARY = /^terrain\/dem-\d+m\.bin$/;
+const BINARY = /^(terrain\/dem-\d+m|firms\/detections-\d{4})\.bin$/;
 
 async function listFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -89,6 +93,13 @@ for (const [path, entry] of Object.entries(manifest.files)) {
   if (!result.success) problems.push(`${path} : ${result.error.issues.slice(0, 3).map((i) => `${i.path.join(".")} ${i.message}`).join(" ; ")}`);
   else checked++;
 }
+// FIRMS binaries: decoded size must match the count announced in the index.
+const firmsIndex = FirmsIndexSchema.parse(await readJson(join(PUBLIC_DATA_DIR, "firms/index.json")));
+for (const entry of firmsIndex.years) {
+  const bytes = gunzipSync(await readFile(join(PUBLIC_DATA_DIR, entry.file)));
+  if (bytes.length !== entry.count * BYTES_PER_DETECTION) problems.push(`${entry.file} : taille décodée incohérente avec ${entry.count} détections`);
+}
+
 report.push(
   "## 1. Fichiers publiés",
   "",
@@ -245,6 +256,18 @@ for (const figure of press.figures) {
       );
   }
 }
+
+// ── 6. FIRMS ────────────────────────────────────────────────────────────────
+report.push(
+  "## 6. Détections FIRMS (juin – septembre)",
+  "",
+  "Anomalies thermiques VIIRS : des points chauds, jamais convertis en surfaces. 2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) ; les années précédentes viennent du seul S-NPP : les nombres ne se comparent pas entre ces deux périodes.",
+  "",
+  "| Année | Détections | Satellites | Produits |",
+  "|---|---:|---|---|",
+  ...firmsIndex.years.map((y) => `| ${y.year} | ${formatInteger(y.count)} | ${y.satellites.join(", ")} | ${y.products.join(" ; ")} |`),
+  "",
+);
 
 // ── Write ────────────────────────────────────────────────────────────────────
 const header = [

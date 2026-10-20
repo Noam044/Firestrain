@@ -7,6 +7,7 @@ import { SCENE_SIZE } from "@/lib/geo/frame";
 import type { TerrainData } from "@/lib/data/queries";
 import type { LandMask } from "@/lib/data/land-mask";
 import { readColorToken } from "@/lib/tokens";
+import { useMapStore } from "@/lib/store";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
 export type TerrainTextures = { height: THREE.DataTexture; mask: THREE.CanvasTexture };
@@ -107,6 +108,7 @@ export function Terrain({
         uLightDir: { value: new THREE.Vector3(0, 1, 0) },
         uHistory: { value: 1 },
         uPixelRatio: { value: 1 },
+        uDay: { value: 255 },
         uBurn: { value: burn },
         uColShadow: { value: vec3(readColorToken("--ash-900")) },
         uColFlat: { value: vec3(readColorToken("--ash-700")) },
@@ -129,6 +131,8 @@ export function Terrain({
     uniforms.uLightDir.value.copy(light);
     uniforms.uHistory.value = showHistory ? 1 : 0;
     uniforms.uPixelRatio.value = state.viewport.dpr;
+    // Timeline day (255 = whole year), read without re-rendering React.
+    uniforms.uDay.value = useMapStore.getState().timelineDay ?? 255;
   });
 
   useEffect(() => invalidate(), [geometry, material, exaggeration, light, showHistory, invalidate]);

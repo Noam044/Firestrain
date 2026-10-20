@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo } from "react";
 import { SCENE_SIZE } from "@/lib/geo/frame";
-import type { DecodedFire } from "@/lib/data/fires";
-import { useDepartements2D, useEffisYear, useEffisYears } from "@/lib/data/queries";
+import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
+import { useDepartements2D, useDetections, useEffisYear, useEffisYears } from "@/lib/data/queries";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
 
 /** Scene km → SVG user units (km from the north-west corner of the extent, y towards south). */
@@ -30,6 +30,8 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
   const showHistory = useMapStore((state) => state.showHistory);
   const selectedFireId = useMapStore((state) => state.selectedFireId);
   const selectFire = useMapStore((state) => state.selectFire);
+  const timelineDay = useMapStore((state) => state.timelineDay);
+  const detections = useDetections(year, showFires);
   useEffect(() => {
     setRenderMode("2d");
     return () => setRenderMode(null);
@@ -42,7 +44,13 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
   );
   const history = useEffisYears(historyYears, showFires && showHistory);
   const currentPaths = useMemo(
-    () => (showFires ? (current.data?.fires ?? []) : []).map((fire) => ({ id: fire.id, d: firePath(fire), fire })),
+    () =>
+      (showFires ? (current.data?.fires ?? []) : []).map((fire) => ({
+        id: fire.id,
+        d: firePath(fire),
+        fire,
+        day: fireTimelineDay(fire),
+      })),
     [showFires, current.data],
   );
   const historyPath = useMemo(
@@ -50,6 +58,24 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
     [showFires, showHistory, history.data],
   );
   const selected = currentPaths.find((p) => p.id === selectedFireId);
+  // Same timeline as the 3D scene: fires from their first detection, hotspots of the last 3 days.
+  const shownDay = timelineDay ?? 255;
+  const activePoints = useMemo(() => {
+    const data = detections.data;
+    if (!data || timelineDay === null) return [];
+    const points: { x: number; y: number; r: number; opacity: number }[] = [];
+    for (let k = 0; k < data.count; k++) {
+      const age = timelineDay - data.day[k];
+      if (age < 0 || age > 3) continue;
+      points.push({
+        x: data.positions[2 * k] + SCENE_SIZE.width / 2,
+        y: data.positions[2 * k + 1] + SCENE_SIZE.depth / 2,
+        r: Math.min(3, 0.8 + 0.12 * Math.sqrt(data.frp[k] / 10)),
+        opacity: 1 - age / 3,
+      });
+    }
+    return points;
+  }, [detections.data, timelineDay]);
 
   return (
     <figure className="absolute inset-0 m-0 flex flex-col">
@@ -90,7 +116,7 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
               </path>
             ))}
             {historyPath && <path d={historyPath} fill="url(#carte-2d-hachures)" fillRule="evenodd" />}
-            {currentPaths.map(({ id, d, fire }) => (
+            {currentPaths.filter((path) => path.day <= shownDay).map(({ id, d, fire }) => (
               <path
                 key={id}
                 d={d}
@@ -108,6 +134,9 @@ export default function Map2D({ reason, showFires = false }: { reason: string; s
               >
                 <title>{`${fire.commune}, ${fire.province} — ${fire.areaHa} ha (EFFIS)`}</title>
               </path>
+            ))}
+            {activePoints.map((point, k) => (
+              <circle key={k} cx={point.x} cy={point.y} r={point.r} fill="none" stroke="var(--ember)" strokeWidth={1} vectorEffect="non-scaling-stroke" opacity={point.opacity * 0.85} pointerEvents="none" />
             ))}
             {selected && (
               <path

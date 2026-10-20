@@ -33,12 +33,31 @@ type MapState = {
   showHistory: boolean;
   /** EFFIS id of the selected polygon (always from `year`). */
   selectedFireId: number | null;
+  /**
+   * Day on the 1 June → 30 September timeline (fractional while playing, for
+   * smooth fading); null shows the whole year without FIRMS detections.
+   */
+  timelineDay: number | null;
+  playing: boolean;
+  /** Playback speed, in timeline days per second. */
+  speed: number;
+  /** One-shot camera move, consumed by the 3D camera rig. */
+  cameraRequest: CameraRequest | null;
   setRenderMode: (renderMode: "3d" | "2d" | null) => void;
   setView: (view: { kmPer100px: number | null; northDeg: number }) => void;
   setCursor: (cursor: CursorReadout | null) => void;
   setYear: (year: number) => void;
   setShowHistory: (showHistory: boolean) => void;
   selectFire: (id: number | null) => void;
+  setTimelineDay: (day: number | null) => void;
+  setPlaying: (playing: boolean) => void;
+  setSpeed: (speed: number) => void;
+  requestCamera: (target: CameraRequest["target"]) => void;
+};
+
+export type CameraRequest = {
+  id: number;
+  target: { kind: "preset"; preset: string } | { kind: "bbox"; bbox: readonly [number, number, number, number] };
 };
 
 export const useMapStore = create<MapState>()((set) => ({
@@ -50,6 +69,10 @@ export const useMapStore = create<MapState>()((set) => ({
   year: LAST_YEAR,
   showHistory: true,
   selectedFireId: null,
+  timelineDay: null,
+  playing: false,
+  speed: 2,
+  cameraRequest: null,
   setRenderMode: (renderMode) => set({ renderMode }),
   setView: (view) => set(view),
   setCursor: (cursor) => set({ cursor }),
@@ -57,4 +80,8 @@ export const useMapStore = create<MapState>()((set) => ({
   setYear: (year) => set({ year, selectedFireId: null }),
   setShowHistory: (showHistory) => set({ showHistory }),
   selectFire: (selectedFireId) => set({ selectedFireId }),
+  setTimelineDay: (timelineDay) => set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay }),
+  setPlaying: (playing) => set({ playing }),
+  setSpeed: (speed) => set({ speed }),
+  requestCamera: (target) => set((state) => ({ cameraRequest: { id: (state.cameraRequest?.id ?? 0) + 1, target } })),
 }));

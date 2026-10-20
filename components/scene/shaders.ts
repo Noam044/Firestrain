@@ -40,6 +40,7 @@ uniform vec3 uColChar;
 uniform vec3 uColHatch;
 uniform float uHistory;
 uniform float uPixelRatio;
+uniform float uDay;
 varying vec2 vUv;
 varying float vHeightM;
 
@@ -77,13 +78,17 @@ void main() {
   float history = smoothstep(0.08, 0.5, burn.g) * uHistory;
   float hatch = step(mod(gl_FragCoord.x - gl_FragCoord.y, 6.0 * uPixelRatio), 1.2 * uPixelRatio);
   color = mix(color, uColHatch, history * hatch * 0.75);
-  float current = smoothstep(0.08, 0.5, burn.r);
+  // Timeline: B holds (255 − first-detection day) scaled by the coverage, so
+  // B / R recovers the day even on filtered edges. uDay = 255 shows the whole year.
+  float firstDay = burn.r > 0.004 ? 255.0 * (1.0 - burn.b / burn.r) : 255.0;
+  float started = step(firstDay, uDay + 0.5);
+  float current = smoothstep(0.08, 0.5, burn.r) * started;
   vec3 charred = uColChar * mix(0.65, 1.45, clamp(relative * 0.5, 0.0, 1.0));
   color = mix(color, charred, current);
   // Thin outline where the coverage crosses one half, about one pixel wide at any
   // zoom: delineates burnt areas like the contour line of a printed map.
   float edge = 1.0 - smoothstep(0.0, 1.5 * fwidth(burn.r) + 1e-4, abs(burn.r - 0.5));
-  color = mix(color, uColHatch, edge * 0.55);
+  color = mix(color, uColHatch, edge * 0.55 * started);
 
   // Outside metropolitan France nothing is drawn and the page shows through.
   // Discarding last keeps derivatives (fwidth, implicit LOD) well defined.
@@ -123,6 +128,50 @@ void main() {
   // Draw-on reveal: only the first uProgress of each line is visible.
   if (vProgress > uProgress) discard;
   gl_FragColor = vec4(uColor, uOpacity);
+}
+`;
+
+/**
+ * FIRMS hotspots: map symbols of constant screen size (area ∝ fire radiative
+ * power), filtered by the timeline in the shader — no geometry rebuild while playing.
+ */
+export const firePointsVertexShader = /* glsl */ `
+uniform sampler2D uHeight;
+uniform vec2 uSceneSize;
+uniform float uExag;
+uniform float uDay;
+uniform float uFadeDays;
+uniform float uPixelRatio;
+attribute float aDay;
+attribute float aFrp;
+varying float vAlpha;
+
+void main() {
+  // Visible from its (local) day of detection, fading out over uFadeDays.
+  float age = uDay - aDay;
+  vAlpha = age < 0.0 ? 0.0 : 1.0 - clamp(age / uFadeDays, 0.0, 1.0);
+  vec3 p = position;
+  vec2 uv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
+  p.y = texture2D(uHeight, uv).r * 0.001 * uExag;
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  mv.xyz *= 1.0 - 0.002;
+  gl_Position = projectionMatrix * mv;
+  // Diameter ∝ sqrt(FRP) so that the symbol area is proportional to the power.
+  gl_PointSize = vAlpha > 0.0 ? clamp(3.0 + 0.6 * sqrt(aFrp), 3.0, 12.0) * uPixelRatio : 0.0;
+}
+`;
+
+export const firePointsFragmentShader = /* glsl */ `
+uniform vec3 uColor;
+varying float vAlpha;
+
+void main() {
+  // Open ring rather than a filled disc: dense clusters read as a texture of
+  // symbols, not as a solid orange mass.
+  float d = length(gl_PointCoord - 0.5);
+  float ring = smoothstep(0.22, 0.32, d) * (1.0 - smoothstep(0.42, 0.5, d));
+  if (ring <= 0.0 || vAlpha <= 0.0) discard;
+  gl_FragColor = vec4(uColor, vAlpha * ring * 0.85);
 }
 `;
 

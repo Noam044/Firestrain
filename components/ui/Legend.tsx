@@ -32,6 +32,7 @@ export function Legend() {
   const flat = useMapStore((state) => state.renderMode === "2d");
   const year = useMapStore((state) => state.year);
   const showHistory = useMapStore((state) => state.showHistory);
+  const timelineDay = useMapStore((state) => state.timelineDay);
   const [open, setOpen] = useState(false);
   return (
     <section aria-labelledby="legende-titre" className="w-64 max-w-[calc(100vw-2rem)] border border-ash-800 bg-ash-950 p-3">
@@ -68,6 +69,15 @@ export function Legend() {
           <LineSwatch color="var(--ember)" width={1.5} />
           Surface sélectionnée
         </li>
+        {timelineDay !== null && (
+          <li className="flex items-center gap-2">
+            <svg width="24" height="12" aria-hidden className="shrink-0">
+              <circle cx="7" cy="6" r="2.2" fill="none" stroke="var(--ember)" strokeWidth="1.2" />
+              <circle cx="17" cy="6" r="4" fill="none" stroke="var(--ember)" strokeWidth="1.2" opacity="0.6" />
+            </svg>
+            Détection thermique FIRMS (3 derniers jours, taille selon la puissance)
+          </li>
+        )}
         {flat ? (
           <>
             <li className="flex items-center gap-2">

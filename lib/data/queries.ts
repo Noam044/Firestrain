@@ -1,6 +1,7 @@
 import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query";
 import type { z } from "zod";
 import { decodeFire, type DecodedFire } from "./fires.ts";
+import { decodeDetections, type Detections } from "./firms-codec.ts";
 import {
   BdiffAnnualSchema,
   BdiffMatchesSchema,
@@ -9,6 +10,7 @@ import {
   EffisIndexSchema,
   EffisStatsSchema,
   EffisYearSchema,
+  FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
   TerrainMetaSchema,
@@ -96,6 +98,36 @@ function combineYears(results: UseQueryResult<FireYear>[]) {
 
 export const useEffisYears = (years: readonly number[], enabled: boolean) =>
   useQueries({ queries: years.map((year) => effisYearQuery(year, enabled)), combine: combineYears });
+
+export const useFirmsIndex = () =>
+  useQuery({
+    queryKey: ["data", "firms-index"],
+    queryFn: () => fetchJson("firms/index.json", FirmsIndexSchema),
+    ...staticData,
+  });
+
+/** Gzipped payloads may already be inflated by the host (Content-Encoding): check the magic bytes. */
+async function gunzipIfNeeded(bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array> {
+  if (bytes[0] !== 0x1f || bytes[1] !== 0x8b) return bytes;
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+/** FIRMS detections of one year (June → September), or null when the year has none. */
+export function useDetections(year: number, enabled = true) {
+  const index = useFirmsIndex();
+  const entry = index.data?.years.find((y) => y.year === year) ?? null;
+  return useQuery({
+    queryKey: ["data", "firms", year],
+    queryFn: async (): Promise<Detections | null> => {
+      if (!entry) return null;
+      const bytes = await gunzipIfNeeded(new Uint8Array(await (await fetchData(entry.file)).arrayBuffer()));
+      return decodeDetections(bytes, entry.count);
+    },
+    enabled: enabled && index.isSuccess,
+    ...staticData,
+  });
+}
 
 export const useBdiffAnnual = () =>
   useQuery({

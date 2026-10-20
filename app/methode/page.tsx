@@ -147,12 +147,29 @@ export default function MethodePage() {
         </p>
       </Section>
 
-      <Section title="NASA FIRMS">
+      <Section title="NASA FIRMS : la progression jour par jour">
         <p>
-          Les détections d’anomalies thermiques des satellites VIIRS (NASA FIRMS) serviront à montrer la progression des
-          feux jour par jour. Ce sont des points chauds, pas des surfaces : FireStrain ne les convertira jamais en
-          hectares. Intégration à venir.
+          La frise de l’Explorer affiche, du 1er juin au 30 septembre, les détections d’anomalies thermiques des
+          satellites VIIRS (NASA FIRMS, résolution 375 m). Ce sont des points chauds : FireStrain ne les convertit jamais
+          en hectares. Chaque détection reste visible trois jours, en s’estompant ; la taille du symbole suit la puissance
+          radiative du feu.
         </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) : produit standard jusqu’au 30 juin, temps quasi réel
+            ensuite. Les années 2012 à 2025 viennent des archives du seul S-NPP : les nombres de détections ne se comparent
+            pas entre ces deux périodes.
+          </li>
+          <li>
+            Les sources de chaleur fixes (industrie) sont écartées : par le champ prévu à cet effet dans le produit
+            standard, et, pour le temps quasi réel qui n’en dispose pas, par exclusion des mailles de 750 m où une source
+            fixe a été signalée.
+          </li>
+          <li>
+            EFFIS ne publie que le contour final d’un feu et sa première détection : sur la frise, la surface brûlée
+            apparaît entière dès ce jour-là ; c’est le défilé des détections FIRMS qui montre la progression.
+          </li>
+        </ul>
       </Section>
 
       <Section title="Contrôles">

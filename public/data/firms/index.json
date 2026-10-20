@@ -1,0 +1,178 @@
+{
+  "codec": "fs-firms-1",
+  "timeline": {
+    "from": "06-01",
+    "to": "09-30",
+    "days": 122
+  },
+  "years": [
+    {
+      "year": 2012,
+      "file": "firms/detections-2012.bin",
+      "count": 1950,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2013,
+      "file": "firms/detections-2013.bin",
+      "count": 2000,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2014,
+      "file": "firms/detections-2014.bin",
+      "count": 1566,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2015,
+      "file": "firms/detections-2015.bin",
+      "count": 2306,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2016,
+      "file": "firms/detections-2016.bin",
+      "count": 2563,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2017,
+      "file": "firms/detections-2017.bin",
+      "count": 2274,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2018,
+      "file": "firms/detections-2018.bin",
+      "count": 1854,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2019,
+      "file": "firms/detections-2019.bin",
+      "count": 2509,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2020,
+      "file": "firms/detections-2020.bin",
+      "count": 1789,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2021,
+      "file": "firms/detections-2021.bin",
+      "count": 1763,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2022,
+      "file": "firms/detections-2022.bin",
+      "count": 5748,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2023,
+      "file": "firms/detections-2023.bin",
+      "count": 1553,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2024,
+      "file": "firms/detections-2024.bin",
+      "count": 1149,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2025,
+      "file": "firms/detections-2025.bin",
+      "count": 2033,
+      "satellites": [
+        "S-NPP"
+      ],
+      "products": [
+        "S-NPP, produit standard (archive annuelle)"
+      ]
+    },
+    {
+      "year": 2026,
+      "file": "firms/detections-2026.bin",
+      "count": 23414,
+      "satellites": [
+        "S-NPP",
+        "NOAA-20",
+        "NOAA-21"
+      ],
+      "products": [
+        "produit standard (SP) jusqu’au 2026-06-30",
+        "temps quasi réel (NRT) ensuite"
+      ]
+    }
+  ]
+}
