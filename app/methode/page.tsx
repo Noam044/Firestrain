@@ -4,9 +4,10 @@ import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
 import effisIndexJson from "@/public/data/effis/index.json";
 import matchesJson from "@/public/data/bdiff/rapprochements.json";
 import firmsIndexJson from "@/public/data/firms/index.json";
+import storyJson from "@/public/data/story/story.json";
 import { formatDate, formatInteger } from "@/lib/format";
 import { manifest } from "@/lib/data/manifest";
-import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema } from "@/lib/data/schemas";
+import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema, StorySchema } from "@/lib/data/schemas";
 
 export const metadata: Metadata = {
   title: "Méthode",
@@ -19,6 +20,7 @@ const bdiffAnnual = BdiffAnnualSchema.parse(bdiffAnnualJson);
 const rule = BdiffMatchesSchema.shape.rule.parse(matchesJson.rule);
 const linkCount = Object.keys(matchesJson.matches).length;
 const firmsLatest = FirmsIndexSchema.parse(firmsIndexJson).years.at(-1);
+const story = StorySchema.parse(storyJson);
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -178,6 +180,41 @@ export default function MethodePage() {
             apparaît entière dès ce jour-là ; c’est le défilé des détections FIRMS qui montre la progression.
           </li>
         </ul>
+      </Section>
+
+      <Section title="Le récit : faits sourcés et regroupements">
+        <p>
+          Les chiffres de terrain du récit (heures de départ, surfaces annoncées par les préfectures, évacuations,
+          habitations détruites, dommages assurés) sont saisis à la main dans{" "}
+          <code className="font-mono text-[13px]">data/events.json</code> : valeur, unité, date de la donnée, page source,
+          citation courte et date de lecture ({formatDate(story.retrievedAt)}). Le script de construction du récit
+          télécharge chaque page et vérifie que la citation s’y trouve ; sinon, il échoue. Aucun bilan humain n’est
+          affiché sans source officielle lue.
+        </p>
+        <p>
+          Un incendie peut apparaître dans EFFIS sous plusieurs polygones (reprises, foyers secondaires). Chaque événement
+          du récit indique la règle de regroupement, recalculée par le script : polygones dont la première détection tombe
+          dans la période de l’événement et qui sont, de proche en proche, à moins d’un kilomètre du polygone principal
+          (distance entre sommets des contours). Pour la fin février en Pyrénées-Atlantiques, il s’agit au contraire d’une
+          série de feux distincts, regroupés par département et par période.
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          {story.events.map((event) => (
+            <li key={event.id}>
+              <span className="text-bone-100">{event.title}</span> : {event.effis.polygons} polygones,{" "}
+              {formatInteger(event.effis.areaHa)} ha (EFFIS). {event.justification}
+            </li>
+          ))}
+        </ul>
+        <p>
+          La comparaison avec Paris superpose deux contours de la même projection (Lambert-93) : la commune de Paris
+          (ADMIN EXPRESS, {formatInteger(story.paris.areaHa)} ha) est seulement déplacée, jamais redimensionnée. L’écart
+          d’échelle de la projection entre les deux lieux reste inférieur à 0,1 %.
+        </p>
+        <p>
+          Le graphique cumulatif reprend tel quel le cumul hebdomadaire publié par EFFIS pour la France (feux de 30 ha ou
+          plus), avec la moyenne et l’enveloppe des années précédentes calculées par EFFIS.
+        </p>
       </Section>
 
       <Section title="Contrôles">

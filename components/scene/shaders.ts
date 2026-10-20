@@ -144,6 +144,7 @@ uniform float uExag;
 uniform float uDay;
 uniform float uFadeDays;
 uniform float uPixelRatio;
+uniform float uSizeScale;
 attribute float aDay;
 attribute float aFrp;
 varying float vAlpha;
@@ -159,12 +160,13 @@ void main() {
   mv.xyz *= 1.0 - 0.002;
   gl_Position = projectionMatrix * mv;
   // Diameter ∝ sqrt(FRP) so that the symbol area is proportional to the power.
-  gl_PointSize = vAlpha > 0.0 ? clamp(3.0 + 0.6 * sqrt(aFrp), 3.0, 12.0) * uPixelRatio : 0.0;
+  gl_PointSize = vAlpha > 0.0 ? clamp(3.0 + 0.6 * sqrt(aFrp), 3.0, 12.0) * uSizeScale * uPixelRatio : 0.0;
 }
 `;
 
 export const firePointsFragmentShader = /* glsl */ `
 uniform vec3 uColor;
+uniform float uOpacity;
 varying float vAlpha;
 
 void main() {
@@ -173,7 +175,7 @@ void main() {
   float d = length(gl_PointCoord - 0.5);
   float ring = smoothstep(0.22, 0.32, d) * (1.0 - smoothstep(0.42, 0.5, d));
   if (ring <= 0.0 || vAlpha <= 0.0) discard;
-  gl_FragColor = vec4(uColor, vAlpha * ring * 0.85);
+  gl_FragColor = vec4(uColor, vAlpha * ring * uOpacity);
 }
 `;
 

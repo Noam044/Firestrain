@@ -64,6 +64,16 @@ export function resetView(
   return distanceKm;
 }
 
+/**
+ * In the story, the subject sits right of the text column on wide screens and
+ * above the text on narrow ones (a positive vertical offset lifts the content).
+ * The offset is in world units, so it scales with the camera distance.
+ */
+function storyFocalOffset(controls: CameraControls, distance: number, animate: boolean, factor = 0.09) {
+  const wide = window.matchMedia("(min-width: 768px)").matches;
+  void controls.setFocalOffset(wide ? -factor * distance : 0, wide ? 0 : 0.15 * distance, 0, animate);
+}
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -103,31 +113,33 @@ export function CameraRig({ mode, controlsRef }: CameraRigProps) {
     controls.touches.three = ACTION.TOUCH_ROTATE;
 
     const distance = resetView(controls, false, mode === "story" ? "franceStory" : "france");
-    // In the story, France sits right of the title column on wide screens and
-    // above the text on narrow ones (a positive vertical offset lifts the content).
-    const wide = window.matchMedia("(min-width: 768px)").matches;
-    if (mode === "story") {
-      void controls.setFocalOffset(wide ? -190 : 0, wide ? 0 : 0.15 * distance, 0, false);
-    }
+    if (mode === "story") storyFocalOffset(controls, distance, false);
   }, [controlsRef, mode, reduceMotion]);
 
   // One-shot moves asked by the URL (?cam=…, ?fire=…) or by the interface.
   const cameraRequest = useMapStore((state) => state.cameraRequest);
   useEffect(() => {
     const controls = controlsRef.current;
-    if (!controls || !cameraRequest || mode !== "explore") return;
+    if (!controls || !cameraRequest) return;
+    // Story: flights between steps, or cuts when motion is reduced.
     const animate = !reduceMotion;
     const { target } = cameraRequest;
     if (target.kind === "preset") {
-      if (target.preset in CAMERA_PRESETS) resetView(controls, animate, target.preset as CameraPresetId);
+      if (!(target.preset in CAMERA_PRESETS)) return;
+      const distance = resetView(controls, animate, target.preset as CameraPresetId);
+      if (mode === "story") storyFocalOffset(controls, distance, animate, target.storyOffset);
       return;
     }
     // Frame a fire: keep the current azimuth, oblique view, distance from its size.
     const [x0, z0, x1, z1] = target.bbox;
     const cx = (x0 + x1) / 2;
     const cz = (z0 + z1) / 2;
-    const distance = Math.max(30, 3 * Math.max(x1 - x0, z1 - z0));
-    const polar = THREE.MathUtils.degToRad(45);
+    const story = mode === "story";
+    const aspect = (controls.camera as THREE.PerspectiveCamera).aspect;
+    const distance =
+      Math.max(30, (story ? 3.2 : 3) * Math.max(x1 - x0, z1 - z0)) * Math.max(1, REFERENCE_ASPECT / aspect);
+    if (story) storyFocalOffset(controls, distance, animate);
+    const polar = THREE.MathUtils.degToRad(story ? 36 : 45);
     const azimuth = controls.azimuthAngle;
     void controls.setLookAt(
       cx + distance * Math.sin(polar) * Math.sin(azimuth),

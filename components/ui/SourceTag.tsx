@@ -11,11 +11,14 @@ export type SourceInfo = {
   dataDate?: string | null;
   /** When the file was downloaded by the pipeline. */
   retrievedAt?: string | null;
-  licence: string;
-  licenceUrl: string;
+  /** Absent for a press release or an article quoted for a single figure. */
+  licence?: string;
+  licenceUrl?: string;
   url: string;
   urlLabel?: string;
   note?: string;
+  /** Short quote of the source supporting the figure. */
+  quote?: string;
 };
 
 /** "source · date of the data · retrieval date", with details on demand. Every figure carries one. */
@@ -51,14 +54,19 @@ export function SourceTag({ source }: { source: SourceInfo }) {
             className="z-50 w-72 border border-ash-700 bg-ash-950 p-3 text-xs leading-5 text-bone-300"
           >
             <p className="font-medium text-bone-100">{source.fullName}</p>
+            {source.quote && <p className="mt-1 font-serif italic text-bone-100">« {source.quote} »</p>}
             {source.note && <p className="mt-1">{source.note}</p>}
             <dl className="mt-2 grid grid-cols-[6.5rem_1fr] gap-x-2 font-mono text-[11px] leading-4">
-              <dt className="text-ash-400">Licence</dt>
-              <dd>
-                <a href={source.licenceUrl} className="underline decoration-ash-600 hover:text-bone-100">
-                  {source.licence}
-                </a>
-              </dd>
+              {source.licence && (
+                <>
+                  <dt className="text-ash-400">Licence</dt>
+                  <dd>
+                    <a href={source.licenceUrl} className="underline decoration-ash-600 hover:text-bone-100">
+                      {source.licence}
+                    </a>
+                  </dd>
+                </>
+              )}
               {source.dataDate && (
                 <>
                   <dt className="text-ash-400">Donnée du</dt>
@@ -108,4 +116,12 @@ export const FIRMS = {
   licence: "Données ouvertes de la NASA",
   licenceUrl: "https://www.earthdata.nasa.gov/data/tools/firms",
   url: "https://firms.modaps.eosdis.nasa.gov/",
+} as const;
+
+export const IGN_ADMIN = {
+  name: "IGN",
+  fullName: "IGN — ADMIN EXPRESS COG CARTO (limites administratives)",
+  licence: "Licence Ouverte Etalab 2.0",
+  licenceUrl: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+  url: "https://geoservices.ign.fr/adminexpress",
 } as const;

@@ -148,12 +148,8 @@ type SceneProps = {
 const NO_FIRES: readonly (readonly DecodedFire[])[] = [];
 
 /** Burn-mask resolution: 1.5× the DEM on desktop (≈ 333 m), 2× on light devices (500 m). */
-const maskSize = (detail: Detail, mode: MapMode) =>
-  mode === "story"
-    ? { width: 1, height: 1 }
-    : detail.dem === 500
-      ? { width: 3480, height: 3270 }
-      : { width: 2320, height: 2180 };
+const maskSize = (detail: Detail) =>
+  detail.dem === 500 ? { width: 3480, height: 3270 } : { width: 2320, height: 2180 };
 
 function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
   const exaggeration = useMapStore((state) => state.exaggeration);
@@ -169,17 +165,18 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
 
   // Burnt areas are an Explorer layer; the story will introduce them itself.
   const explore = mode === "explore";
-  const current = useEffisYear(year, explore);
+  // The story shows the same layers as the Explorer, driven by the scroll.
+  const current = useEffisYear(year);
   const historyYears = useMemo(
     () => Array.from({ length: Math.max(0, year - FIRST_YEAR) }, (_, i) => FIRST_YEAR + i),
     [year],
   );
-  const history = useEffisYears(historyYears, explore && showHistory);
+  const history = useEffisYears(historyYears, showHistory);
   const historyFires = (showHistory && history.data) || NO_FIRES;
-  const size = maskSize(detail, mode);
+  const size = maskSize(detail);
   const burn = useBurnMask(current.data?.fires, historyFires, size);
   const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
-  const detections = useDetections(year, explore);
+  const detections = useDetections(year);
   const showRecent = useMapStore((state) => state.showRecent);
   const recent = useRecentDetections(explore && showRecent);
   const recentColumns = useMemo(() => recentToColumns(recent.data), [recent.data]);
@@ -211,7 +208,12 @@ function Scene({ terrain, mask, borders, mode, detail }: SceneProps) {
             <FirePoints detections={recentColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
           )
         : detections.data && (
-            <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
+            <FirePoints
+              detections={detections.data}
+              heightTexture={textures.height}
+              exaggeration={exaggeration}
+              {...(explore ? {} : { sizeScale: 0.65, opacity: 0.5 })}
+            />
           )}
       {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
       {explore && (

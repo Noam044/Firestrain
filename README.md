@@ -26,11 +26,19 @@ Les fichiers servis au navigateur sont versionnés dans `public/data/`. Chacun e
 Les téléchargements bruts sont mis en cache dans `data/raw/` (non versionné).
 
 ```bash
-npm run data:dem     # 01 — relief IGN BD ALTI (WMS-Raster, Lambert-93), mailles 500 m et 1 000 m
-npm run data:admin   # 05 — départements IGN ADMIN EXPRESS COG CARTO (WFS)
-npm run data         # les deux
+npm run data:dem       # 01 — relief IGN BD ALTI (WMS-Raster, Lambert-93), mailles 500 m et 1 000 m
+npm run data:admin     # 05 — départements IGN ADMIN EXPRESS COG CARTO (WFS)
+npm run data:effis     # 02 — surfaces brûlées EFFIS 2006–2026 et statistiques officielles
+npm run data:bdiff     # 04 — BDIFF (feux déclarés) et rapprochements avec EFFIS
+npm run data:firms     # 03 — détections NASA FIRMS par année civile (clé requise pour 2026)
+npm run data:story     # 07 — chiffres du récit : vérifie les citations de data/events.json, regroupe les polygones
+npm run data:validate  # 06 — contrôles croisés, écrit docs/VALIDATION_REPORT.md
+npm run data           # toute la chaîne, dans l'ordre
 node scripts/01-dem.ts --refresh   # ignore le cache et retélécharge
 ```
+
+Les faits de terrain du récit (préfectures, assureurs) sont saisis à la main dans `data/events.json`,
+chacun avec sa page source et une citation courte que `07-story` retrouve dans la page.
 
 Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté serveur, et mapshaper
 (dépendance de développement) simplifie les limites.
@@ -45,4 +53,8 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
-- À venir : EFFIS (Copernicus, JRC) — CC BY 4.0 ; NASA FIRMS — données ouvertes de la NASA ; BDIFF — Licence Ouverte 2.0.
+- **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
+- **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.
+- **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.
+- **Faits du récit** : communiqués des préfectures (Pyrénées-Orientales, Gironde, Var) et de France Assureurs,
+  cités avec leur lien dans `data/events.json`.

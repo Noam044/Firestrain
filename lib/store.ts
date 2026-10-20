@@ -60,7 +60,9 @@ type MapState = {
 
 export type CameraRequest = {
   id: number;
-  target: { kind: "preset"; preset: string } | { kind: "bbox"; bbox: readonly [number, number, number, number] };
+  target:
+    | { kind: "preset"; preset: string; storyOffset?: number }
+    | { kind: "bbox"; bbox: readonly [number, number, number, number] };
 };
 
 export const useMapStore = create<MapState>()((set) => ({
