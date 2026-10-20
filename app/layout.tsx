@@ -9,7 +9,7 @@ import "./globals.css";
 const serif = Source_Serif_4({
   subsets: ["latin"],
   axes: ["opsz"],
-  style: ["normal", "italic"],
+  style: ["normal"],
   variable: "--font-source-serif",
   display: "swap",
 });

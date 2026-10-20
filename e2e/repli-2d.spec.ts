@@ -20,3 +20,18 @@ test("sans WebGL 2, la carte 2D prend le relais", async ({ page }) => {
   // Burnt areas of the year are drawn and selectable in 2D.
   await expect(page.locator("svg path title").first()).toBeAttached();
 });
+
+test("sans accélération graphique, la 2D est choisie ; rendu=3d force le relief", async ({ page }) => {
+  // Headless Chrome renders WebGL in software (SwiftShader): the 2D map is chosen.
+  await page.goto("/explorer?year=2026");
+  const software = await page.evaluate(() => {
+    const gl = document.createElement("canvas").getContext("webgl2");
+    const info = gl?.getExtension("WEBGL_debug_renderer_info");
+    return /SwiftShader|llvmpipe/i.test(String(gl && info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : ""));
+  });
+  test.skip(!software, "navigateur avec accélération graphique");
+  await expect(page.getByText("Pas d’accélération graphique", { exact: false })).toBeVisible();
+  await page.goto("/explorer?year=2026&rendu=3d");
+  await expect(page.locator("canvas")).toBeAttached();
+  await expect(page.getByRole("application", { name: /Carte en relief/ })).toBeAttached();
+});
