@@ -8,6 +8,7 @@ import type { TerrainData } from "@/lib/data/queries";
 import type { LandMask } from "@/lib/data/land-mask";
 import { readColorToken } from "@/lib/tokens";
 import { useMapStore } from "@/lib/store";
+import { monthRange } from "@/lib/timeline";
 import type { Imagery } from "./Imagery";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
@@ -125,6 +126,7 @@ export function Terrain({
         uHistory: { value: 1 },
         uPixelRatio: { value: 1 },
         uDay: { value: WHOLE_YEAR },
+        uDayFrom: { value: 0 },
         uBurn: { value: burn },
         uImagery: { value: 0 },
         uImageryFar: { value: NO_IMAGE },
@@ -132,13 +134,14 @@ export function Terrain({
         uNearRect: { value: new THREE.Vector4() },
         uHasNear: { value: 0 },
         uImageryShade: { value: 0 },
-        uColShadow: { value: vec3(readColorToken("--ash-900")) },
-        uColFlat: { value: vec3(readColorToken("--ash-700")) },
-        uColLight: { value: vec3(readColorToken("--ash-400")) },
-        uColHigh: { value: vec3(readColorToken("--bone-300")) },
-        uColWater: { value: vec3(readColorToken("--sea")) },
-        uColChar: { value: vec3(readColorToken("--char")) },
-        uColHatch: { value: vec3(readColorToken("--bone-300")) },
+        uColShadow: { value: vec3(readColorToken("--relief-shadow")) },
+        uColFlat: { value: vec3(readColorToken("--relief-flat")) },
+        uColLight: { value: vec3(readColorToken("--relief-light")) },
+        uColHigh: { value: vec3(readColorToken("--relief-high")) },
+        uColWater: { value: vec3(readColorToken("--water")) },
+        uColChar: { value: vec3(readColorToken("--scorch")) },
+        uColHatch: { value: vec3(readColorToken("--cendre")) },
+        uColEdge: { value: vec3(readColorToken("--scorch-ink")) },
       },
     });
   }, [terrain, textures, burn]);
@@ -153,8 +156,11 @@ export function Terrain({
     uniforms.uLightDir.value.copy(light);
     uniforms.uHistory.value = showHistory ? 1 : 0;
     uniforms.uPixelRatio.value = state.viewport.dpr;
-    // Timeline day (WHOLE_YEAR when no day is chosen), read without re-rendering React.
-    uniforms.uDay.value = useMapStore.getState().timelineDay ?? WHOLE_YEAR;
+    // Day range shown, read without re-rendering React: a month, the timeline day, or the whole year.
+    const { timelineDay, month, year } = useMapStore.getState();
+    const range = month ? monthRange(year, month) : null;
+    uniforms.uDayFrom.value = range ? range[0] : 0;
+    uniforms.uDay.value = range ? range[1] : (timelineDay ?? WHOLE_YEAR);
     // Imagery replaces the shaded relief once the whole-France image is there.
     uniforms.uImagery.value = imagery.far ? 1 : 0;
     uniforms.uImageryFar.value = imagery.far ?? NO_IMAGE;

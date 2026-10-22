@@ -5,7 +5,7 @@ export function MapStatus({ children }: { children: ReactNode }) {
   return (
     <div
       role="status"
-      className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center font-mono text-xs text-ash-400"
+      className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center tabular text-xs text-ink-3"
     >
       {children}
     </div>

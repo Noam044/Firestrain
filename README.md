@@ -1,15 +1,14 @@
 # FireStrain
 
-Visualisation 3D des feux de forêt et de végétation en France métropolitaine, toute l'année, centrée sur 2026 et
-comparée aux années 2006 à 2025, avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) ·
+Carte interactive des feux de forêt et de végétation en France métropolitaine, année par année de 2006 à 2026 :
+surfaces brûlées vues par satellite, mois par mois, jour par jour, avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) ·
 audit des données : [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) · plan et décisions : [`docs/PLAN.md`](docs/PLAN.md) ·
 contrôles des données : [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) · revue finale :
 [`docs/REVIEW.md`](docs/REVIEW.md).
 
 | Page | Contenu |
 |---|---|
-| `/` Récit | L'année 2026 au défilement : ouverture, feux de février en Pyrénées-Atlantiques, Trévillach, Gironde (à l'échelle de Paris), Var, cumul de l'année, dommages assurés. |
-| `/explorer` | Carte en relief 2006–2026, frise jour par jour sur l'année civile, détections FIRMS, panneau de chaque feu, 72 dernières heures. État partageable dans l'adresse : `?year=2026&date=2026-07-22&fire=562583&cam=gironde`. |
+| `/` | La carte : frise des années (surface brûlée de chaque année, cliquable), total et rang de l'année, mois de l'année (filtre), lecture jour par jour avec les points chauds FIRMS, plus grandes surfaces, détail de chaque feu, fonds de carte. État partageable dans l'adresse : `?year=2026&mois=7&date=2026-07-22&fire=562583&fond=satellite`. `/explorer` y redirige. |
 | `/liste` | Les mêmes surfaces en tableau triable et filtrable : l'alternative accessible à la carte. |
 | `/methode` | Sources, licences, limites, règles de rapprochement et de regroupement, contrôles. |
 | `/api/firms/recent` | Route serveur facultative : détections VIIRS des 72 dernières heures (clé FIRMS côté serveur). |
@@ -46,17 +45,18 @@ Les téléchargements bruts sont mis en cache dans `data/raw/` (non versionné).
 ```bash
 npm run data:dem       # 01 — relief IGN BD ALTI (WMS-Raster, Lambert-93), mailles 500 m et 1 000 m
 npm run data:admin     # 05 — départements IGN ADMIN EXPRESS COG CARTO (WFS)
+npm run data:neighbours # 08 — pays voisins Natural Earth 1:10m, à plat (contexte de carte)
 npm run data:effis     # 02 — surfaces brûlées EFFIS 2006–2026 et statistiques officielles
 npm run data:bdiff     # 04 — BDIFF (feux déclarés) et rapprochements avec EFFIS
 npm run data:firms     # 03 — détections NASA FIRMS par année civile (clé requise pour 2026)
-npm run data:story     # 07 — chiffres du récit : vérifie les citations de data/events.json, regroupe les polygones
+npm run data:events    # 07 — faits sourcés : vérifie les citations de data/events.json, regroupe les polygones
 npm run data:validate  # 06 — contrôles croisés, écrit docs/VALIDATION_REPORT.md
 npm run data           # toute la chaîne, dans l'ordre
 node scripts/01-dem.ts --refresh   # ignore le cache et retélécharge
 ```
 
-Les faits de terrain du récit (préfectures, assureurs) sont saisis à la main dans `data/events.json`,
-chacun avec sa page source et une citation courte que `07-story` retrouve dans la page.
+Les faits de terrain (préfectures, assureurs) affichés dans le panneau de quelques feux sont saisis à la main
+dans `data/events.json`, chacun avec sa page source et une citation courte que `07-events` retrouve dans la page.
 
 Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté serveur, et mapshaper
 (dépendance de développement) simplifie les limites.
@@ -71,12 +71,13 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
-- **Fonds de carte** (choix dans l'Explorer, `?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
+- **Pays voisins** (fond neutre, sans relief) : Natural Earth, Admin 0 – Countries 1:10m — domaine public.
+- **Fonds de carte** (`?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
   BD ORTHO — IGN / CNES, Licence Ouverte 2.0, demandés par le navigateur au WMS de la Géoplateforme (sans clé).
 - **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
 - **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.
 - **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.
-- **Faits du récit** : communiqués des préfectures (Pyrénées-Orientales, Gironde, Var) et de France Assureurs,
+- **Faits sourcés** : communiqués des préfectures (Pyrénées-Orientales, Gironde, Var) et de France Assureurs,
   cités avec leur lien dans `data/events.json`.
 
 Attributions affichées dans l'interface (pied de carte, étiquette de source sous chaque chiffre, page Méthode) :

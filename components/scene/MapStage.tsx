@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { Component, useState, type ReactNode } from "react";
-import type { MapMode } from "@/lib/store";
 import { MapStatus } from "./MapStatus";
 
 const MapCanvas = dynamic(() => import("./MapCanvas"), {
@@ -41,12 +40,12 @@ function probeWebGL2(): "none" | "software" | "hardware" {
 
 function chooseRender(): RenderChoice {
   const requested = new URLSearchParams(window.location.search).get("rendu");
-  if (requested === "2d") return { kind: "2d", reason: "Rendu 2D demandé dans l’adresse (rendu=2d)." };
+  if (requested === "2d") return { kind: "2d", reason: "Carte 2D : rendu 2D demandé dans l’adresse." };
   const webgl = probeWebGL2();
   if (webgl === "none") {
     return {
       kind: "2d",
-      reason: "WebGL 2 n’est pas disponible sur cet appareil : la carte est affichée en 2D, sans relief.",
+      reason: "Carte 2D : WebGL 2 n’est pas disponible sur cet appareil.",
     };
   }
   // Without graphics acceleration (software WebGL), every frame of the relief costs
@@ -54,15 +53,14 @@ function chooseRender(): RenderChoice {
   if (requested !== "3d" && webgl === "software") {
     return {
       kind: "2d",
-      reason:
-        "Pas d’accélération graphique sur cet appareil : la carte est affichée en 2D, sans relief (rendu=3d dans l’adresse pour forcer le relief).",
+      reason: "Carte 2D : pas d’accélération graphique (rendu=3d pour forcer le relief).",
     };
   }
   return { kind: "3d" };
 }
 
 /** Switches to the 2D map if the 3D scene throws (e.g. WebGL context creation fails). */
-class SceneErrorBoundary extends Component<{ children: ReactNode; showFires: boolean }, { failed: boolean }> {
+class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
 
   static getDerivedStateFromError() {
@@ -73,8 +71,7 @@ class SceneErrorBoundary extends Component<{ children: ReactNode; showFires: boo
     if (this.state.failed) {
       return (
         <Map2D
-          showFires={this.props.showFires}
-          reason="La scène 3D n’a pas pu démarrer sur cet appareil : la carte est affichée en 2D, sans relief."
+          reason="Carte 2D : la scène en relief n’a pas pu démarrer."
         />
       );
     }
@@ -83,12 +80,12 @@ class SceneErrorBoundary extends Component<{ children: ReactNode; showFires: boo
 }
 
 /** Client-only (see MapStageLoader): picks the 3D scene or the 2D fallback once. */
-export default function MapStage({ mode }: { mode: MapMode }) {
+export default function MapStage() {
   const [choice] = useState(chooseRender);
-  if (choice.kind === "2d") return <Map2D reason={choice.reason} showFires />;
+  if (choice.kind === "2d") return <Map2D reason={choice.reason} />;
   return (
-    <SceneErrorBoundary showFires>
-      <MapCanvas mode={mode} />
+    <SceneErrorBoundary>
+      <MapCanvas />
     </SceneErrorBoundary>
   );
 }

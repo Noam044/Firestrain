@@ -151,7 +151,7 @@ export function FiresTable() {
   return (
     <div>
       <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
-        <label className="flex flex-col gap-1 text-xs text-ash-400">
+        <label className="flex flex-col gap-1 text-xs text-ink-3">
           Année
           <select
             value={safeYear}
@@ -159,7 +159,7 @@ export function FiresTable() {
               void setYear(Number(event.target.value));
               resetPage();
             }}
-            className="border border-ash-700 bg-ash-950 px-2 py-1.5 font-mono text-sm text-bone-100"
+            className="border border-rule bg-sheet px-2 py-1.5 tabular text-sm text-ink"
           >
             {YEARS.map((option) => (
               <option key={option} value={option}>
@@ -168,7 +168,7 @@ export function FiresTable() {
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-xs text-ash-400">
+        <label className="flex flex-col gap-1 text-xs text-ink-3">
           Mois de première détection
           <select
             value={month}
@@ -176,7 +176,7 @@ export function FiresTable() {
               setMonth(Number(event.target.value));
               resetPage();
             }}
-            className="border border-ash-700 bg-ash-950 px-2 py-1.5 text-sm text-bone-100"
+            className="border border-rule bg-sheet px-2 py-1.5 text-sm text-ink"
           >
             <option value={0}>toute l’année</option>
             {MONTHS.map((label, k) => (
@@ -186,7 +186,7 @@ export function FiresTable() {
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-xs text-ash-400">
+        <label className="flex flex-col gap-1 text-xs text-ink-3">
           Commune ou département
           <input
             type="search"
@@ -196,10 +196,10 @@ export function FiresTable() {
               resetPage();
             }}
             placeholder="ex. Gironde"
-            className="w-56 border border-ash-700 bg-ash-950 px-2 py-1.5 text-sm text-bone-100 placeholder:text-ash-600"
+            className="w-56 border border-rule bg-sheet px-2 py-1.5 text-sm text-ink placeholder:text-ink-3"
           />
         </label>
-        <label className="flex items-center gap-2 py-1.5 text-sm text-bone-300">
+        <label className="flex items-center gap-2 py-1.5 text-sm text-ink-2">
           <input
             type="checkbox"
             checked={atLeast30}
@@ -207,13 +207,13 @@ export function FiresTable() {
               setAtLeast30(event.target.checked);
               resetPage();
             }}
-            className="size-4 accent-bone-100"
+            className="size-4 accent-moss"
           />
           Feux de 30 ha ou plus (seuil des statistiques EFFIS)
         </label>
       </div>
 
-      <p className="mt-5 text-sm text-bone-300" aria-live="polite">
+      <p className="mt-5 text-sm text-ink-2" aria-live="polite">
         {fires.isPending
           ? "Chargement des surfaces brûlées…"
           : fires.error
@@ -238,14 +238,14 @@ export function FiresTable() {
         />
       </div>
 
-      <div className="mt-4 overflow-x-auto border-y border-ash-800">
+      <div className="mt-4 overflow-x-auto border-y border-rule">
         <table className="w-full min-w-[52rem] border-collapse text-sm">
           <caption className="sr-only">
             {`Surfaces brûlées cartographiées par EFFIS en ${safeYear}, triables par colonne. Le nom de chaque commune mène au feu sur la carte.`}
           </caption>
           <thead>
             {table.getHeaderGroups().map((group) => (
-              <tr key={group.id} className="border-b border-ash-800 text-left">
+              <tr key={group.id} className="border-b border-rule text-left">
                 {group.headers.map((header) => {
                   const sorted = header.column.getIsSorted();
                   return (
@@ -253,15 +253,15 @@ export function FiresTable() {
                       key={header.id}
                       scope="col"
                       aria-sort={sorted ? ARIA_SORT[sorted] : "none"}
-                      className={`px-3 py-2 font-normal text-ash-400 ${NUMERIC.has(header.id) ? "text-right" : ""}`}
+                      className={`px-3 py-2 font-normal text-ink-3 ${NUMERIC.has(header.id) ? "text-right" : ""}`}
                     >
                       <button
                         type="button"
                         onClick={header.column.getToggleSortingHandler()}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-bone-100"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-ink"
                       >
                         <table.FlexRender header={header} />
-                        <span aria-hidden className="w-2 font-mono text-[10px]">
+                        <span aria-hidden className="w-2 tabular text-[10px]">
                           {sorted === "asc" ? "▲" : sorted === "desc" ? "▼" : ""}
                         </span>
                       </button>
@@ -273,19 +273,19 @@ export function FiresTable() {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b border-ash-800 last:border-0 hover:bg-ash-900">
+              <tr key={row.id} className="border-b border-rule last:border-0 hover:bg-paper">
                 {row.getAllCells().map((cell) => (
                   <td
                     key={cell.id}
                     className={`px-3 py-2 ${
-                      NUMERIC.has(cell.column.id) ? "whitespace-nowrap text-right font-mono tabular" : ""
-                    } ${cell.column.id === "commune" ? "text-bone-100" : "text-bone-300"}`}
+                      NUMERIC.has(cell.column.id) ? "whitespace-nowrap text-right tabular" : ""
+                    } ${cell.column.id === "commune" ? "text-ink" : "text-ink-2"}`}
                   >
                     {cell.column.id === "commune" ? (
                       // The first column carries the link, so it stays reachable on narrow screens.
                       <Link
-                        href={`/explorer?year=${safeYear}&fire=${row.original.id}`}
-                        className="underline decoration-ash-600 underline-offset-4 hover:decoration-bone-300"
+                        href={`/?year=${safeYear}&fire=${row.original.id}`}
+                        className="underline decoration-rule underline-offset-4 hover:decoration-ink-3"
                       >
                         {row.original.commune}
                         <span className="sr-only"> (voir sur la carte)</span>
@@ -302,23 +302,23 @@ export function FiresTable() {
       </div>
 
       {pageCount > 1 && (
-        <nav aria-label="Pages de la liste" className="mt-4 flex items-center gap-3 text-sm text-bone-300">
+        <nav aria-label="Pages de la liste" className="mt-4 flex items-center gap-3 text-sm text-ink-2">
           <button
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="border border-ash-700 px-2.5 py-1 hover:border-bone-300 disabled:opacity-40"
+            className="border border-rule px-2.5 py-1 hover:border-ink-3 disabled:opacity-40"
           >
             Précédente
           </button>
-          <span className="font-mono tabular">
+          <span className="tabular">
             page {pagination.pageIndex + 1} sur {pageCount}
           </span>
           <button
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="border border-ash-700 px-2.5 py-1 hover:border-bone-300 disabled:opacity-40"
+            className="border border-rule px-2.5 py-1 hover:border-ink-3 disabled:opacity-40"
           >
             Suivante
           </button>

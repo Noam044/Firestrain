@@ -32,6 +32,7 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
   const setView = useMapStore((state) => state.setView);
   const setCursor = useMapStore((state) => state.setCursor);
   const selectFire = useMapStore((state) => state.selectFire);
+  const setHover = useMapStore((state) => state.setHover);
 
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const sampler = useMemo(
@@ -112,8 +113,12 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       frame = 0;
       if (!lastEvent) return;
       const hit = groundAt(lastEvent);
-      // Hint that burnt areas can be clicked (standard pointer, no custom cursor).
-      surface.style.cursor = hit && fires && findFireAt(fires, hit.x, hit.z) ? "pointer" : "";
+      // Hint that burnt areas can be clicked (standard pointer) and name them in a tooltip.
+      const hovered = hit && fires ? findFireAt(fires, hit.x, hit.z) : null;
+      surface.style.cursor = hovered ? "pointer" : "";
+      const previous = useMapStore.getState().hover;
+      if (hovered) setHover({ id: hovered.id, x: lastEvent.clientX, y: lastEvent.clientY });
+      else if (previous) setHover(null);
       if (!hit) {
         setCursor(null);
         return;
@@ -144,6 +149,7 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       setCursor(null);
+      setHover(null);
     };
     // A click (no drag) selects the burnt area under the pointer, or clears the selection.
     const onDown = (event: PointerEvent) => {
@@ -171,7 +177,7 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       surface.style.cursor = "";
       onLeave();
     };
-  }, [canvas, events, pick, terrain, mask, fires, setCursor, selectFire]);
+  }, [canvas, events, pick, terrain, mask, fires, setCursor, selectFire, setHover]);
 
   return null;
 }

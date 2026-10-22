@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-20T15:06:39.198Z",
+  "updatedAt": "2026-10-22T21:59:02.472Z",
   "files": {
     "admin/departements-2d.json": {
       "title": "Départements (carte 2D de repli)",
@@ -48,6 +48,21 @@
       ],
       "bytes": 101974,
       "sha256": "7794e45a7ed458e2082f51238663cc5f86005ea5b86b2d55e9929e95a6f878f5"
+    },
+    "admin/voisins.json": {
+      "title": "Pays voisins de la France (contexte de carte)",
+      "source": "Natural Earth, Admin 0 – Countries, 1:10m",
+      "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries.geojson",
+      "licence": "Domaine public (Natural Earth)",
+      "licenceUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "retrievedAt": "2026-10-22T20:06:29.493Z",
+      "transformations": [
+        "pays autres que la France, projetés en Lambert-93 et découpés au cadre de la carte élargi de 500 km",
+        "simplification mapshaper, tolérance 400 m",
+        "Lambert-93 → coordonnées de scène en km, arrondies à 10 m"
+      ],
+      "bytes": 256227,
+      "sha256": "8fe93f5d7311289675bb75ee31b774e8213f69250b345fba1cbf9682d0f91b09"
     },
     "bdiff/annuel.json": {
       "title": "Feux déclarés par année et par département (BDIFF)",
@@ -485,6 +500,20 @@
       "bytes": 13125,
       "sha256": "e7d53e3f86c28caa16e2e131823f9f979e51c7d406f2b2b2eaf2776b5073819e"
     },
+    "events/events.json": {
+      "title": "Faits sourcés sur les feux de 2026",
+      "source": "Communiqués des préfectures et de France Assureurs (data/events.json), polygones EFFIS (02-effis)",
+      "sourceUrl": "https://github.com/Noam044/Firestrain/blob/main/data/events.json",
+      "licence": "Citations courtes de communiqués publics ; polygones EFFIS sous CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "retrievedAt": "2026-10-20T00:00:00.000Z",
+      "transformations": [
+        "citations de data/events.json vérifiées dans leurs pages sources",
+        "groupes de polygones EFFIS recalculés (contiguïté < 1 km entre sommets, ou département et période)"
+      ],
+      "bytes": 11931,
+      "sha256": "b257597d4bc38d9271d592e5bfc209c301929f193b8503ae2502a6fdb04f55c5"
+    },
     "firms/detections-2012.bin": {
       "title": "Détections d’anomalies thermiques VIIRS, année 2012",
       "source": "NASA FIRMS — Fire Information for Resource Management System (LANCE / ESDIS), détections VIIRS 375 m, archive annuelle par pays",
@@ -738,22 +767,6 @@
       ],
       "bytes": 3930,
       "sha256": "95359e0fd578be4bd4658f3f03ffe9d1cab87b6da0fa630409dd7fb368ba6c97"
-    },
-    "story/story.json": {
-      "title": "Chiffres du récit 2026",
-      "source": "EFFIS (polygones et index publiés par 02-effis), faits sourcés de data/events.json, IGN ADMIN EXPRESS (Paris)",
-      "sourceUrl": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ADMINEXPRESS-COG-CARTO.LATEST%3Acommune&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG%3A2154&CQL_FILTER=code_insee%3D%2775056%27",
-      "licence": "Licence Ouverte Etalab 2.0",
-      "licenceUrl": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
-      "retrievedAt": "2026-10-20T15:06:39.188Z",
-      "transformations": [
-        "citations de data/events.json vérifiées dans leurs pages sources",
-        "groupes de polygones EFFIS recalculés (contiguïté < 1 km entre sommets, ou département et période)",
-        "surfaces par mois de première détection (heure de Paris), feux ≥ 30 ha",
-        "Paris : Lambert-93 → coordonnées de scène, arrondies à 10 m"
-      ],
-      "bytes": 14738,
-      "sha256": "09aa055883739b545252d8d6cec000e8a9b553e5c7df3057c788c499a39af57a"
     },
     "terrain/dem-1000m.bin": {
       "title": "Relief de la France métropolitaine, maille 1000 m",

@@ -32,8 +32,9 @@ import {
   FirmsIndexSchema,
   FirmsStaticCellsSchema,
   FranceOutlineSchema,
+  NeighboursSchema,
   ManifestSchema,
-  StorySchema,
+  EventsSchema,
   TerrainMetaSchema,
 } from "../lib/data/schemas.ts";
 import { RAW_DIR } from "./lib/http.ts";
@@ -52,6 +53,7 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^terrain\/dem-\d+m\.json$/, TerrainMetaSchema],
   [/^admin\/departements-lignes\.json$/, BordersSchema],
   [/^admin\/france-contour\.json$/, FranceOutlineSchema],
+  [/^admin\/voisins\.json$/, NeighboursSchema],
   [/^admin\/departements-2d\.json$/, Departements2DSchema],
   [/^effis\/fires-\d{4}\.json$/, EffisYearSchema],
   [/^effis\/index\.json$/, EffisIndexSchema],
@@ -61,7 +63,7 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^bdiff\/rapprochements\.json$/, BdiffMatchesSchema],
   [/^firms\/index\.json$/, FirmsIndexSchema],
   [/^firms\/sources-fixes\.json$/, FirmsStaticCellsSchema],
-  [/^story\/story\.json$/, StorySchema],
+  [/^events\/events\.json$/, EventsSchema],
 ];
 const BINARY = /^(terrain\/dem-\d+m|firms\/detections-\d{4})\.bin$/;
 

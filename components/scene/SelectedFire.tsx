@@ -12,13 +12,13 @@ const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: r
 
 type SelectedFireProps = { fire: DecodedFire; heightTexture: THREE.Texture; exaggeration: number };
 
-/** Thin ember outline of the selected fire, drawn on once (static with reduced motion). */
+/** Thin ink outline of the selected fire, drawn on once (static with reduced motion). */
 export function SelectedFire({ fire, heightTexture, exaggeration }: SelectedFireProps) {
   const invalidate = useThree((state) => state.invalidate);
   const [reduceMotion] = useState(prefersReducedMotion);
   const geometry = useMemo(() => segmentGeometry(fire.rings, 0.25, true), [fire]);
   const material = useMemo(
-    () => drapedLineMaterial(heightTexture, exaggeration, "--ember", 1),
+    () => drapedLineMaterial(heightTexture, exaggeration, "--ink", 1),
     [heightTexture, exaggeration],
   );
   const lineRef = useRef<THREE.LineSegments>(null);

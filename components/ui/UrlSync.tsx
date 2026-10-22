@@ -10,7 +10,7 @@ import { BASEMAPS } from "@/lib/geo/basemaps";
 const BASEMAP_IDS = BASEMAPS.map((basemap) => basemap.id);
 
 /**
- * Shareable state: ?year=2026&date=2026-07-22&fire=562583&cam=gironde&fond=satellite.
+ * Shareable state: ?year=2026&mois=7&date=2026-07-22&fire=562583&cam=gironde&fond=satellite.
  * The URL seeds the store once; afterwards the store writes back to the URL
  * (replace, not push), except while the timeline is playing.
  */
@@ -22,6 +22,7 @@ export function UrlSync() {
       fire: parseAsInteger,
       cam: parseAsString,
       fond: parseAsStringLiteral(BASEMAP_IDS),
+      mois: parseAsInteger,
     },
     { history: "replace" },
   );
@@ -36,6 +37,7 @@ export function UrlSync() {
     const { year } = useMapStore.getState();
     const day = params.date ? timelineDayOfDate(year, params.date) : null;
     if (day !== null) store.setTimelineDay(day);
+    else if (params.mois !== null && params.mois >= 1 && params.mois <= 12) store.setMonth(params.mois);
     if (params.fire !== null) {
       store.selectFire(params.fire);
       if (!params.cam) pendingFocus.current = params.fire;
@@ -53,7 +55,8 @@ export function UrlSync() {
           state.selectedFireId !== previous.selectedFireId ||
           state.timelineDay !== previous.timelineDay ||
           state.playing !== previous.playing ||
-          state.basemap !== previous.basemap;
+          state.basemap !== previous.basemap ||
+          state.month !== previous.month;
         if (!changed) return;
         void setParams({
           year: state.year,
@@ -61,6 +64,7 @@ export function UrlSync() {
           fire: state.selectedFireId,
           cam: null,
           fond: state.basemap === "relief" ? null : state.basemap,
+          mois: state.month,
         });
       }),
     [setParams],

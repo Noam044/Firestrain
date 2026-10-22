@@ -1,28 +1,40 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — « Atlas de cendre ».
- * Warm near-black, bone white, one accent (ember). The WebGL shaders read the
- * same variables (lib/tokens.ts), so the map and the page share one palette.
- * Contrast on --ash-950: bone-100 15.0:1, bone-300 8.9:1, ash-400 5.0:1, ember 6.1:1.
+ * Design tokens — « Relevé ».
+ * A survey sheet: cool paper, forest-green ink, burnt ground in scorch red.
+ * The WebGL shaders read the same variables (lib/tokens.ts), so the map and
+ * the interface share one palette.
+ * Contrast on --sheet: ink 16:1, ink-2 8.3:1, ink-3 4.9:1, moss 7.9:1, scorch 5.5:1.
  */
 :root {
-  --ash-950: #11100e;
-  --ash-900: #1a1815;
-  --ash-800: #2a2723;
-  --ash-700: #3a3631;
-  --ash-600: #4a453e;
-  --ash-400: #8a8276;
-  --bone-300: #b9b1a2;
-  --bone-100: #e9e4d8;
-  /* Burnt ground: matt charred brown-black, never a bright red. */
-  --char: #1c100a;
-  /* Sole accent: active detections and the selected element only. */
-  --ember: #ff5a1f;
-  /* Sea and lagoons, barely cooler than the background. */
-  --sea: #0e1011;
+  /* Interface */
+  --paper: #f2f3ee;
+  --sheet: #fbfbf8;
+  --ink: #17201b;
+  --ink-2: #47524b;
+  --ink-3: #66716a;
+  --rule: #d8ddd5;
+  --moss: #355544;
 
-  --header-h: 3.5rem;
+  /* Data: burnt this year, burnt before, active hotspots */
+  --scorch: #b83a1b;
+  --scorch-ink: #6e1e0e;
+  --cendre: #978b7e;
+  --amber: #e07b00;
+
+  /* Map ground */
+  --sea: #dce3e1;
+  --relief-light: #ffffff;
+  --relief-flat: #eceee7;
+  --relief-shadow: #8e998c;
+  --relief-high: #ffffff;
+  --water: #c9d6d8;
+  --coast: #56625a;
+  --boundary: #9aa39b;
+  /* Neighbouring countries: flat, neutral, a step below France. */
+  --neighbour: #e3e5df;
+  --neighbour-line: #b8bdb5;
 }
 
 /* Tailwind gets these tokens only — the default palette and fonts are removed. */
@@ -30,32 +42,33 @@
   --color-*: initial;
   --font-*: initial;
 
-  --color-ash-950: var(--ash-950);
-  --color-ash-900: var(--ash-900);
-  --color-ash-800: var(--ash-800);
-  --color-ash-700: var(--ash-700);
-  --color-ash-600: var(--ash-600);
-  --color-ash-400: var(--ash-400);
-  --color-bone-300: var(--bone-300);
-  --color-bone-100: var(--bone-100);
-  --color-char: var(--char);
-  --color-ember: var(--ember);
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-moss: var(--moss);
+  --color-scorch: var(--scorch);
+  --color-scorch-ink: var(--scorch-ink);
+  --color-cendre: var(--cendre);
+  --color-amber: var(--amber);
   --color-sea: var(--sea);
+  --color-white: #ffffff;
 
-  --font-serif: var(--font-source-serif), Georgia, serif;
-  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
 }
 
 @layer base {
   html {
-    background-color: var(--ash-950);
-    color: var(--bone-100);
-    color-scheme: dark;
+    background-color: var(--paper);
+    color: var(--ink);
+    color-scheme: light;
   }
 
   body {
     font-family: var(--font-sans);
+    font-size: 0.9375rem;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -64,47 +77,55 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
     font-weight: 600;
     letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
   a {
-    text-underline-offset: 0.2em;
+    text-underline-offset: 0.18em;
     text-decoration-thickness: 1px;
   }
 
-  /* 2 px bone ring on the warm black: visible on every surface, never colour alone. */
+  /* 2 px ink ring, offset so it never merges with the data colours. */
   :focus-visible {
-    outline: 2px solid var(--bone-100);
+    outline: 2px solid var(--ink);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--bone-100);
-    color: var(--ash-950);
-  }
-
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--ash-600) transparent;
+    background: var(--moss);
+    color: var(--sheet);
   }
 }
 
-/* Map labels and furniture: small capitals with generous tracking. */
-@utility label-caps {
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
+/* Labels and axes: Archivo condensed, sentence case. */
+@utility label {
+  font-size: 0.75rem;
   line-height: 1rem;
+  font-stretch: 80%;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Key figures: Archivo wide and tight. */
+@utility figure {
+  font-stretch: 118%;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
 }
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Small map controls: white keys on the map, like a field instrument. */
+@utility map-key {
+  background: #ffffff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgb(23 32 27 / 0.12);
 }
 
 @media (prefers-reduced-motion: reduce) {

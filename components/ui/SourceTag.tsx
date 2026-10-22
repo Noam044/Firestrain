@@ -24,8 +24,8 @@ export type SourceInfo = {
 /** "source · date of the data · retrieval date", with details on demand. Every figure carries one. */
 export function SourceTag({ source }: { source: SourceInfo }) {
   return (
-    <span className="inline-flex flex-wrap items-baseline gap-x-1.5 font-mono text-[11px] leading-4 text-ash-400">
-      <span className="text-bone-300">{source.name}</span>
+    <span className="inline-flex flex-wrap items-baseline gap-x-1.5 tabular text-[11px] leading-4 text-ink-3">
+      <span className="text-ink-2">{source.name}</span>
       {source.dataDate && (
         <>
           <span aria-hidden>·</span>
@@ -41,7 +41,7 @@ export function SourceTag({ source }: { source: SourceInfo }) {
       <Popover.Root>
         <Popover.Trigger
           // 24 px tall hit area (WCAG 2.5.8) without changing the line height.
-          className="-my-1 py-1 underline decoration-ash-600 underline-offset-2 hover:text-bone-300"
+          className="-my-1 py-1 underline decoration-rule underline-offset-2 hover:text-ink"
           aria-label={`Détails de la source ${source.name}`}
         >
           détails
@@ -52,17 +52,17 @@ export function SourceTag({ source }: { source: SourceInfo }) {
             align="start"
             sideOffset={6}
             collisionPadding={12}
-            className="z-50 w-72 border border-ash-700 bg-ash-950 p-3 text-xs leading-5 text-bone-300"
+            className="z-50 w-72 border border-rule bg-sheet p-3 text-xs leading-5 text-ink-2"
           >
-            <p className="font-medium text-bone-100">{source.fullName}</p>
-            {source.quote && <p className="mt-1 font-serif text-bone-100">« {source.quote} »</p>}
+            <p className="font-medium text-ink">{source.fullName}</p>
+            {source.quote && <p className="mt-1 text-ink">« {source.quote} »</p>}
             {source.note && <p className="mt-1">{source.note}</p>}
-            <dl className="mt-2 grid grid-cols-[6.5rem_1fr] gap-x-2 font-mono text-[11px] leading-4">
+            <dl className="mt-2 grid grid-cols-[6.5rem_1fr] gap-x-2 tabular text-[11px] leading-4">
               {source.licence && (
                 <>
-                  <dt className="text-ash-400">Licence</dt>
+                  <dt className="text-ink-3">Licence</dt>
                   <dd>
-                    <a href={source.licenceUrl} className="underline decoration-ash-600 hover:text-bone-100">
+                    <a href={source.licenceUrl} className="underline decoration-rule hover:text-ink">
                       {source.licence}
                     </a>
                   </dd>
@@ -70,13 +70,13 @@ export function SourceTag({ source }: { source: SourceInfo }) {
               )}
               {source.dataDate && (
                 <>
-                  <dt className="text-ash-400">Donnée du</dt>
+                  <dt className="text-ink-3">Donnée du</dt>
                   <dd>{formatDate(source.dataDate)}</dd>
                 </>
               )}
               {source.retrievedAt && (
                 <>
-                  <dt className="text-ash-400">Récupérée le</dt>
+                  <dt className="text-ink-3">Récupérée le</dt>
                   <dd>{formatDate(source.retrievedAt)}</dd>
                 </>
               )}
@@ -85,7 +85,7 @@ export function SourceTag({ source }: { source: SourceInfo }) {
               href={source.url}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block underline decoration-ash-600 hover:text-bone-100"
+              className="mt-2 inline-block underline decoration-rule hover:text-ink"
             >
               {source.urlLabel ?? "Consulter la source"}
             </a>
