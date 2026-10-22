@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { L93_EXTENT, SCENE_SIZE } from "@/lib/geo/frame";
 import { basemapById, wmsUrl } from "@/lib/geo/basemaps";
 import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
-import { useDepartements2D, useDetections, useEffisYear, useEffisYears, useRecentDetections } from "@/lib/data/queries";
+import { useDepartements2D, useDetections, useEffisYear, useEffisYears, useNeighbours, useRecentDetections } from "@/lib/data/queries";
 import { recentToColumns } from "@/lib/data/firms-recent";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
 import { monthRange } from "@/lib/timeline";
@@ -28,6 +28,22 @@ function firePath(fire: DecodedFire): string {
  */
 export default function Map2D({ reason }: { reason: string }) {
   const { data, error } = useDepartements2D();
+  const neighbours = useNeighbours();
+  // Neighbouring countries, flat and neutral: same frame as the fires (scene km from the north-west corner).
+  const neighbourPath = useMemo(
+    () =>
+      (neighbours.data?.countries ?? [])
+        .flatMap((country) => country.polygons.flat())
+        .map((ring) => {
+          const points: string[] = [];
+          for (let k = 0; k < ring.length; k += 2) {
+            points.push(`${(ring[k] + SCENE_SIZE.width / 2).toFixed(1)} ${(ring[k + 1] + SCENE_SIZE.depth / 2).toFixed(1)}`);
+          }
+          return `M${points.join("L")}Z`;
+        })
+        .join(""),
+    [neighbours.data],
+  );
   const setRenderMode = useMapStore((state) => state.setRenderMode);
   const year = useMapStore((state) => state.year);
   const showHistory = useMapStore((state) => state.showHistory);
@@ -128,6 +144,9 @@ export default function Map2D({ reason }: { reason: string }) {
                 </clipPath>
               )}
             </defs>
+            {neighbourPath && (
+              <path d={neighbourPath} fill="var(--neighbour)" stroke="var(--neighbour-line)" strokeWidth={0.6} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
+            )}
             {imageUrl && (
               <image
                 href={imageUrl}

@@ -16,12 +16,13 @@
     "test": "node --test \"lib/**/*.test.ts\" \"scripts/**/*.test.ts\"",
     "data:dem": "node scripts/01-dem.ts",
     "data:admin": "node scripts/05-admin.ts",
+    "data:neighbours": "node scripts/08-neighbours.ts",
     "data:effis": "node scripts/02-effis.ts",
     "data:bdiff": "node scripts/04-bdiff.ts",
     "data:firms": "node scripts/03-firms.ts",
     "data:events": "node scripts/07-events.ts",
     "data:validate": "node scripts/06-validate.ts",
-    "data": "npm run data:dem && npm run data:admin && npm run data:effis && npm run data:bdiff && npm run data:firms && npm run data:events && npm run data:validate"
+    "data": "npm run data:dem && npm run data:admin && npm run data:neighbours && npm run data:effis && npm run data:bdiff && npm run data:firms && npm run data:events && npm run data:validate"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

@@ -12,7 +12,9 @@ export type ColorToken =
   | "--relief-high"
   | "--water"
   | "--coast"
-  | "--boundary";
+  | "--boundary"
+  | "--neighbour"
+  | "--neighbour-line";
 
 /**
  * Reads a colour token defined on :root (app/globals.css) as raw sRGB

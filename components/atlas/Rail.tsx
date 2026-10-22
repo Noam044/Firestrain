@@ -1,66 +1,55 @@
 "use client";
 
-import Link from "next/link";
+import { Dialog } from "radix-ui";
 import { formatInteger } from "@/lib/format";
 import { useEffisYear } from "@/lib/data/queries";
 import { useMapStore } from "@/lib/store";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { FireDetail } from "./FireDetail";
 import { MapKey } from "./MapKey";
-import { SeasonStrip } from "./SeasonStrip";
 import { TopFires } from "./TopFires";
-import { YearStrip } from "./YearStrip";
 import { YearSummary } from "./YearSummary";
 
-/** Every control of the map in one column: year, period, layers, then the fires — or one fire. */
+/**
+ * The side panel: what the year shown amounts to, what the map shows, and the
+ * fires worth opening — or, once a fire is chosen, that fire (a bottom sheet on phones).
+ */
 export function Rail() {
   const year = useMapStore((state) => state.year);
   const selectedFireId = useMapStore((state) => state.selectedFireId);
   const selectFire = useMapStore((state) => state.selectFire);
+  const wide = useMediaQuery("(min-width: 1024px)", true);
   const fires = useEffisYear(year).data?.fires;
   const fire = fires?.find((candidate) => candidate.id === selectedFireId) ?? null;
+  const close = () => selectFire(null);
 
   return (
-    <div className="flex min-h-full flex-col px-5 pb-5 pt-4 lg:px-6">
-      <header className="flex items-baseline justify-between gap-4">
-        <h1 className="text-lg leading-tight [font-stretch:112%]">Feux de forêt en France</h1>
-        <nav aria-label="Autres pages" className="flex shrink-0 gap-4 text-sm">
-          <Link href={`/liste?year=${year}`} className="text-ink-2 hover:text-ink">
-            Liste
-          </Link>
-          <Link href="/methode" className="text-ink-2 hover:text-ink">
-            Méthode
-          </Link>
-        </nav>
-      </header>
-      <p className="mt-0.5 text-xs text-ink-3">Surfaces brûlées vues par satellite, de 2006 à 2026, métropole et Corse</p>
-
-      <div className="mt-5">
-        <YearStrip />
-      </div>
-
+    <div className="px-5 py-5 lg:px-6">
       <p aria-live="polite" className="sr-only">
         {fire ? `${fire.commune}, ${fire.province} : ${formatInteger(fire.areaHa)} hectares sélectionnés.` : ""}
       </p>
-
-      <div className="mt-6 flex-1">
-        {fire ? (
-          <FireDetail fire={fire} year={year} onBack={() => selectFire(null)} />
-        ) : (
-          <div className="space-y-7">
-            <YearSummary />
-            <SeasonStrip />
-            <MapKey />
-            <TopFires />
-          </div>
-        )}
-      </div>
-
-      <footer className="mt-8 border-t border-rule pt-3 text-xs leading-4 text-ink-3">
-        Données : EFFIS (Copernicus, CC BY 4.0), BDIFF, NASA FIRMS, IGN (BD ALTI, ADMIN EXPRESS, fonds de carte).{" "}
-        <Link href="/methode" className="underline decoration-rule underline-offset-2 hover:text-ink">
-          Sources et limites
-        </Link>
-      </footer>
+      {fire && wide ? (
+        <FireDetail fire={fire} year={year} onBack={close} />
+      ) : (
+        <div className="space-y-7">
+          <YearSummary />
+          <MapKey />
+          <TopFires />
+        </div>
+      )}
+      <Dialog.Root open={Boolean(fire) && !wide} onOpenChange={(open) => !open && close()}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/30" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[80dvh] overflow-y-auto rounded-t-xl bg-sheet px-5 pb-6 pt-3 shadow-lg"
+          >
+            <Dialog.Title className="sr-only">{fire ? `Surface brûlée : ${fire.commune}` : "Surface brûlée"}</Dialog.Title>
+            <span aria-hidden className="mx-auto mb-3 block h-1 w-10 rounded-full bg-rule" />
+            {fire && <FireDetail fire={fire} year={year} onBack={close} />}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

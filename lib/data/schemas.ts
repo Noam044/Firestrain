@@ -72,6 +72,20 @@ export const FranceOutlineSchema = z.object({
 
 export type FranceOutline = z.infer<typeof FranceOutlineSchema>;
 
+/** Countries around France (Natural Earth), flat context on the map: polygons → rings, scene km. */
+export const NeighboursSchema = z.object({
+  crs: z.literal("scene-km"),
+  countries: z.array(
+    z.object({
+      code: z.string(),
+      name: z.string(),
+      polygons: z.array(SceneLinesSchema),
+    }),
+  ),
+});
+
+export type Neighbours = z.infer<typeof NeighboursSchema>;
+
 /** EFFIS land-cover shares (%), in the order of the EFFIS API fields. */
 export const LAND_COVER_KEYS = [
   "broadlea",

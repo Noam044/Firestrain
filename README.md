@@ -45,6 +45,7 @@ Les téléchargements bruts sont mis en cache dans `data/raw/` (non versionné).
 ```bash
 npm run data:dem       # 01 — relief IGN BD ALTI (WMS-Raster, Lambert-93), mailles 500 m et 1 000 m
 npm run data:admin     # 05 — départements IGN ADMIN EXPRESS COG CARTO (WFS)
+npm run data:neighbours # 08 — pays voisins Natural Earth 1:10m, à plat (contexte de carte)
 npm run data:effis     # 02 — surfaces brûlées EFFIS 2006–2026 et statistiques officielles
 npm run data:bdiff     # 04 — BDIFF (feux déclarés) et rapprochements avec EFFIS
 npm run data:firms     # 03 — détections NASA FIRMS par année civile (clé requise pour 2026)
@@ -70,7 +71,8 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
-- **Fonds de carte** (choix dans l'Explorer, `?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
+- **Pays voisins** (fond neutre, sans relief) : Natural Earth, Admin 0 – Countries 1:10m — domaine public.
+- **Fonds de carte** (`?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
   BD ORTHO — IGN / CNES, Licence Ouverte 2.0, demandés par le navigateur au WMS de la Géoplateforme (sans clé).
 - **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
 - **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.

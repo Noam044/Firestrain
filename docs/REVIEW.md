@@ -12,8 +12,8 @@ pourcentage.
 
 | Écran | Constat |
 |---|---|
-| **Carte — colonne** | Titre court, frise des années (la donnée sert de sélecteur), chiffre de la période, mois cliquables, lecture, clé de carte avec interrupteurs, plus grandes surfaces. Pas de cartes empilées : des sections séparées par l'espace et un filet. |
-| **Carte — relief** | France en relief clair sur fond « mer », sol brûlé rouge brûlis légèrement translucide, années précédentes en hachures (le sens ne repose pas sur la couleur seule), points chauds en anneaux ambre. |
+| **Carte — répartition** | Barre de titre en haut ; barre du temps en bas sur toute la largeur (frise des années — la donnée sert de sélecteur —, mois cliquables, lecture) ; colonne de gauche étroite : chiffre de la période, clé de carte avec interrupteurs, six plus grandes surfaces. Pas de cartes empilées : des sections séparées par l'espace et un filet. |
+| **Carte — relief** | France seule en relief clair sur fond « mer », pays voisins à plat en gris pâle avec leur nom, sol brûlé rouge brûlis légèrement translucide, années précédentes en hachures (le sens ne repose pas sur la couleur seule), points chauds en anneaux ambre. |
 | **Carte — commandes** | Touches blanches en bas à droite (zoom, vue d'ensemble, fond de carte), échelle et sources en bas à gauche ; zoom par pincement sur écran tactile. |
 | **Panneau d'un feu** | Dans la colonne, avec retour à l'année ; surface en grand, végétation, activité satellite, BDIFF à part, faits officiels cités pour les feux documentés. |
 | **Carte 2D** | Mêmes couleurs et mêmes filtres, motif de repli en une ligne. |

@@ -232,6 +232,10 @@ export default function MethodePage() {
             images sont demandées par le navigateur aux serveurs de l’IGN.
           </li>
           <li>
+            Les pays voisins sont dessinés à plat, en gris, sans relief ni donnée de feu : ils situent la France sans
+            rien mesurer. Leurs contours viennent de Natural Earth (Admin 0, 1:10m, domaine public), simplifiés à 400 m.
+          </li>
+          <li>
             Avec la préférence « réduire les animations », les déplacements de caméra deviennent des coupes et la lecture
             de l’année avance jour par jour, sans fondu.
           </li>

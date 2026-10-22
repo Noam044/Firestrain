@@ -6,7 +6,7 @@ import { formatDate, formatInteger } from "@/lib/format";
 import { useMapStore } from "@/lib/store";
 import { useYearFires } from "./period";
 
-const SHOWN = 8;
+const SHOWN = 6;
 
 /** The largest burnt areas of the period: a shortcut to the fires worth looking at, and to the full list. */
 export function TopFires() {
@@ -23,7 +23,7 @@ export function TopFires() {
     <section aria-labelledby="grands-titre">
       <div className="flex items-baseline justify-between gap-3">
         <h2 id="grands-titre" className="label">
-          {period.kind === "year" ? "Plus grandes surfaces de l’année" : "Plus grandes surfaces de la période"}
+          {period.kind === "year" ? `Les plus grands feux de ${year}` : "Les plus grands feux de la période"}
         </h2>
         <Link
           href={`/liste?year=${year}`}

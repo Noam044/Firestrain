@@ -9,7 +9,7 @@ import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
  * The year selector is the data itself: one bar per year, its height the burnt
  * area of fires ≥ 30 ha (EFFIS). Click, or arrow keys, to change year.
  */
-export function YearStrip() {
+export function YearStrip({ barsHeight = "h-28" }: { barsHeight?: string }) {
   const year = useMapStore((state) => state.year);
   const setYear = useMapStore((state) => state.setYear);
   const index = useEffisIndex();
@@ -43,7 +43,7 @@ export function YearStrip() {
     <section aria-labelledby="annees-titre">
       <div className="flex items-baseline justify-between gap-3">
         <h2 id="annees-titre" className="label">
-          Surface brûlée par année
+          Année · surface brûlée
         </h2>
         <p className="text-xs tabular text-ink-2" aria-hidden>
           {shown ? (
@@ -60,7 +60,7 @@ export function YearStrip() {
         aria-labelledby="annees-titre"
         onKeyDown={onKeyDown}
         onMouseLeave={() => setHovered(null)}
-        className="mt-2 grid h-28 items-end gap-[3px]"
+        className={`mt-2 grid ${barsHeight} items-end gap-[3px]`}
         style={{ gridTemplateColumns: `repeat(${years.length || 21}, minmax(0, 1fr))` }}
       >
         {years.map((entry) => {

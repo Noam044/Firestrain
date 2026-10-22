@@ -75,73 +75,45 @@ export function SeasonStrip() {
     <section aria-labelledby="saison-titre">
       <div className="flex items-baseline justify-between gap-3">
         <h2 id="saison-titre" className="label">
-          Au fil de l’année
+          Mois par mois{" "}
+          <span className="font-semibold text-ink tabular">{date ? `· ${formatDate(date)}` : ""}</span>
         </h2>
-        {filtered && (
-          <button
-            type="button"
-            onClick={() => (period.kind === "month" ? setMonth(null) : setTimelineDay(null))}
-            className="text-xs font-medium text-moss underline decoration-moss/40 underline-offset-2 hover:decoration-moss"
-          >
-            Toute l’année
-          </button>
-        )}
-      </div>
-
-      <div className="relative mt-2">
-        <div className="grid h-16 grid-cols-12 items-end gap-1">
-          {monthly.map((area, k) => {
-            const month = k + 1;
-            const start = monthRange(year, month)[0];
-            const chosen = period.kind === "month" && period.month === month;
-            const active = period.kind === "year" || chosen || (period.kind === "day" && start <= period.day);
-            return (
+        <div className="flex items-center gap-3">
+          {filtered && (
+            <button
+              type="button"
+              onClick={() => (period.kind === "month" ? setMonth(null) : setTimelineDay(null))}
+              className="text-xs font-medium text-moss underline decoration-moss/40 underline-offset-2 hover:decoration-moss"
+            >
+              Toute l’année
+            </button>
+          )}
+          <div role="group" aria-label="Vitesse de lecture" className="flex shrink-0 overflow-hidden rounded-md border border-rule">
+            {SPEEDS.map((value) => (
               <button
-                key={month}
+                key={value}
                 type="button"
-                aria-pressed={chosen}
-                aria-label={`${MONTHS[k]} : ${formatInteger(area)} ha (feux de plus de 30 ha). Afficher seulement ce mois`}
-                onClick={() => setMonth(chosen ? null : month)}
-                className="group flex h-full items-end"
-                title={`${MONTHS[k]} ${year} : ${formatInteger(area)} ha`}
+                aria-pressed={speed === value}
+                aria-label={`×${value} : ${value} jours par seconde`}
+                onClick={() => setSpeed(value)}
+                className={`h-6 min-w-8 px-1.5 text-[11px] tabular [font-stretch:85%] ${
+                  speed === value ? "bg-ink text-sheet" : "bg-white text-ink-2 hover:text-ink"
+                }`}
               >
-                <span
-                  className={`block w-full rounded-t-[2px] transition-colors ${
-                    active ? "bg-scorch" : "bg-cendre/30 group-hover:bg-cendre/60"
-                  }`}
-                  style={{ height: `max(2px, ${(area / max) * 100}%)` }}
-                />
+                ×{value}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
-        {day !== null && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 top-0 w-px bg-ink"
-            style={{ left: `${((day - 1) / (days - 1)) * 100}%` }}
-          />
-        )}
-      </div>
-      <div className="mt-1 grid grid-cols-12 gap-1 border-t border-ink/70 pt-1" aria-hidden>
-        {MONTHS_SHORT.map((label, k) => (
-          <span
-            key={label}
-            className={`truncate text-center text-[11px] leading-none [font-stretch:72%] ${
-              period.kind === "month" && period.month === k + 1 ? "font-semibold text-scorch" : "text-ink-3"
-            }`}
-          >
-            {label}
-          </span>
-        ))}
       </div>
 
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-1.5 flex items-center gap-3">
         <button
           type="button"
           onClick={play}
           aria-label={playing ? "Mettre en pause" : day !== null && day < days ? "Reprendre la lecture" : "Rejouer l’année jour par jour"}
-          className="grid size-9 shrink-0 place-items-center rounded-full bg-ink text-sheet hover:bg-moss"
+          title={playing ? "Pause" : "Rejouer l’année jour par jour"}
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-ink text-sheet hover:bg-moss"
         >
           {playing ? (
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
@@ -154,9 +126,60 @@ export function SeasonStrip() {
             </svg>
           )}
         </button>
+
         <div className="min-w-0 flex-1">
+          <div className="relative">
+            <div className="grid h-11 grid-cols-12 items-end">
+              {monthly.map((area, k) => {
+                const month = k + 1;
+                const start = monthRange(year, month)[0];
+                const chosen = period.kind === "month" && period.month === month;
+                const active = period.kind === "year" || chosen || (period.kind === "day" && start <= period.day);
+                return (
+                  <button
+                    key={month}
+                    type="button"
+                    aria-pressed={chosen}
+                    aria-label={`${MONTHS[k]} : ${formatInteger(area)} ha (feux de plus de 30 ha). Afficher seulement ce mois`}
+                    onClick={() => setMonth(chosen ? null : month)}
+                    className="group flex h-full items-end px-0.5"
+                    title={`${MONTHS[k]} ${year} : ${formatInteger(area)} ha`}
+                  >
+                    <span
+                      className={`block w-full rounded-t-[2px] transition-colors ${
+                        active ? "bg-scorch" : "bg-cendre/30 group-hover:bg-cendre/60"
+                      }`}
+                      style={{ height: `max(2px, ${(area / max) * 100}%)` }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            {day !== null && (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-0 top-0 w-px bg-ink"
+                style={{ left: `${((day - 1) / (days - 1)) * 100}%` }}
+              />
+            )}
+          </div>
+          <div className="mt-1 grid grid-cols-12 border-t border-ink/70 pt-1" aria-hidden>
+            {MONTHS_SHORT.map((label, k) => (
+              <span
+                key={label}
+                className={`truncate text-center text-[11px] leading-none [font-stretch:72%] ${
+                  period.kind === "month" && period.month === k + 1 ? "font-semibold text-scorch" : "text-ink-3"
+                }`}
+              >
+                {/* Initials on phones, where the abbreviations would be cut off. */}
+                <span className="sm:hidden">{MONTHS[k][0].toUpperCase()}</span>
+                <span className="hidden sm:inline">{label}</span>
+              </span>
+            ))}
+          </div>
+          {/* The day slider runs along the same axis as the months above it. */}
           <Slider.Root
-            className="relative flex h-5 touch-none select-none items-center"
+            className="relative mt-1 flex h-5 touch-none select-none items-center"
             min={1}
             max={days}
             step={1}
@@ -175,24 +198,8 @@ export function SeasonStrip() {
               className="block size-4 rounded-full border-2 border-ink bg-white"
             />
           </Slider.Root>
-          <p className="mt-0.5 text-xs tabular text-ink-2">{date ? formatDate(date) : "Rejouer l’année jour par jour"}</p>
         </div>
-        <div role="group" aria-label="Vitesse de lecture" className="flex shrink-0 overflow-hidden rounded-md border border-rule">
-          {SPEEDS.map((value) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={speed === value}
-              aria-label={`×${value} : ${value} jours par seconde`}
-              onClick={() => setSpeed(value)}
-              className={`h-7 min-w-8 px-1.5 text-[11px] tabular [font-stretch:85%] ${
-                speed === value ? "bg-ink text-sheet" : "bg-white text-ink-2 hover:text-ink"
-              }`}
-            >
-              ×{value}
-            </button>
-          ))}
-        </div>
+
       </div>
       <p aria-live="polite" className="sr-only">
         {!playing && date ? `Jour affiché : ${formatDate(date)}` : ""}

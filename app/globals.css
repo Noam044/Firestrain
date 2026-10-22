@@ -32,6 +32,9 @@
   --water: #c9d6d8;
   --coast: #56625a;
   --boundary: #9aa39b;
+  /* Neighbouring countries: flat, neutral, a step below France. */
+  --neighbour: #e3e5df;
+  --neighbour-line: #b8bdb5;
 }
 
 /* Tailwind gets these tokens only — the default palette and fonts are removed. */

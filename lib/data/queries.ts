@@ -14,6 +14,7 @@ import {
   FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
+  NeighboursSchema,
   RecentDetectionsSchema,
   TerrainMetaSchema,
   type TerrainMeta,
@@ -60,6 +61,14 @@ export const useManifest = () =>
   useQuery({
     queryKey: ["data", "manifest"],
     queryFn: () => fetchJson("manifest.json", ManifestSchema),
+    ...staticData,
+  });
+
+/** Countries around France, drawn flat for context. */
+export const useNeighbours = () =>
+  useQuery({
+    queryKey: ["data", "neighbours"],
+    queryFn: () => fetchJson("admin/voisins.json", NeighboursSchema),
     ...staticData,
   });
 

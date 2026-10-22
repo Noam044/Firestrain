@@ -8,6 +8,7 @@ import {
   useBorders,
   useEffisYear,
   useDetections,
+  useNeighbours,
   useRecentDetections,
   useEffisYears,
   useFranceOutline,
@@ -25,6 +26,7 @@ import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
 import { FirePoints } from "./FirePoints";
+import { Neighbours } from "./Neighbours";
 import { useImagery } from "./Imagery";
 import { CameraRig, resetView } from "./CameraRig";
 import { MapProbe } from "./MapProbe";
@@ -159,6 +161,7 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
 
   const basemap = useMapStore((state) => state.basemap);
   const imagery = useImagery(basemap, true, detail.dem !== 500);
+  const neighbours = useNeighbours();
   const current = useEffisYear(year);
   const historyYears = useMemo(
     () => Array.from({ length: Math.max(0, year - FIRST_YEAR) }, (_, i) => FIRST_YEAR + i),
@@ -199,6 +202,7 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
 
   return (
     <>
+      {neighbours.data && <Neighbours data={neighbours.data} />}
       <Terrain
         terrain={terrain}
         textures={textures}

@@ -1,12 +1,12 @@
 # Rapport de validation des données
 
-Généré par `scripts/06-validate.ts` le 20 oct. 2026 à partir de `public/data` (manifest mis à jour le 20 oct. 2026).
+Généré par `scripts/06-validate.ts` le 23 oct. 2026 à partir de `public/data` (manifest mis à jour le 22 oct. 2026).
 
 **Résultat : aucun problème.**
 
 ## 1. Fichiers publiés
 
-51 fichiers sur 51 conformes (taille, sha256 et schéma Zod) ; 51 fichiers présents dans `public/data`.
+52 fichiers sur 52 conformes (taille, sha256 et schéma Zod) ; 52 fichiers présents dans `public/data`.
 
 ## 2. EFFIS : totaux du pipeline et statistiques officielles
 

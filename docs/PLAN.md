@@ -119,7 +119,28 @@ précédente (noir et braise, panneaux flottants partout, petites capitales) ét
 - **Frise des années** : 21 barres à la surface réelle (feux ≥ 30 ha), qui sont le sélecteur d'année (clic, flèches du clavier).
 - **Mois de l'année** : chaque barre filtre la carte (seuls les feux détectés ce mois-là), lecture jour par jour avec un cumul qui monte, curseur au clavier.
 - **Panneau d'un feu** dans la colonne (retour à l'année), infobulle au survol, plus grandes surfaces de la période, clé de carte avec ses interrupteurs, commandes de carte (zoom, vue d'ensemble, fond de carte façon Google Maps).
-- Lighthouse mobile : carte 86–88 en performance (index EFFIS livré avec la page), 100 en accessibilité, bonnes pratiques et SEO ; liste 96, Méthode 97.
+- Lighthouse mobile (première version) : carte 86–88 en performance (index EFFIS livré avec la page), 100 en accessibilité, bonnes pratiques et SEO ; liste 96, Méthode 97.
+
+### Répartition et pays voisins (demande du 22/10/2026)
+
+Demande : tout était empilé dans la colonne de gauche et la droite restait vide ; répartition plus simple pour
+un public non spécialiste, et pays frontaliers affichés « sans relief ni couleur, afin que la France domine, mais
+ne soit pas seule ».
+
+- **Quatre zones** : barre de titre (navigation Liste / Méthode) ; carte au centre ; **barre du temps** en bas,
+  sur toute la largeur, comme sous un lecteur (années à gauche, mois et lecture à droite) ; colonne de gauche
+  étroite (340 px) pour l'année affichée — chiffre, clé de carte, six plus grandes surfaces — ou le feu choisi.
+  Sur téléphone : titre, carte, barre du temps, puis la colonne ; le feu s'ouvre en feuille depuis le bas, et les
+  mois sont réduits à leur initiale.
+- **Pays voisins** (`08-neighbours`, `admin/voisins.json`, 256 Ko) : Natural Earth 1:10m (domaine public),
+  projeté en Lambert-93 puis découpé au cadre de la carte élargi de 500 km (bord parallèle à la carte, hors de
+  vue ; pays lointains écartés), simplifié à 400 m. Dessinés à plat sous le niveau du
+  relief, gris pâle (`--neighbour`), filet clair, noms en petites capitales grises ; noms des mers en italique.
+  Aussi dans la carte 2D. La décision « France seule en relief » reste vraie : seuls les contours sont ajoutés.
+- Lighthouse mobile : carte 80–86 en performance — identique à la version précédente mesurée en alternance sur la
+  même machine (82–86) ; les pays voisins n'y changent rien (mesure sans eux : 80–81) —, 100 en accessibilité
+  (barres des mois élargies à 24 px : vitesses de lecture passées dans l'en-tête), bonnes pratiques et SEO ;
+  liste 96, Méthode 96. Tests : 29 Playwright, 25 unitaires.
 
 ## Questions ouvertes (elles changent l'architecture)
 

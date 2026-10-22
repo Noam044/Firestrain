@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-20T20:33:51.481Z",
+  "updatedAt": "2026-10-22T21:59:02.472Z",
   "files": {
     "admin/departements-2d.json": {
       "title": "Départements (carte 2D de repli)",
@@ -48,6 +48,21 @@
       ],
       "bytes": 101974,
       "sha256": "7794e45a7ed458e2082f51238663cc5f86005ea5b86b2d55e9929e95a6f878f5"
+    },
+    "admin/voisins.json": {
+      "title": "Pays voisins de la France (contexte de carte)",
+      "source": "Natural Earth, Admin 0 – Countries, 1:10m",
+      "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries.geojson",
+      "licence": "Domaine public (Natural Earth)",
+      "licenceUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "retrievedAt": "2026-10-22T20:06:29.493Z",
+      "transformations": [
+        "pays autres que la France, projetés en Lambert-93 et découpés au cadre de la carte élargi de 500 km",
+        "simplification mapshaper, tolérance 400 m",
+        "Lambert-93 → coordonnées de scène en km, arrondies à 10 m"
+      ],
+      "bytes": 256227,
+      "sha256": "8fe93f5d7311289675bb75ee31b774e8213f69250b345fba1cbf9682d0f91b09"
     },
     "bdiff/annuel.json": {
       "title": "Feux déclarés par année et par département (BDIFF)",
