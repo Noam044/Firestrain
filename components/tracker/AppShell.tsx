@@ -9,7 +9,7 @@ import type { BdiffAnnual, EffisIndex } from "@/lib/data/schemas";
 import { SpanFiresProvider, useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
 import { FirePanel } from "./FirePanel";
-import { DataLoading } from "./DataLoading";
+import { DataLoading } from "@/components/ui/DataLoading";
 import { MapControls } from "./MapControls";
 import { TopBar } from "./TopBar";
 

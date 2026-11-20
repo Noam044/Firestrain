@@ -27,7 +27,8 @@ function status(progress: SourceProgress): string {
 
 /**
  * Over the whole screen, blurred, while the live data loads: one bar from 0 to
- * 100 %, and a line per source. It appears only while a request is under way (not when the data
+ * 100 %, and a line per source, on the home page and the map. It appears only
+ * while a request is under way (not when the data
  * is already in the cache), holds 100 % for a moment, then goes.
  */
 export function DataLoading() {
