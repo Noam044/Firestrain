@@ -54,21 +54,22 @@ function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
     <div>
       <h2 className="text-2xl leading-tight tracking-[-0.025em] first-letter:uppercase">{title}</h2>
       <p className="text-sm text-ink-3">{subtitle}</p>
+      {/* Labels may take two lines: the figures sit at the foot of each cell, on one line. */}
       <dl className="mt-3 grid grid-cols-3 divide-x divide-rule rounded-md border border-rule">
-        <div className="px-2.5 py-1.5">
+        <div className="flex flex-col px-2.5 py-1.5">
           <dt className="label">Feux</dt>
-          <dd className="figure text-lg leading-6 text-ink">{fires ? formatInteger(fires.length) : "–"}</dd>
+          <dd className="figure mt-auto text-lg leading-6 text-ink">{fires ? formatInteger(fires.length) : "–"}</dd>
         </div>
-        <div className="px-2.5 py-1.5">
+        <div className="flex flex-col px-2.5 py-1.5">
           <dt className="label">Surface brûlée</dt>
-          <dd className="figure text-lg leading-6 text-ink">
+          <dd className="figure mt-auto text-lg leading-6 text-ink">
             {fires ? formatInteger(areaHa) : "–"}
             <span className="ml-1 text-xs text-ink-3">ha</span>
           </dd>
         </div>
-        <div className="px-2.5 py-1.5">
+        <div className="flex flex-col px-2.5 py-1.5">
           <dt className="label">{lastWeek !== null ? "Depuis 7 jours" : "Plus grand"}</dt>
-          <dd className="figure text-lg leading-6 text-ink">
+          <dd className="figure mt-auto text-lg leading-6 text-ink">
             {!fires
               ? "–"
               : lastWeek !== null

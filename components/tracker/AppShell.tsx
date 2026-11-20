@@ -9,6 +9,7 @@ import type { BdiffAnnual, EffisIndex } from "@/lib/data/schemas";
 import { SpanFiresProvider, useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
 import { FirePanel } from "./FirePanel";
+import { DataLoading } from "./DataLoading";
 import { MapControls } from "./MapControls";
 import { TopBar } from "./TopBar";
 
@@ -68,6 +69,7 @@ export function AppShell({ initialData }: { initialData: { effisIndex: EffisInde
         >
           <MapStageLoader />
           <MapControls />
+          <DataLoading />
         </main>
         <MapTooltip />
         {/* Reads the query string: rendered on the client, outside the static shell. */}
