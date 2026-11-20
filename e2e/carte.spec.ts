@@ -26,7 +26,8 @@ test("les mois se choisissent à la souris et au clavier, et se partagent", asyn
   await page.getByRole("radio", { name: /^juillet 2026 :/ }).click();
   await expect(page).toHaveURL(/mois=2026-07/);
   await expect(page.getByRole("heading", { level: 2, name: "Juillet 2026" })).toBeVisible();
-  await page.keyboard.press("ArrowRight");
+  // Months run newest first: the chip on the left is the next month.
+  await page.keyboard.press("ArrowLeft");
   await expect(page.getByRole("radio", { name: /^août 2026 :/ })).toHaveAttribute("aria-checked", "true");
   await expect(page.getByRole("radio", { name: /^août 2026 :/ })).toBeFocused();
   await expect(page).toHaveURL(/mois=2026-08/);
