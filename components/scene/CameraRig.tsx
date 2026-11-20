@@ -126,7 +126,7 @@ export function CameraRig({ controlsRef }: CameraRigProps) {
     const cx = (x0 + x1) / 2;
     const cz = (z0 + z1) / 2;
     const aspect = (controls.camera as THREE.PerspectiveCamera).aspect;
-    const distance = Math.max(30, 3 * Math.max(x1 - x0, z1 - z0)) * Math.max(1, REFERENCE_ASPECT / aspect);
+    const distance = Math.max(12, 3 * Math.max(x1 - x0, z1 - z0)) * Math.max(1, REFERENCE_ASPECT / aspect);
     const polar = THREE.MathUtils.degToRad(42);
     const azimuth = controls.azimuthAngle;
     void controls.setLookAt(

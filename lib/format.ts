@@ -70,3 +70,35 @@ export function formatLatitude(lat: number): string {
 export function formatLongitude(lon: number): string {
   return `${formatDecimal(Math.abs(lon), 4)}° ${lon >= 0 ? "E" : "O"}`;
 }
+
+const dayMonthFormat = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short", timeZone: "Europe/Paris" });
+
+/** Day and month in Paris, without the year: "14 nov.". */
+export function formatDayMonth(iso: string): string {
+  return dayMonthFormat.format(new Date(iso));
+}
+
+export const MONTH_NAMES = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+export const MONTH_ABBREVIATIONS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+/** "novembre 2026". */
+export function formatMonthYear({ year, month }: { year: number; month: number }): string {
+  return `${MONTH_NAMES[month - 1]} ${year}`;
+}
+
+/** Age of a fire, in whole days up to the date of the data: "aujourd’hui", "hier", "il y a 5 jours". */
+export function formatAge(days: number): string {
+  if (days <= 0) return "aujourd’hui";
+  if (days === 1) return "hier";
+  return `il y a ${days} jours`;
+}
+
+/** "1 fire" / "12 fires" in French, with the number formatted. */
+export function formatCount(count: number, singular: string, plural: string): string {
+  return `${formatInteger(count)} ${count > 1 ? plural : singular}`;
+}
+
+/** A burnt area in whole hectares; below one hectare, "< 1" rather than a misleading 0. */
+export function formatArea(areaHa: number): string {
+  return areaHa > 0 && areaHa < 1 ? "< 1" : formatInteger(areaHa);
+}

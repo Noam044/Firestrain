@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { BasemapId } from "./geo/basemaps.ts";
 
+/** Archive years published as static files (EFFIS, 02-effis). */
 export const FIRST_YEAR = 2006;
 export const LAST_YEAR = 2026;
 
@@ -15,6 +16,8 @@ export type CursorReadout = {
   altitudeM: number | null;
 };
 
+export type FireSort = "date" | "area";
+
 type MapState = {
   /** Renderer actually on screen: the map furniture adapts to it. */
   renderMode: "3d" | "2d" | null;
@@ -25,46 +28,35 @@ type MapState = {
   /** Screen angle of geographic north, clockwise from up. */
   northDeg: number;
   cursor: CursorReadout | null;
-  /** Year whose burnt areas are shown in full (charred). */
-  year: number;
-  /** Earlier years (from FIRST_YEAR) drawn as hatching. */
-  showHistory: boolean;
-  /** EFFIS id of the selected polygon (always from `year`). */
-  selectedFireId: number | null;
-  /**
-   * Day of the year on the timeline, 1 = 1 January (fractional while playing,
-   * for smooth fading); null shows the whole year without FIRMS detections.
-   */
-  timelineDay: number | null;
-  /** FIRMS detections of the last 72 hours (server route), for the current year only. */
-  showRecent: boolean;
-  /**
-   * Month filter (1–12): only the burnt areas first detected that month are shown.
-   * Exclusive with the day-by-day timeline. Kept when the year changes, to compare.
-   */
+  /** null: the last twelve months (live); a year: that calendar year of the archives. */
+  archiveYear: number | null;
+  /** Month shown, as an index in the window (0 = oldest); null shows the twelve months. */
   month: number | null;
-  /** Burnt area under the pointer, with its screen position, for the tooltip. */
-  hover: { id: number; x: number; y: number } | null;
+  /** EFFIS id of the selected fire (from the window shown). */
+  selectedFireId: number | null;
+  /** Fire under the pointer, on the map (with its screen position, for the tooltip) or in the list. */
+  hover: { id: number; x: number; y: number } | { id: number; x: null; y: null } | null;
+  /** Fires of the window drawn before the window (hatched), since 2006. */
+  showHistory: boolean;
+  /** FIRMS hotspots of the last 72 hours (server route), live view only. */
+  showLive: boolean;
+  /** Order of the fire list. */
+  sort: FireSort;
   /** Base map under the burnt areas. */
   basemap: BasemapId;
-  playing: boolean;
-  /** Playback speed, in timeline days per second. */
-  speed: number;
   /** One-shot camera move, consumed by the 3D camera rig. */
   cameraRequest: CameraRequest | null;
   setRenderMode: (renderMode: "3d" | "2d" | null) => void;
   setView: (view: { kmPer100px: number | null; northDeg: number }) => void;
   setCursor: (cursor: CursorReadout | null) => void;
-  setYear: (year: number) => void;
-  setShowHistory: (showHistory: boolean) => void;
-  selectFire: (id: number | null) => void;
-  setTimelineDay: (day: number | null) => void;
-  setShowRecent: (showRecent: boolean) => void;
+  setArchiveYear: (year: number | null) => void;
   setMonth: (month: number | null) => void;
+  selectFire: (id: number | null) => void;
   setHover: (hover: MapState["hover"]) => void;
+  setShowHistory: (showHistory: boolean) => void;
+  setShowLive: (showLive: boolean) => void;
+  setSort: (sort: FireSort) => void;
   setBasemap: (basemap: BasemapId) => void;
-  setPlaying: (playing: boolean) => void;
-  setSpeed: (speed: number) => void;
   requestCamera: (target: CameraRequest["target"]) => void;
 };
 
@@ -83,33 +75,26 @@ export const useMapStore = create<MapState>()((set) => ({
   kmPer100px: null,
   northDeg: 0,
   cursor: null,
-  year: LAST_YEAR,
-  showHistory: true,
-  selectedFireId: null,
-  timelineDay: null,
-  showRecent: false,
+  archiveYear: null,
   month: null,
+  selectedFireId: null,
   hover: null,
+  showHistory: false,
+  showLive: true,
+  sort: "date",
   basemap: "relief",
-  playing: false,
-  speed: 7,
   cameraRequest: null,
   setRenderMode: (renderMode) => set({ renderMode }),
   setView: (view) => set(view),
   setCursor: (cursor) => set({ cursor }),
-  // A selection belongs to one year: changing year clears it.
-  setYear: (year) => set((state) => ({ year, selectedFireId: null, showRecent: state.showRecent && year === LAST_YEAR })),
-  setShowHistory: (showHistory) => set({ showHistory }),
+  // Months and a selection belong to one window: changing window clears them.
+  setArchiveYear: (archiveYear) => set({ archiveYear, month: null, selectedFireId: null, hover: null }),
+  setMonth: (month) => set({ month }),
   selectFire: (selectedFireId) => set({ selectedFireId }),
-  // The timeline, the month filter and the last 72 hours are exclusive views of time.
-  setTimelineDay: (timelineDay) =>
-    set(timelineDay === null ? { timelineDay, playing: false } : { timelineDay, showRecent: false, month: null }),
-  setMonth: (month) => set(month === null ? { month } : { month, timelineDay: null, playing: false, showRecent: false }),
   setHover: (hover) => set({ hover }),
+  setShowHistory: (showHistory) => set({ showHistory }),
+  setShowLive: (showLive) => set({ showLive }),
+  setSort: (sort) => set({ sort }),
   setBasemap: (basemap) => set({ basemap }),
-  setShowRecent: (showRecent) =>
-    set(showRecent ? { showRecent, timelineDay: null, playing: false, month: null } : { showRecent }),
-  setPlaying: (playing) => set({ playing }),
-  setSpeed: (speed) => set({ speed }),
   requestCamera: (target) => set((state) => ({ cameraRequest: { id: (state.cameraRequest?.id ?? 0) + 1, target } })),
 }));

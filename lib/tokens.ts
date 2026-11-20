@@ -1,10 +1,12 @@
 export type ColorToken =
   | "--ink"
-  | "--moss"
   | "--scorch"
   | "--scorch-ink"
   | "--cendre"
   | "--amber"
+  | "--fire-new"
+  | "--fire-month"
+  | "--fire-old"
   | "--sea"
   | "--relief-light"
   | "--relief-flat"

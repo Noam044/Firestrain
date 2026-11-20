@@ -8,14 +8,13 @@ import {
   BordersSchema,
   Departements2DSchema,
   EffisIndexSchema,
-  EffisStatsSchema,
   EffisYearSchema,
-  EventsSchema,
   FirmsIndexSchema,
   FranceOutlineSchema,
   ManifestSchema,
   NeighboursSchema,
   RecentDetectionsSchema,
+  RecentFiresSchema,
   TerrainMetaSchema,
   type TerrainMeta,
 } from "./schemas.ts";
@@ -76,13 +75,6 @@ export const useEffisIndex = () =>
   useQuery({
     queryKey: ["data", "effis-index"],
     queryFn: () => fetchJson("effis/index.json", EffisIndexSchema),
-    ...staticData,
-  });
-
-export const useEffisStats = () =>
-  useQuery({
-    queryKey: ["data", "effis-stats"],
-    queryFn: () => fetchJson("effis/stats.json", EffisStatsSchema),
     ...staticData,
   });
 
@@ -155,12 +147,21 @@ export const useRecentDetections = (enabled: boolean) =>
     retry: 1,
   });
 
-/** Sourced facts (préfectures, assureurs) attached to groups of EFFIS polygons. */
-export const useEvents = () =>
+export type RecentFireData = { generatedAt: string; fires: DecodedFire[] };
+
+/** Burnt areas of the last twelve months, from the server route (EFFIS queried about hourly). */
+export const useRecentFires = (enabled: boolean) =>
   useQuery({
-    queryKey: ["data", "events"],
-    queryFn: () => fetchJson("events/events.json", EventsSchema),
-    ...staticData,
+    queryKey: ["effis", "recent"],
+    queryFn: async (): Promise<RecentFireData> => {
+      const response = await fetch("/api/effis/recent");
+      if (!response.ok) throw new Error(`effis/recent : HTTP ${response.status}`);
+      const data = RecentFiresSchema.parse(await response.json());
+      return { generatedAt: data.generatedAt, fires: data.fires.map(decodeFire) };
+    },
+    enabled,
+    staleTime: 15 * 60_000,
+    retry: 1,
   });
 
 export const useBdiffAnnual = () =>

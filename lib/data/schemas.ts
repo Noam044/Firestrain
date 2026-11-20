@@ -134,6 +134,18 @@ export const EffisYearSchema = z.object({
 
 export type EffisYear = z.infer<typeof EffisYearSchema>;
 
+/** Burnt areas of the last twelve months, from the server route /api/effis/recent. */
+export const RecentFiresSchema = z.object({
+  /** When the server queried EFFIS (the answer is cached for about an hour). */
+  generatedAt: z.iso.datetime(),
+  /** First local date queried: the 1st of the month eleven months before generatedAt (Paris). */
+  from: z.iso.date(),
+  encoding: z.literal("scene-10m-delta"),
+  fires: z.array(EffisFireSchema),
+});
+
+export type RecentFires = z.infer<typeof RecentFiresSchema>;
+
 export const EffisIndexSchema = z.object({
   /** EFFIS official statistics count fires of at least this size. */
   thresholdHa: z.literal(30),

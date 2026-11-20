@@ -229,3 +229,74 @@ void main() {
   gl_FragColor = vec4(1.0, 0.0, high, (vValue - 256.0 * high) / 255.0);
 }
 `;
+
+/**
+ * Fire markers (FireMarkers.tsx, markers.ts): one disc per burnt area, constant
+ * screen size, drawn over the relief. A marker fades out once the real outline
+ * of its fire is drawn larger than the disc, so zooming in hands over to the
+ * burnt ground itself. Month filter in the shader: no rebuild when it changes.
+ */
+export const fireMarkersVertexShader = /* glsl */ `
+uniform sampler2D uHeight;
+uniform vec2 uSceneSize;
+uniform float uExag;
+uniform float uDayFrom;
+uniform float uDayTo;
+uniform float uPixelRatio;
+uniform float uPxPerUnit;
+uniform float uSelected;
+uniform float uHover;
+uniform vec3 uColors[3];
+attribute float aDay;
+attribute float aRadius;
+attribute float aRealKm;
+attribute float aClass;
+attribute float aId;
+varying vec3 vColor;
+varying float vAlpha;
+varying float vRadius;
+varying float vHalf;
+varying float vRing;
+
+void main() {
+  float shown = step(uDayFrom - 0.5, aDay) * step(aDay, uDayTo + 0.5);
+  vec3 p = position;
+  vec2 uv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
+  p.y = texture2D(uHeight, uv).r * 0.001 * uExag;
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  float realPx = aRealKm * uPxPerUnit / max(-mv.z, 0.001);
+  float t = clamp((realPx - 0.7 * aRadius) / (0.6 * aRadius), 0.0, 1.0);
+  float fade = 1.0 - t * t * (3.0 - 2.0 * t);
+  // 2: selected, 1: hovered (map or list).
+  vRing = max(2.0 * step(abs(aId - uSelected), 0.5), step(abs(aId - uHover), 0.5));
+  vAlpha = shown * fade;
+  vColor = aClass < 0.5 ? uColors[0] : aClass < 1.5 ? uColors[1] : uColors[2];
+  vRadius = aRadius * uPixelRatio;
+  vHalf = (aRadius + 3.0) * uPixelRatio;
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = vAlpha > 0.01 ? 2.0 * vHalf : 0.0;
+}
+`;
+
+export const fireMarkersFragmentShader = /* glsl */ `
+uniform float uPixelRatio;
+uniform vec3 uInk;
+varying vec3 vColor;
+varying float vAlpha;
+varying float vRadius;
+varying float vHalf;
+varying float vRing;
+
+void main() {
+  if (vAlpha <= 0.01) discard;
+  // Distance from the centre in device pixels; a white edge (ink when hovered or selected).
+  float d = length(gl_PointCoord - 0.5) * 2.0 * vHalf;
+  float stroke = (vRing > 1.5 ? 2.5 : vRing > 0.5 ? 2.0 : 1.5) * uPixelRatio;
+  float aa = uPixelRatio;
+  float fill = 1.0 - smoothstep(vRadius - aa, vRadius, d);
+  float body = 1.0 - smoothstep(vRadius + stroke - aa, vRadius + stroke, d);
+  if (body <= 0.0) discard;
+  vec3 edge = vRing > 0.5 ? uInk : vec3(1.0);
+  gl_FragColor = vec4(mix(edge, vColor, fill), body * vAlpha);
+}
+`;

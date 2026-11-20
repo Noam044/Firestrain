@@ -2,33 +2,34 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
-import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
+import type { DecodedFire, SpanFire } from "@/lib/data/fires";
 import { burnMaskFragmentShader, burnMaskVertexShader } from "./shaders";
 
 /**
  * Burnt areas are not extruded over the relief (z-fighting, "video game" look):
  * they are rasterised on the GPU into a texture aligned with the heightmap and
  * draped by the terrain shader. Channels:
- *   R  coverage of the year shown
+ *   R  coverage of the window shown (twelve months)
  *   G  coverage of the earlier years (hatched)
- *   B  high byte of the timeline day of first detection (1 = 1 January)
+ *   B  high byte of the window day of first detection (1 = first day of the window)
  *   A  low byte of that day
- * The year shown is drawn without blending, latest fire first, so the earliest
+ * The window is drawn without blending, latest fire first, so the earliest
  * detection wins where outlines overlap; the earlier years are then added with
  * MAX blending, which only touches G.
  */
 
 const geometries = new WeakMap<readonly DecodedFire[], THREE.BufferGeometry>();
 
-/** Triangulated outlines of a set of fires, cached per (immutable) query result. */
-function fireGeometry(fires: readonly DecodedFire[]): THREE.BufferGeometry {
+/** Triangulated outlines of a set of fires, cached per (immutable) list; history fires carry no day. */
+function fireGeometry(fires: readonly (DecodedFire | SpanFire)[]): THREE.BufferGeometry {
   const cached = geometries.get(fires);
   if (cached) return cached;
   const positions: number[] = [];
   const values: number[] = [];
-  const latestFirst = [...fires].sort((a, b) => fireTimelineDay(b) - fireTimelineDay(a));
+  const dayOf = (fire: DecodedFire | SpanFire) => ("day" in fire ? fire.day : 0);
+  const latestFirst = [...fires].sort((a, b) => dayOf(b) - dayOf(a));
   for (const fire of latestFirst) {
-    const value = fireTimelineDay(fire);
+    const value = dayOf(fire);
     for (const shape of fire.shapes) {
       const toPoints = (ring: Float32Array) => {
         const points: THREE.Vector2[] = [];
@@ -80,7 +81,7 @@ function maskMaterial(history: boolean) {
 const maskCamera = new THREE.OrthographicCamera();
 
 export function useBurnMask(
-  current: readonly DecodedFire[] | undefined,
+  current: readonly SpanFire[] | undefined,
   history: readonly (readonly DecodedFire[])[],
   size: { width: number; height: number },
 ): THREE.Texture {
@@ -112,7 +113,7 @@ export function useBurnMask(
 
   useLayoutEffect(() => {
     const scene = new THREE.Scene();
-    // The year shown first, without blending, then the history MAX-blended into G.
+    // The window first, without blending, then the history MAX-blended into G.
     const add = (geometry: THREE.BufferGeometry, material: THREE.Material) => {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.frustumCulled = false;

@@ -142,6 +142,34 @@ ne soit pas seule ».
   (barres des mois élargies à 24 px : vitesses de lecture passées dans l'en-tête), bonnes pratiques et SEO ;
   liste 96, Méthode 96. Tests : 29 Playwright, 25 unitaires.
 
+## Suivi des feux récents (demande du 20/11/2026)
+
+Demande : changer la direction artistique — garder la 3D, retirer l'aspect narratif, faire un site « wildfire
+tracker » (référence : *Build a Wildfire Tracker With React & NASA API*, Traversy Media : une carte, un marqueur par
+feu, un clic pour le détail) pour voir les feux récents en France, mois par mois, sans « AI slop ». Choix validés :
+douze derniers mois glissants avec les archives en second plan ; interface claire type outil ; marqueur
+proportionnel à la surface et contour réel au zoom ; données rafraîchies par une route serveur chaque heure.
+
+- **Données en direct** : `/api/effis/recent` interroge l'API EFFIS (`firedate__gte` = 1er du mois, onze mois plus
+  tôt), garde la métropole, reprojette et simplifie (Douglas–Peucker 40 m, `lib/geo/simplify.ts`), encode comme les
+  fichiers d'archive (`lib/data/effis-records.ts`, partagé avec `02-effis`, dont la sortie est inchangée) ;
+  `'use cache'` + `cacheLife('hours')`, réponse compressée (≈ 150 ko). Échec → fichiers du site jusqu'à leur date,
+  avec un avertissement.
+- **Temps** : `lib/span.ts` — fenêtre de douze mois (glissante ou année civile), jours comptés depuis son premier
+  jour (heure de Paris) ; le masque de brûlure encode ce jour, le filtre de mois passe par le shader.
+- **Marqueurs** (`FireMarkers.tsx`, `markers.ts`) : un point par feu au centroïde de sa plus grande partie, rayon
+  4 + 0,22 √ha px (≤ 30), couleur par âge ; il s'efface quand le contour à l'écran dépasse le disque. Sélection au
+  disque puis au contour ; un clic sur un disque vole vers le feu.
+- **Interface** (`components/tracker/`) : barre du haut (période, archives, points chauds 72 h), liste des feux
+  (tri, recherche), fiche du feu sans faits cités, douze mois sous la carte, légende et calques sur la carte.
+  `components/atlas/`, la frise des années, la lecture jour par jour et `lib/timeline.ts` sont supprimés.
+- **Identité** : blanc, gris, filets, rouge feu par âge, ambre pour les points chauds ; Atkinson Hyperlegible Next
+  et Mono (nombres seuls). Adresse : `?annee=&mois=AAAA-MM&fire=&fond=` (`year` reste accepté).
+- Tests : 32 Playwright (routes serveur simulées depuis les fichiers du site, repli testé), 27 unitaires.
+  Lighthouse mobile : suivi 93–95, liste 97, Méthode 99 en performance ; 100 ailleurs.
+- Limite : la première requête après un démarrage à froid attend EFFIS (≈ 12 s) ; ensuite la réponse en cache
+  part en quelques millisecondes.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

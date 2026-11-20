@@ -11,23 +11,6 @@ import { toHalfFloat } from "./half-float.ts";
 import { extendIntoNoData } from "./fill.ts";
 import { mipPyramid } from "./mipmaps.ts";
 import { decodeDetections, encodeDetections } from "./firms-codec.ts";
-import { dateOfTimelineDay, daysInYear, monthRange, timelineDayOfDate } from "../timeline.ts";
-
-test("timeline days cover the calendar year, leap years included", () => {
-  assert.equal(daysInYear(2026), 365);
-  assert.equal(daysInYear(2024), 366);
-  assert.equal(dateOfTimelineDay(2026, 1), "2026-01-01");
-  assert.equal(dateOfTimelineDay(2026, 199.7), "2026-07-18");
-  assert.equal(dateOfTimelineDay(2026, 365), "2026-12-31");
-  assert.equal(dateOfTimelineDay(2024, 366), "2024-12-31");
-  assert.equal(timelineDayOfDate(2026, "2026-07-18"), 199);
-  assert.equal(timelineDayOfDate(2026, "2026-02-25"), 56);
-  assert.equal(timelineDayOfDate(2026, "2025-07-18"), null, "other year");
-  assert.equal(timelineDayOfDate(2026, "18/07/2026"), null);
-  assert.deepEqual(monthRange(2026, 2), [32, 59]);
-  assert.deepEqual(monthRange(2024, 2), [32, 60]);
-  assert.deepEqual(monthRange(2026, 12), [335, 365]);
-});
 
 test("fs-firms-1 round-trips detections column by column", () => {
   const detections = {

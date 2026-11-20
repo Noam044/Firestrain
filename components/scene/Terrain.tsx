@@ -7,13 +7,11 @@ import { SCENE_SIZE } from "@/lib/geo/frame";
 import type { TerrainData } from "@/lib/data/queries";
 import type { LandMask } from "@/lib/data/land-mask";
 import { readColorToken } from "@/lib/tokens";
-import { useMapStore } from "@/lib/store";
-import { monthRange } from "@/lib/timeline";
 import type { Imagery } from "./Imagery";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
-/** uDay beyond any day of the year: every burnt area of the year is shown. */
-const WHOLE_YEAR = 1000;
+/** Day range wider than any window: every burnt area of the window is shown. */
+const WHOLE_WINDOW: readonly [number, number] = [0, 1000];
 
 /** Bound to the imagery samplers until an image has loaded (a sampler needs a texture). */
 const NO_IMAGE = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
@@ -77,6 +75,8 @@ type TerrainProps = {
   /** Burn mask (BurnMask.ts); an empty texture shows no burnt area. */
   burn: THREE.Texture;
   showHistory: boolean;
+  /** Window days whose burnt areas are drawn (one month); null draws the whole window. */
+  dayRange: readonly [number, number] | null;
   /** Base-map imagery (Imagery.ts); the shaded relief when absent. */
   imagery: Imagery;
 };
@@ -89,6 +89,7 @@ export function Terrain({
   lightAltitudeDeg,
   burn,
   showHistory,
+  dayRange,
   imagery,
 }: TerrainProps) {
   const invalidate = useThree((state) => state.invalidate);
@@ -125,7 +126,7 @@ export function Terrain({
         uLightDir: { value: new THREE.Vector3(0, 1, 0) },
         uHistory: { value: 1 },
         uPixelRatio: { value: 1 },
-        uDay: { value: WHOLE_YEAR },
+        uDay: { value: WHOLE_WINDOW[1] },
         uDayFrom: { value: 0 },
         uBurn: { value: burn },
         uImagery: { value: 0 },
@@ -156,11 +157,10 @@ export function Terrain({
     uniforms.uLightDir.value.copy(light);
     uniforms.uHistory.value = showHistory ? 1 : 0;
     uniforms.uPixelRatio.value = state.viewport.dpr;
-    // Day range shown, read without re-rendering React: a month, the timeline day, or the whole year.
-    const { timelineDay, month, year } = useMapStore.getState();
-    const range = month ? monthRange(year, month) : null;
-    uniforms.uDayFrom.value = range ? range[0] : 0;
-    uniforms.uDay.value = range ? range[1] : (timelineDay ?? WHOLE_YEAR);
+    // Days of the window shown: one month, or all of them.
+    const [from, to] = dayRange ?? WHOLE_WINDOW;
+    uniforms.uDayFrom.value = from;
+    uniforms.uDay.value = to;
     // Imagery replaces the shaded relief once the whole-France image is there.
     uniforms.uImagery.value = imagery.far ? 1 : 0;
     uniforms.uImageryFar.value = imagery.far ?? NO_IMAGE;
@@ -172,7 +172,7 @@ export function Terrain({
 
   useEffect(
     () => invalidate(),
-    [geometry, material, exaggeration, light, showHistory, imagery.far, imagery.near, invalidate],
+    [geometry, material, exaggeration, light, showHistory, dayRange, imagery.far, imagery.near, invalidate],
   );
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => () => material.dispose(), [material]);

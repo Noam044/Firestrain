@@ -1,9 +1,9 @@
-import { AppShell } from "@/components/atlas/AppShell";
+import { AppShell } from "@/components/tracker/AppShell";
 import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
 import effisIndexJson from "@/public/data/effis/index.json";
 import { BdiffAnnualSchema, EffisIndexSchema } from "@/lib/data/schemas";
 
-// The year strip and the totals ship with the page: they are on screen before any data request.
+// The archive index and the BDIFF totals ship with the page: no request before the fires themselves.
 const initialData = {
   effisIndex: EffisIndexSchema.parse(effisIndexJson),
   bdiffAnnual: BdiffAnnualSchema.parse(bdiffAnnualJson),

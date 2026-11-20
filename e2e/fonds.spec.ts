@@ -6,8 +6,8 @@ const offline = (page: Page) =>
 
 test("le fond de carte se choisit et se partage dans l'adresse", async ({ page }) => {
   await offline(page);
-  await page.goto("/?year=2026&rendu=2d");
-  await page.getByRole("button", { name: /Fond de carte\s*Relief/ }).click();
+  await page.goto("/?annee=2026&rendu=2d");
+  await page.getByRole("button", { name: /Fond et calques\s*Relief/ }).click();
   const picker = page.getByRole("radiogroup", { name: "Fond de carte" });
   await expect(picker.getByRole("radio", { name: "Relief" })).toHaveAttribute("aria-checked", "true");
   await picker.getByRole("radio", { name: "Satellite" }).click();
@@ -23,7 +23,7 @@ test("le fond de carte se choisit et se partage dans l'adresse", async ({ page }
 
 test("un fond passé dans l'adresse est appliqué", async ({ page }) => {
   await offline(page);
-  await page.goto("/?year=2026&rendu=2d&fond=plan");
-  await expect(page.getByRole("button", { name: /Fond de carte\s*Plan/ })).toBeVisible();
+  await page.goto("/?annee=2026&rendu=2d&fond=plan");
+  await expect(page.getByRole("button", { name: /Fond et calques\s*Plan/ })).toBeVisible();
   await expect(page.locator("svg image")).toHaveAttribute("href", /PLANIGNV2/);
 });

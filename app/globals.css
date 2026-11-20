@@ -1,40 +1,45 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — « Relevé ».
- * A survey sheet: cool paper, forest-green ink, burnt ground in scorch red.
- * The WebGL shaders read the same variables (lib/tokens.ts), so the map and
- * the interface share one palette.
- * Contrast on --sheet: ink 16:1, ink-2 8.3:1, ink-3 4.9:1, moss 7.9:1, scorch 5.5:1.
+ * Design tokens — wildfire tracker.
+ * A working tool: white panels and hairlines around a light relief map, the
+ * fires in red, the hotspots of the last 72 hours in amber. Colour carries the
+ * data; the interface itself stays black, grey and white.
+ * The WebGL shaders read the same variables (lib/tokens.ts).
+ * Contrast on white: ink 18:1, ink-2 8.6:1, ink-3 5.4:1, link 8:1, fire-month 5.9:1.
  */
 :root {
   /* Interface */
-  --paper: #f2f3ee;
-  --sheet: #fbfbf8;
-  --ink: #17201b;
-  --ink-2: #47524b;
-  --ink-3: #66716a;
-  --rule: #d8ddd5;
-  --moss: #355544;
+  --paper: #f3f3f1;
+  --sheet: #ffffff;
+  --ink: #16181b;
+  --ink-2: #454b52;
+  --ink-3: #626870;
+  --rule: #e4e5e2;
+  --rule-strong: #cdd0cc;
+  --link: #1f4f8f;
 
-  /* Data: burnt this year, burnt before, active hotspots */
+  /* Fires by age (live view), burnt ground, earlier years, hotspots */
+  --fire-new: #e8401c;
+  --fire-month: #b8321b;
+  --fire-old: #a2817a;
   --scorch: #b83a1b;
   --scorch-ink: #6e1e0e;
   --cendre: #978b7e;
-  --amber: #e07b00;
+  --amber: #ef8a00;
 
   /* Map ground */
-  --sea: #dce3e1;
+  --sea: #dfe5e8;
   --relief-light: #ffffff;
-  --relief-flat: #eceee7;
-  --relief-shadow: #8e998c;
+  --relief-flat: #efefec;
+  --relief-shadow: #8f979b;
   --relief-high: #ffffff;
-  --water: #c9d6d8;
-  --coast: #56625a;
-  --boundary: #9aa39b;
+  --water: #cbd7dd;
+  --coast: #59626a;
+  --boundary: #a1a7aa;
   /* Neighbouring countries: flat, neutral, a step below France. */
-  --neighbour: #e3e5df;
-  --neighbour-line: #b8bdb5;
+  --neighbour: #e6e7e4;
+  --neighbour-line: #bfc3c2;
 }
 
 /* Tailwind gets these tokens only — the default palette and fonts are removed. */
@@ -48,7 +53,11 @@
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-rule: var(--rule);
-  --color-moss: var(--moss);
+  --color-rule-strong: var(--rule-strong);
+  --color-link: var(--link);
+  --color-fire-new: var(--fire-new);
+  --color-fire-month: var(--fire-month);
+  --color-fire-old: var(--fire-old);
   --color-scorch: var(--scorch);
   --color-scorch-ink: var(--scorch-ink);
   --color-cendre: var(--cendre);
@@ -56,7 +65,8 @@
   --color-sea: var(--sea);
   --color-white: #ffffff;
 
-  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --font-mono: var(--font-atkinson-mono), ui-monospace, monospace;
 }
 
 @layer base {
@@ -69,7 +79,7 @@
   body {
     font-family: var(--font-sans);
     font-size: 0.9375rem;
-    line-height: 1.5;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -77,8 +87,7 @@
   h1,
   h2,
   h3 {
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 700;
     text-wrap: balance;
   }
 
@@ -94,25 +103,24 @@
   }
 
   ::selection {
-    background: var(--moss);
+    background: var(--ink);
     color: var(--sheet);
   }
 }
 
-/* Labels and axes: Archivo condensed, sentence case. */
+/* Small labels and axes. */
 @utility label {
   font-size: 0.75rem;
   line-height: 1rem;
-  font-stretch: 80%;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink-3);
 }
 
-/* Key figures: Archivo wide and tight. */
+/* Figures, dates and counts: the monospaced cut, so columns line up. */
 @utility figure {
-  font-stretch: 118%;
-  font-weight: 650;
-  letter-spacing: -0.025em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -120,12 +128,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Small map controls: white keys on the map, like a field instrument. */
+/* Small map controls: white keys on the map. */
 @utility map-key {
   background: #ffffff;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
   border-radius: 6px;
-  box-shadow: 0 1px 2px rgb(23 32 27 / 0.12);
+  box-shadow: 0 1px 2px rgb(22 24 27 / 0.12);
 }
 
 @media (prefers-reduced-motion: reduce) {

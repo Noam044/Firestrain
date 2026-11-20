@@ -5,11 +5,10 @@ import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
 import effisIndexJson from "@/public/data/effis/index.json";
 import matchesJson from "@/public/data/bdiff/rapprochements.json";
 import firmsIndexJson from "@/public/data/firms/index.json";
-import eventsJson from "@/public/data/events/events.json";
-import { PageHeader } from "@/components/atlas/PageHeader";
+import { PageHeader } from "@/components/tracker/PageHeader";
 import { formatDate, formatInteger } from "@/lib/format";
 import { manifest } from "@/lib/data/manifest";
-import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema, EventsSchema } from "@/lib/data/schemas";
+import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema } from "@/lib/data/schemas";
 
 export const metadata: Metadata = {
   title: "Méthode",
@@ -22,12 +21,11 @@ const bdiffAnnual = BdiffAnnualSchema.parse(bdiffAnnualJson);
 const rule = BdiffMatchesSchema.shape.rule.parse(matchesJson.rule);
 const linkCount = Object.keys(matchesJson.matches).length;
 const firmsLatest = FirmsIndexSchema.parse(firmsIndexJson).years.at(-1);
-const events = EventsSchema.parse(eventsJson);
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-12 border-t border-rule pt-6">
-      <h2 className="text-xl [font-stretch:108%]">{title}</h2>
+      <h2 className="text-xl">{title}</h2>
       <div className="mt-3 space-y-4 text-[15px] leading-relaxed text-ink-2">{children}</div>
     </section>
   );
@@ -38,7 +36,7 @@ export default function MethodePage() {
   return (
     <main id="contenu" className="mx-auto max-w-3xl px-5 pb-24">
       <PageHeader />
-      <h1 className="mt-10 text-3xl [font-stretch:112%] md:text-4xl">Sources, limites, traitements</h1>
+      <h1 className="mt-10 text-3xl md:text-4xl">Sources, limites, traitements</h1>
       <p className="mt-4 text-lg leading-relaxed text-ink-2">
         D’où viennent les surfaces, les dates et les points chauds de la carte, ce que mesure chaque source, et pourquoi
         leurs chiffres diffèrent.
@@ -68,6 +66,35 @@ export default function MethodePage() {
           <li>
             Les petites surfaces deviennent beaucoup plus nombreuses dans EFFIS à partir de 2019 : les comparaisons entre
             années portent sur les feux de 30 ha ou plus, jamais sur le nombre de feux.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Les douze derniers mois, mis à jour chaque heure">
+        <p>
+          La carte s’ouvre sur les feux détectés depuis le 1er du mois, onze mois plus tôt : le serveur du site interroge
+          l’API d’EFFIS, garde la France métropolitaine, reprojette et simplifie les contours (40 m), et conserve la
+          réponse environ une heure. L’heure de l’interrogation est affichée au-dessus de la liste. Si EFFIS ne répond
+          pas, la carte reprend les fichiers du site, à leur date, et le signale.
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            Chaque contour EFFIS compte pour un feu dans la liste et les totaux ; un grand incendie peut en compter
+            plusieurs. Les totaux du suivi incluent les petites surfaces (moins de 30 ha), contrairement aux comparaisons
+            entre années ci-dessous.
+          </li>
+          <li>
+            À l’échelle de la France, chaque feu est un disque dont l’aire suit la surface brûlée, avec une taille
+            minimale pour que les petits feux restent visibles. En zoomant, le disque s’efface quand le contour réel
+            devient plus grand que lui.
+          </li>
+          <li>
+            La couleur donne l’âge de la première détection à la date des données : moins de 7 jours, moins d’un mois,
+            plus ancien. Un feu détecté il y a longtemps peut encore être actif : EFFIS ne publie pas de date de fin.
+          </li>
+          <li>
+            Les archives ({effisIndex.years[0].year}–{effisIndex.years.at(-1)?.year}) viennent des fichiers du site,
+            année civile par année civile.
           </li>
         </ul>
       </Section>
@@ -142,7 +169,7 @@ export default function MethodePage() {
 
       <Section title="Rapprochement d’un contour EFFIS et d’une fiche BDIFF">
         <p>
-          Pour un contour EFFIS antérieur à 2026, le panneau affiche la surface déclarée dans la BDIFF seulement si une
+          Pour un contour EFFIS antérieur à 2026, la fiche du feu affiche la surface déclarée dans la BDIFF seulement si une
           fiche correspond sans ambiguïté. Règle appliquée : {rule.description.charAt(0).toLowerCase()}
           {rule.description.slice(1)}
         </p>
@@ -153,18 +180,18 @@ export default function MethodePage() {
         </p>
       </Section>
 
-      <Section title="NASA FIRMS : la progression jour par jour">
+      <Section title="NASA FIRMS : points chauds">
         <p>
-          La lecture de l’année couvre l’année civile entière, du 1er janvier au 31 décembre : les feux ne se limitent
-          pas à l’été. Elle affiche les détections d’anomalies thermiques des satellites VIIRS (NASA FIRMS, résolution
-          375 m) : des points chauds, jamais convertis en hectares. Chaque détection reste visible trois jours, en
-          s’estompant ; la taille du symbole suit la puissance radiative du feu.
+          Les points chauds sont des détections d’anomalies thermiques des satellites VIIRS (NASA FIRMS, résolution
+          375 m), jamais converties en hectares. La carte affiche celles des 72 dernières heures, demandées par le
+          serveur à FIRMS (S-NPP, NOAA-20, NOAA-21, temps quasi réel) et conservées environ une heure ; la clé d’accès
+          reste sur le serveur. Une détection s’estompe en trois jours.
         </p>
-        {firmsLatest && firmsLatest.lastDate < `${firmsLatest.year}-12-31` && (
-          <p>
-            L’année {firmsLatest.year} est en cours : ses détections s’arrêtent au {formatDate(firmsLatest.lastDate)}.
-          </p>
-        )}
+        <p>
+          La fiche d’un feu compte, jour par jour, les détections à moins de 400 m de son contour, de deux jours avant
+          sa date EFFIS à soixante jours après, à partir des fichiers annuels du site
+          {firmsLatest && firmsLatest.lastDate < `${firmsLatest.year}-12-31` ? `, publiés jusqu’au ${formatDate(firmsLatest.lastDate)}` : ""}.
+        </p>
         <ul className="list-disc space-y-2 pl-5">
           <li>
             2026 combine trois satellites (S-NPP, NOAA-20, NOAA-21) : produit standard jusqu’au 30 juin, temps quasi réel
@@ -176,35 +203,6 @@ export default function MethodePage() {
             standard, et, pour le temps quasi réel qui n’en dispose pas, par exclusion des mailles de 750 m où une source
             fixe a été signalée.
           </li>
-          <li>
-            EFFIS ne publie que le contour final d’un feu et sa première détection : sur la frise, la surface brûlée
-            apparaît entière dès ce jour-là ; c’est le défilé des détections FIRMS qui montre la progression.
-          </li>
-        </ul>
-      </Section>
-
-      <Section title="Faits sourcés sur quelques feux">
-        <p>
-          Pour quelques feux de {events.year}, le panneau du feu ajoute des chiffres officiels : heure de départ, surface
-          annoncée par la préfecture, évacuations, habitations détruites. Ils sont saisis à la main dans{" "}
-          <code className="tabular text-[13px]">data/events.json</code> avec leur page source et une citation courte, lue
-          le {formatDate(events.retrievedAt)} ; un script vérifie que chaque citation figure dans sa page. Aucun bilan humain
-          n’est affiché sans source officielle lue.
-        </p>
-        <p>
-          Un incendie peut apparaître dans EFFIS sous plusieurs surfaces (reprises, foyers secondaires). Ces faits sont
-          rattachés à toutes les surfaces du même feu, selon une règle recalculée par le script : première détection dans
-          la période du feu et, de proche en proche, moins d’un kilomètre entre les contours.
-        </p>
-        <ul className="list-disc space-y-2 pl-5">
-          {events.events
-            .filter((event) => event.facts.length > 0)
-            .map((event) => (
-              <li key={event.id}>
-                <span className="text-ink">{event.title}</span> : {event.effis.polygons} surfaces EFFIS,{" "}
-                {formatInteger(event.effis.areaHa)} ha. {event.justification}
-              </li>
-            ))}
         </ul>
       </Section>
 
@@ -219,7 +217,7 @@ export default function MethodePage() {
           </li>
           <li>
             Sans WebGL 2, ou sans accélération graphique (rendu logiciel, où chaque image du relief coûte plusieurs
-            secondes), la carte s’affiche en 2D : mêmes surfaces, mêmes détections, sans relief. L’adresse accepte{" "}
+            secondes), la carte s’affiche en 2D : mêmes feux, mêmes détections, sans relief. L’adresse accepte{" "}
             <code className="tabular text-[13px]">rendu=2d</code> et <code className="tabular text-[13px]">rendu=3d</code>{" "}
             pour forcer l’un ou l’autre.
           </li>
@@ -236,8 +234,7 @@ export default function MethodePage() {
             rien mesurer. Leurs contours viennent de Natural Earth (Admin 0, 1:10m, domaine public), simplifiés à 400 m.
           </li>
           <li>
-            Avec la préférence « réduire les animations », les déplacements de caméra deviennent des coupes et la lecture
-            de l’année avance jour par jour, sans fondu.
+            Avec la préférence « réduire les animations », les déplacements de caméra deviennent des coupes.
           </li>
           <li>
             La carte en relief se manipule au clavier : flèches pour se déplacer, plus et moins pour zoomer, Maj et
