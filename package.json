@@ -31,6 +31,7 @@
     "@react-three/fiber": "^9.8.2",
     "@tanstack/react-query": "^5.104.5",
     "@tanstack/react-table": "^9.3.1",
+    "@vercel/speed-insights": "^2.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
