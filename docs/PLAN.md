@@ -245,6 +245,17 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
   Tracker. Sur l'accueil, le logo ramène au début de la page et place le focus sur le titre.
 - Lighthouse mobile : accueil 83–84, Méthode 94 en performance ; 100 ailleurs. 40 tests Playwright.
 
+### Fond animé du hero (demande du 20/11/2026)
+
+- Feu de forêt sur toute la largeur de l'ouverture : flammes procédurales (bruit fractal dans un petit shader
+  WebGL, `components/home/FireBackdrop.tsx`) dans la rampe thermique du site, derrière une lisière de pins couleur
+  page ; discret (opacité 0,42 en sombre, 0,3 en clair, dégradé côté texte). Choisi plutôt qu'une vidéo ou un GIF :
+  quelques ko au lieu de plusieurs Mo, couleurs et thèmes du site, aucun fichier tiers.
+- Rendu à 50 % de la résolution (35 % sur téléphone), 30 images/s, en pause hors écran et onglet masqué, démarré
+  quand la page est inactive. « Réduire les animations » : une image fixe. Sans GPU (WebGL logiciel) : une lueur
+  fixe, sans animation.
+- Lighthouse mobile (sans GPU, donc lueur fixe) : accueil 76–82 en performance, 100 ailleurs. 40 tests Playwright.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.
