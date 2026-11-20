@@ -2,6 +2,7 @@ import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query
 import type { z } from "zod";
 import { decodeFire, type DecodedFire } from "./fires.ts";
 import { decodeDetections, type Detections } from "./firms-codec.ts";
+import { fetchLive } from "./load-progress.ts";
 import {
   BdiffAnnualSchema,
   BdiffMatchesSchema,
@@ -137,11 +138,10 @@ export function useDetections(year: number, enabled = true) {
 export const useRecentDetections = (enabled: boolean) =>
   useQuery({
     queryKey: ["firms", "recent"],
-    queryFn: async () => {
-      const response = await fetch("/api/firms/recent");
-      if (!response.ok) throw new Error(`firms/recent : HTTP ${response.status}`);
-      return RecentDetectionsSchema.parse(await response.json());
-    },
+    queryFn: () =>
+      fetchLive("firms", "/api/firms/recent", (bytes) =>
+        RecentDetectionsSchema.parse(JSON.parse(new TextDecoder().decode(bytes))),
+      ),
     enabled,
     staleTime: 15 * 60_000,
     retry: 1,
@@ -153,14 +153,13 @@ export type RecentFireData = { generatedAt: string; fires: DecodedFire[] };
 export const useRecentFires = (enabled: boolean) =>
   useQuery({
     queryKey: ["effis", "recent"],
-    queryFn: async (): Promise<RecentFireData> => {
-      const response = await fetch("/api/effis/recent");
-      if (!response.ok) throw new Error(`effis/recent : HTTP ${response.status}`);
-      // A gzip file (see the route), or plain JSON if something on the way already inflated it.
-      const bytes = await gunzipIfNeeded(new Uint8Array(await response.arrayBuffer()));
-      const data = RecentFiresSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
-      return { generatedAt: data.generatedAt, fires: data.fires.map(decodeFire) };
-    },
+    queryFn: () =>
+      fetchLive("effis", "/api/effis/recent", async (raw): Promise<RecentFireData> => {
+        // A gzip file (see the route), or plain JSON if something on the way already inflated it.
+        const bytes = await gunzipIfNeeded(raw);
+        const data = RecentFiresSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
+        return { generatedAt: data.generatedAt, fires: data.fires.map(decodeFire) };
+      }),
     enabled,
     staleTime: 15 * 60_000,
     retry: 1,

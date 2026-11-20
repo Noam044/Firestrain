@@ -30,11 +30,15 @@ export function liveFires(): { generatedAt: string; from: string; encoding: stri
 }
 
 /** Answers both server routes locally (EFFIS twelve months, FIRMS 72 hours), or makes EFFIS fail. */
-export async function mockLive(page: import("@playwright/test").Page, { effis = true }: { effis?: boolean } = {}) {
+export async function mockLive(
+  page: import("@playwright/test").Page,
+  { effis = true, effisDelayMs = 0 }: { effis?: boolean; effisDelayMs?: number } = {},
+) {
   const body = effis ? JSON.stringify(liveFires()) : JSON.stringify({ error: "indisponible" });
-  await page.route("**/api/effis/recent", (route) =>
-    route.fulfill({ status: effis ? 200 : 503, contentType: "application/json", body }),
-  );
+  await page.route("**/api/effis/recent", async (route) => {
+    if (effisDelayMs) await new Promise((resolve) => setTimeout(resolve, effisDelayMs));
+    await route.fulfill({ status: effis ? 200 : 503, contentType: "application/json", body });
+  });
   const minutes = Date.parse(LIVE_AS_OF) / 60_000;
   await page.route("**/api/firms/recent", (route) =>
     route.fulfill({

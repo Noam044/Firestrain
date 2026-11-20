@@ -54,6 +54,18 @@ test("si le suivi en direct ne répond pas, les fichiers du site prennent le rel
   await expect(page.getByRole("list", { name: "Feux de la période" }).getByRole("button").first()).toBeVisible();
 });
 
+test("une fenêtre suit le chargement des données en direct jusqu'à 100 %", async ({ page }) => {
+  await page.unrouteAll();
+  await mockLive(page, { effisDelayMs: 2500 });
+  await page.goto("/carte");
+  const bar = page.getByRole("progressbar", { name: "Chargement des données satellite" });
+  await expect(bar).toBeVisible();
+  await expect(bar.locator("xpath=..").getByText("NASA FIRMS")).toBeVisible();
+  await expect(bar).toHaveAttribute("aria-valuenow", "100", { timeout: 10_000 });
+  await expect(bar).toBeHidden();
+  await expect(page.getByRole("list", { name: "Feux de la période" }).getByRole("button").first()).toBeVisible();
+});
+
 test("l'ancienne adresse /explorer mène à la carte", async ({ page }) => {
   await page.goto("/explorer?year=2022");
   await expect(page).toHaveURL(/\/carte\?(year|annee)=2022/);
