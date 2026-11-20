@@ -9,6 +9,15 @@ import firmsIndexJson from "@/public/data/firms/index.json";
 import { formatDate, formatInteger } from "@/lib/format";
 import { manifest } from "@/lib/data/manifest";
 import { BdiffAnnualSchema, BdiffMatchesSchema, EffisIndexSchema, FirmsIndexSchema } from "@/lib/data/schemas";
+import { largestFireFigure } from "@/lib/server/methode-figures";
+import {
+  BasemapFigure,
+  EffisBdiffFigure,
+  HotspotsFigure,
+  MarkerScaleFigure,
+  MatchFigure,
+  OutlineFigure,
+} from "@/components/methode/figures";
 
 export const metadata: Metadata = {
   title: "Méthode",
@@ -21,12 +30,25 @@ const bdiffAnnual = BdiffAnnualSchema.parse(bdiffAnnualJson);
 const rule = BdiffMatchesSchema.shape.rule.parse(matchesJson.rule);
 const linkCount = Object.keys(matchesJson.matches).length;
 const firmsLatest = FirmsIndexSchema.parse(firmsIndexJson).years.at(-1);
+const largestFire = largestFireFigure();
+const comparedYears = effisIndex.years.map((y) => ({
+  year: y.year,
+  effis: y.areaHaAtLeast30,
+  bdiff: bdiffAnnual.years.find((b) => b.year === y.year)?.areaHa ?? null,
+}));
+const matchableFires = effisIndex.years
+  .filter((y) => y.year <= bdiffAnnual.availableUpTo)
+  .reduce((sum, y) => sum + y.fires, 0);
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** A section of the method: the text, and beside it (wide screens) the figure that shows it. */
+function Section({ title, children, figure }: { title: string; children: ReactNode; figure?: ReactNode }) {
   return (
-    <section className="mt-12 border-t border-rule pt-6">
-      <h2 className="text-xl">{title}</h2>
-      <div className="mt-3 space-y-4 text-[15px] leading-relaxed text-ink-2">{children}</div>
+    <section className="mt-14 border-t border-rule pt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:gap-14">
+      <div className="max-w-[68ch]">
+        <h2 className="text-2xl">{title}</h2>
+        <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-ink-2">{children}</div>
+      </div>
+      {figure && <div className="mt-8 lg:sticky lg:top-24 lg:mt-1 lg:self-start">{figure}</div>}
     </section>
   );
 }
@@ -35,14 +57,14 @@ export default function MethodePage() {
   const files = Object.entries(manifest.files);
   return (
     <>
-      <main id="contenu" className="mx-auto max-w-3xl px-5 pb-24">
-        <h1 className="mt-10 text-3xl md:text-4xl">Sources, limites, traitements</h1>
-        <p className="mt-4 text-lg leading-relaxed text-ink-2">
+      <main id="contenu" className="mx-auto max-w-6xl px-5 pb-24 md:px-8">
+        <h1 className="mt-12 max-w-[20ch] text-4xl leading-[1.05] tracking-[-0.03em] md:text-5xl">Sources, limites, traitements</h1>
+        <p className="mt-5 max-w-[60ch] text-lg leading-relaxed text-ink-2">
           D’où viennent les surfaces, les dates et les points chauds de la carte, ce que mesure chaque source, et pourquoi
           leurs chiffres diffèrent.
         </p>
 
-        <Section title="EFFIS : surfaces brûlées vues par satellite">
+        <Section title="EFFIS : surfaces brûlées vues par satellite" figure={<OutlineFigure fire={largestFire} />}>
           <p>
             Le système européen d’information sur les feux de forêt (EFFIS, programme Copernicus, Commission européenne,
             JRC) cartographie les surfaces brûlées à partir d’images satellitaires, toute végétation confondue : forêt,
@@ -71,7 +93,7 @@ export default function MethodePage() {
           </ul>
         </Section>
 
-        <Section title="Les douze derniers mois, mis à jour chaque heure">
+        <Section title="Les douze derniers mois, mis à jour chaque heure" figure={<MarkerScaleFigure />}>
           <p>
             La carte s’ouvre sur les feux détectés depuis le 1er du mois, onze mois plus tôt : le serveur du site interroge
             l’API d’EFFIS, garde la France métropolitaine, reprojette et simplifie les contours (40 m), et conserve la
@@ -122,7 +144,7 @@ export default function MethodePage() {
           </ul>
         </Section>
 
-        <Section title="Pourquoi les deux sources ne s’additionnent pas">
+        <Section title="Pourquoi les deux sources ne s’additionnent pas" figure={<EffisBdiffFigure years={comparedYears} />}>
           <p>
             EFFIS mesure ce que le satellite voit brûlé ; la BDIFF enregistre ce que les services d’incendie déclarent. Les
             deux chiffres décrivent les mêmes feux par des méthodes différentes : les additionner compterait deux fois les
@@ -168,7 +190,7 @@ export default function MethodePage() {
           </p>
         </Section>
 
-        <Section title="Rapprochement d’un contour EFFIS et d’une fiche BDIFF">
+        <Section title="Rapprochement d’un contour EFFIS et d’une fiche BDIFF" figure={<MatchFigure linked={linkCount} total={matchableFires} />}>
           <p>
             Pour un contour EFFIS antérieur à 2026, la fiche du feu affiche la surface déclarée dans la BDIFF seulement si une
             fiche correspond sans ambiguïté. Règle appliquée : {rule.description.charAt(0).toLowerCase()}
@@ -181,7 +203,7 @@ export default function MethodePage() {
           </p>
         </Section>
 
-        <Section title="NASA FIRMS : points chauds">
+        <Section title="NASA FIRMS : points chauds" figure={<HotspotsFigure fire={largestFire} />}>
           <p>
             Les points chauds sont des détections d’anomalies thermiques des satellites VIIRS (NASA FIRMS, résolution
             375 m), jamais converties en hectares. La carte affiche celles des 72 dernières heures, demandées par le
@@ -207,7 +229,7 @@ export default function MethodePage() {
           </ul>
         </Section>
 
-        <Section title="Rendu et accessibilité">
+        <Section title="Rendu et accessibilité" figure={<BasemapFigure />}>
           <ul className="list-disc space-y-2 pl-5">
             <li>
               La{" "}

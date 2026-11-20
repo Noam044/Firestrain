@@ -232,6 +232,19 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
 - Lighthouse mobile : accueil 84–89, carte 91, liste 93, Méthode 96 en performance ; 100 ailleurs. 38 tests
   Playwright, 27 unitaires.
 
+### Méthode illustrée, archives, crédit (demande du 20/11/2026)
+
+- Archives de l'accueil sans défilement horizontal : colonnes à partir de la tablette (étiquette du pic alignée à
+  droite), une ligne par année avec barre horizontale sur téléphone (cible pleine largeur).
+- Page Méthode illustrée comme la section « Sources des données » : chaque section a sa figure, construite au build
+  à partir des données publiées (`lib/server/methode-figures.ts`, `components/methode/figures.tsx`) : contour du plus
+  grand feu de 2026, échelle des repères et couleurs d'âge, surfaces EFFIS et BDIFF par année côte à côte, part des
+  contours rapprochés (822 sur 5 194), points chauds VIIRS jour par jour autour du même feu, Plan IGN et
+  photographies aériennes sur la même zone.
+- Pied de page : « Site créé par Noam Bouriche », lien vers noambouriche.fr (nouvel onglet), comme sur Parcel
+  Tracker. Sur l'accueil, le logo ramène au début de la page et place le focus sur le titre.
+- Lighthouse mobile : accueil 83–84, Méthode 94 en performance ; 100 ailleurs. 40 tests Playwright.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

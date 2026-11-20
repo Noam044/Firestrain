@@ -19,7 +19,17 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-rule bg-paper/92 backdrop-blur-md">
       <div className="flex h-14 items-center justify-between gap-4 px-4 lg:px-6">
-        <Link href="/" className="rounded-sm">
+        <Link
+          href="/"
+          className="rounded-sm"
+          // Already home: back up to the opening (smooth unless motion is reduced, see globals.css).
+          onClick={(event) => {
+            if (pathname !== "/") return;
+            event.preventDefault();
+            window.scrollTo({ top: 0 });
+            document.getElementById("accueil-titre")?.focus({ preventScroll: true });
+          }}
+        >
           <Logo />
         </Link>
         <div className="flex items-center gap-1">
