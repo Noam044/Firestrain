@@ -170,6 +170,27 @@ proportionnel à la surface et contour réel au zoom ; données rafraîchies par
 - Limite : la première requête après un démarrage à froid attend EFFIS (≈ 12 s) ; ensuite la réponse en cache
   part en quelques millisecondes.
 
+## Marque, sécurité et fonds rapides (demande du 20/11/2026)
+
+- **Sécurité** : Next.js 16.4.2 → 16.4.6 (sept avis, dont fuites de cache `use cache` et injection de réponse en
+  auto-hébergement), `eslint-config-next` 16.4.6, `npm audit fix` (minimatch via typescript-eslint) : 0 vulnérabilité.
+- **FireStrain** : symbole (flamme en trois courbes de niveau, `components/brand/Logo.tsx`, favicon), barre du site
+  sur toutes les pages, pied de page (sources et licences, code MIT, mention d'indépendance, numéros d'urgence).
+  Accueil `/` à part (demande : « un hero classique et un bouton explorer la carte qui redirige vers la page 3D ») :
+  hero, bouton « Explorer la carte », aperçu en direct des feux (même symbolique que la carte), chiffres du moment,
+  trois entrées (douze mois, 72 h, archives). La carte passe à `/carte`, plein écran sous la barre ; les adresses
+  `/?fire=…`, `/?annee=…` et `/explorer` y redirigent avec leurs paramètres.
+- **Fonds de carte** : mesuré, le WMS mettait 5–6 s pour l'image France et 2,5–4 s par vue rapprochée. L'image France
+  est désormais publiée par le site (`09-basemaps`, ≈ 720 ko, ≈ 90 ms) ; la vue rapprochée assemble les tuiles WMTS
+  Lambert-93 de la Géoplateforme (`…PLANIGNV2.L93`, `HR.ORTHOIMAGERY.ORTHOPHOTOS.L93`, grille `2154_10cm_6_20`,
+  donc sans reprojection) : centre d'abord, affichage au fil de l'eau (alpha prémultiplié, l'image France reste
+  dessous), cache mémoire de 600 tuiles, cache navigateur de 21 jours, une seconde tentative par tuile. Première tuile
+  ≈ 120 ms, vue complète ≈ 2,5 s à froid. Satellite SPOT supprimé (WMS seulement).
+- **Route EFFIS** : renvoyée comme fichier gzip (`application/gzip`) et décompressée par la page : un
+  `Content-Encoding` posé à la main était recompressé par le serveur de dev.
+- Lighthouse mobile : accueil 99, carte 95, liste 98, Méthode 99 en performance ; 100 ailleurs. Tests : 38
+  Playwright, 27 unitaires.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

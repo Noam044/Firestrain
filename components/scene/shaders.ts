@@ -85,7 +85,9 @@ void main() {
   // control flow keeps the mipmap derivatives valid).
   vec2 nearUv = (vUv - uNearRect.xy) / max(uNearRect.zw - uNearRect.xy, vec2(1e-6));
   vec3 farImage = texture2D(uImageryFar, vUv).rgb;
-  vec3 nearImage = texture2D(uImageryNear, clamp(nearUv, 0.0, 1.0)).rgb;
+  // Premultiplied: where no tile has arrived yet (alpha 0), the France image shows through.
+  vec4 nearTiles = texture2D(uImageryNear, clamp(nearUv, 0.0, 1.0));
+  vec3 nearImage = nearTiles.rgb + farImage * (1.0 - nearTiles.a);
   float inset = min(min(nearUv.x, 1.0 - nearUv.x), min(nearUv.y, 1.0 - nearUv.y));
   vec3 image = mix(farImage, nearImage, uHasNear * smoothstep(0.0, 0.03, inset));
   float imageShade = mix(1.0, clamp(0.55 + 0.45 * relative, 0.4, 1.35), uImageryShade);

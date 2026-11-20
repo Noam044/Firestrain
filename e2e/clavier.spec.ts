@@ -24,7 +24,7 @@ async function tabStops(page: Page, count: number) {
   return stops;
 }
 
-for (const path of ["/", "/?annee=2022", "/liste?year=2026", "/methode"]) {
+for (const path of ["/", "/carte", "/carte?annee=2022", "/liste?year=2026", "/methode"]) {
   test(`chaque arrêt de tabulation est visible : ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
@@ -36,7 +36,7 @@ for (const path of ["/", "/?annee=2022", "/liste?year=2026", "/methode"]) {
 }
 
 test("la carte se manipule au clavier", async ({ page }) => {
-  await page.goto("/?rendu=3d");
+  await page.goto("/carte?rendu=3d");
   const map = page.getByRole("application", { name: /Carte en relief/ });
   await map.focus();
   await expect(map).toBeFocused();

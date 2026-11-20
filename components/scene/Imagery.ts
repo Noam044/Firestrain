@@ -2,14 +2,14 @@ import { useThree } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { basemapById, wmsUrl, type BasemapId } from "@/lib/geo/basemaps";
-import { L93_EXTENT, SCENE_SIZE, sceneToL93 } from "@/lib/geo/frame";
+import { L93_TILES, basemapById, farImagePath, tileMetres, tileUrl, type BasemapId } from "@/lib/geo/basemaps";
+import { L93_EXTENT, SCENE_SIZE, l93ToScene, sceneToL93 } from "@/lib/geo/frame";
 
 /**
- * Imagery draped on the relief: a whole-France image (≈ 570 m per pixel on
- * desktop) always available, and a sharp image of the area around the camera
- * target, requested once the camera comes to rest — like map tiles, with a
- * single WMS image in the scene's own projection.
+ * Imagery draped on the relief: a whole-France image served by the site (on
+ * screen at once), and a sharp mosaic of the Géoplateforme's Lambert-93 tiles
+ * around the camera target, built when the camera comes to rest — centre tiles
+ * first, each drawn as soon as it arrives, already-seen tiles from memory.
  */
 export type Imagery = {
   far: THREE.Texture | null;
@@ -21,15 +21,32 @@ export type Imagery = {
 };
 
 const NO_IMAGERY: Imagery = { far: null, near: null, nearRect: new THREE.Vector4(0, 0, 0, 0), shade: 0 };
+/** Tile requests in flight at once (HTTP/2 to the Géoplateforme). */
+const CONCURRENCY = 12;
+/** Decoded tiles kept in memory, most recently used last. */
+const CACHE_SIZE = 600;
+const tileCache = new Map<string, ImageBitmap>();
 
-/** Fetches and decodes an image off the main thread, as a texture aligned with the scene (row 0 = north). */
-async function loadTexture(url: string, anisotropy: number, signal: AbortSignal): Promise<THREE.Texture> {
+function cacheTile(url: string, bitmap: ImageBitmap) {
+  tileCache.delete(url);
+  tileCache.set(url, bitmap);
+  if (tileCache.size > CACHE_SIZE) {
+    const [oldest, image] = tileCache.entries().next().value as [string, ImageBitmap];
+    tileCache.delete(oldest);
+    image.close();
+  }
+}
+
+async function loadBitmap(url: string, signal: AbortSignal): Promise<ImageBitmap> {
   const response = await fetch(url, { signal });
   if (!response.ok || !response.headers.get("content-type")?.startsWith("image/")) {
     throw new Error(`fond de carte : HTTP ${response.status}`);
   }
-  const bitmap = await createImageBitmap(await response.blob());
-  const texture = new THREE.Texture(bitmap);
+  return createImageBitmap(await response.blob());
+}
+
+/** A texture aligned with the scene (row 0 = north), values passed through unchanged. */
+function sceneTexture<T extends THREE.Texture>(texture: T, anisotropy: number): T {
   texture.flipY = false;
   // The canvas renders linearly without output conversion: image values pass through unchanged.
   texture.colorSpace = THREE.NoColorSpace;
@@ -40,32 +57,29 @@ async function loadTexture(url: string, anisotropy: number, signal: AbortSignal)
   return texture;
 }
 
-/** Whole-France image, in the scene extent. */
-const farUrl = (id: BasemapId, light: boolean) => {
-  const width = light ? 1536 : 2048;
-  const height = Math.round((width * SCENE_SIZE.depth) / SCENE_SIZE.width);
-  return wmsUrl(basemapById(id), [L93_EXTENT.xmin, L93_EXTENT.ymin], [L93_EXTENT.xmax, L93_EXTENT.ymax], width, height);
-};
+/** Lambert-93 box of a mosaic: [west, north, east, south], metres. */
+type Box = [number, number, number, number];
+type Mosaic = { key: string; canvas: HTMLCanvasElement; box: Box };
 
 export function useImagery(basemapId: BasemapId, enabled: boolean, light: boolean): Imagery {
   const controls = useThree((state) => state.controls) as unknown as CameraControlsImpl | null;
   const anisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
   const invalidate = useThree((state) => state.invalidate);
   const basemap = basemapById(basemapId);
-  const active = enabled && basemap.layer !== undefined;
+  const active = enabled && basemap.ign !== undefined;
   const [far, setFar] = useState<THREE.Texture | null>(null);
   const [near, setNear] = useState<{ texture: THREE.Texture; rect: THREE.Vector4 } | null>(null);
-  const nearKey = useRef("");
+  const mosaic = useRef<Mosaic | null>(null);
 
-  // Whole-France image, one per base map.
+  // Whole-France image, one per base map, from the site.
   useEffect(() => {
     if (!active) return;
     const controller = new AbortController();
     let texture: THREE.Texture | null = null;
-    loadTexture(farUrl(basemapId, light), anisotropy, controller.signal)
-      .then((loaded) => {
-        texture = loaded;
-        setFar(loaded);
+    loadBitmap(`/data/${farImagePath(basemapId)}`, controller.signal)
+      .then((bitmap) => {
+        texture = sceneTexture(new THREE.Texture(bitmap), anisotropy);
+        setFar(texture);
         invalidate();
       })
       .catch(() => {
@@ -76,15 +90,18 @@ export function useImagery(basemapId: BasemapId, enabled: boolean, light: boolea
       setFar(null);
       texture?.dispose();
     };
-  }, [active, basemapId, light, anisotropy, invalidate]);
+  }, [active, basemapId, anisotropy, invalidate]);
 
-  // Sharp image around the camera target, refreshed when the camera rests.
+  // Sharp mosaic around the camera target, rebuilt when the camera rests.
   useEffect(() => {
-    if (!active || !controls) return;
+    const ign = basemap.ign;
+    if (!active || !controls || !ign) return;
     let controller: AbortController | null = null;
     let timer = 0;
-    let current: THREE.Texture | null = null;
+    let flush = 0;
+    let current: THREE.CanvasTexture | null = null;
     const target = new THREE.Vector3();
+
     const refresh = () => {
       controls.getTarget(target);
       // Half-width of the area: the visible ground around the target, including the
@@ -92,58 +109,131 @@ export function useImagery(basemapId: BasemapId, enabled: boolean, light: boolea
       const half = Math.max(3, controls.distance * 0.6);
       if (half > 300) {
         // Whole-country views: the France image is enough.
-        nearKey.current = "";
+        mosaic.current = null;
         setNear(null);
         return;
       }
-      const step = half / 4; // reuse the image for small moves
-      const cx = Math.round(target.x / step) * step;
-      const cz = Math.round(target.z / step) * step;
-      const key = `${basemapId}:${cx}:${cz}:${half.toFixed(1)}`;
-      if (key === nearKey.current) return;
-      nearKey.current = key;
-      const x0 = Math.max(-SCENE_SIZE.width / 2, cx - half);
-      const x1 = Math.min(SCENE_SIZE.width / 2, cx + half);
-      const z0 = Math.max(-SCENE_SIZE.depth / 2, cz - half);
-      const z1 = Math.min(SCENE_SIZE.depth / 2, cz + half);
-      if (x1 <= x0 || z1 <= z0) return;
-      const size = light ? 1536 : 2560;
-      const aspect = (x1 - x0) / (z1 - z0);
-      const width = aspect >= 1 ? size : Math.round(size * aspect);
-      const height = aspect >= 1 ? Math.round(size / aspect) : size;
-      const url = wmsUrl(basemap, sceneToL93({ x: x0, z: z1 }), sceneToL93({ x: x1, z: z0 }), width, height);
+      // Tile level whose resolution is closest to the image size wanted over the area.
+      const metresPerPixel = (2 * half * 1000) / (light ? 1536 : 2048);
+      const level = Math.min(ign.maxLevel, Math.max(L93_TILES.minLevel, Math.round(6 + Math.log2(3276.8 / metresPerPixel))));
+      const size = tileMetres(level);
+      const [cx, cy] = sceneToL93({ x: target.x, z: target.z });
+      const west = Math.max(L93_EXTENT.xmin, cx - half * 1000);
+      const east = Math.min(L93_EXTENT.xmax, cx + half * 1000);
+      const south = Math.max(L93_EXTENT.ymin, cy - half * 1000);
+      const north = Math.min(L93_EXTENT.ymax, cy + half * 1000);
+      if (east <= west || north <= south) return;
+      const c0 = Math.floor((west - L93_TILES.originX) / size);
+      const c1 = Math.floor((east - L93_TILES.originX) / size);
+      const r0 = Math.floor((L93_TILES.originY - north) / size);
+      const r1 = Math.floor((L93_TILES.originY - south) / size);
+      const key = `${basemapId}:${level}:${c0}:${r0}:${c1}:${r1}`;
+      if (key === mosaic.current?.key) return;
+
+      const box: Box = [
+        L93_TILES.originX + c0 * size,
+        L93_TILES.originY - r0 * size,
+        L93_TILES.originX + (c1 + 1) * size,
+        L93_TILES.originY - (r1 + 1) * size,
+      ];
+      const canvas = document.createElement("canvas");
+      canvas.width = (c1 - c0 + 1) * L93_TILES.size;
+      canvas.height = (r1 - r0 + 1) * L93_TILES.size;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      // The previous mosaic, rescaled, until the new tiles cover it: no flash back to the blurry image.
+      const previous = mosaic.current;
+      if (previous) {
+        const sx = canvas.width / (box[2] - box[0]);
+        const sy = canvas.height / (box[1] - box[3]);
+        context.drawImage(
+          previous.canvas,
+          (previous.box[0] - box[0]) * sx,
+          (box[1] - previous.box[1]) * sy,
+          (previous.box[2] - previous.box[0]) * sx,
+          (previous.box[1] - previous.box[3]) * sy,
+        );
+      }
+      mosaic.current = { key, canvas, box };
+
+      const texture = sceneTexture(new THREE.CanvasTexture(canvas), anisotropy);
+      // Transparent where no tile has arrived yet: the shader shows the France image there.
+      texture.premultiplyAlpha = true;
+      const nw = l93ToScene([box[0], box[1]]);
+      const se = l93ToScene([box[2], box[3]]);
       const rect = new THREE.Vector4(
-        x0 / SCENE_SIZE.width + 0.5,
-        z0 / SCENE_SIZE.depth + 0.5,
-        x1 / SCENE_SIZE.width + 0.5,
-        z1 / SCENE_SIZE.depth + 0.5,
+        nw.x / SCENE_SIZE.width + 0.5,
+        nw.z / SCENE_SIZE.depth + 0.5,
+        se.x / SCENE_SIZE.width + 0.5,
+        se.z / SCENE_SIZE.depth + 0.5,
       );
-      controller?.abort();
-      controller = new AbortController();
-      loadTexture(url, anisotropy, controller.signal)
-        .then((texture) => {
-          current?.dispose();
-          current = texture;
-          setNear({ texture, rect });
+      window.clearTimeout(flush);
+      flush = 0;
+      current?.dispose();
+      current = texture;
+      setNear({ texture, rect });
+      invalidate();
+
+      // Uploads are grouped: one texture update for the tiles of the last ~100 ms.
+      const draw = (row: number, col: number, bitmap: ImageBitmap) => {
+        context.drawImage(bitmap, (col - c0) * L93_TILES.size, (row - r0) * L93_TILES.size);
+        if (flush) return;
+        flush = window.setTimeout(() => {
+          flush = 0;
+          texture.needsUpdate = true;
           invalidate();
-        })
-        .catch(() => {
-          // Aborted by a newer request, or unavailable: the France image stays.
-          if (nearKey.current === key) nearKey.current = "";
-        });
+        }, 100);
+      };
+      // Centre tiles first.
+      const centreCol = (cx - L93_TILES.originX) / size;
+      const centreRow = (L93_TILES.originY - cy) / size;
+      const distance = ([row, col]: [number, number]) => Math.hypot(row + 0.5 - centreRow, col + 0.5 - centreCol);
+      const tiles: [number, number][] = [];
+      for (let row = r0; row <= r1; row++) for (let col = c0; col <= c1; col++) tiles.push([row, col]);
+      tiles.sort((a, b) => distance(a) - distance(b));
+      const missing = tiles.filter(([row, col]) => {
+        const cached = tileCache.get(tileUrl(ign.tiles, level, row, col));
+        if (cached) draw(row, col, cached);
+        return !cached;
+      });
+
+      controller?.abort();
+      const own = new AbortController();
+      controller = own;
+      let next = 0;
+      const worker = async () => {
+        while (next < missing.length && !own.signal.aborted) {
+          const [row, col] = missing[next++];
+          const url = tileUrl(ign.tiles, level, row, col);
+          // A second try after a short pause: the Géoplateforme occasionally fails a tile in a burst.
+          for (let attempt = 0; attempt < 2 && !own.signal.aborted; attempt++) {
+            try {
+              const bitmap = await loadBitmap(url, own.signal);
+              cacheTile(url, bitmap);
+              if (!own.signal.aborted) draw(row, col, bitmap);
+              break;
+            } catch {
+              // Aborted by a newer view, or no tile there (sea, outside France): the France image shows.
+              if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 400));
+            }
+          }
+        }
+      };
+      for (let k = 0; k < CONCURRENCY; k++) void worker();
     };
     const schedule = () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(refresh, 250);
+      timer = window.setTimeout(refresh, 150);
     };
     controls.addEventListener("rest", schedule);
     schedule();
     return () => {
       controls.removeEventListener("rest", schedule);
       window.clearTimeout(timer);
+      window.clearTimeout(flush);
       controller?.abort();
       current?.dispose();
-      nearKey.current = "";
+      mosaic.current = null;
       setNear(null);
     };
   }, [active, controls, basemap, basemapId, light, anisotropy, invalidate]);

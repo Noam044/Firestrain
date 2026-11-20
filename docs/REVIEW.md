@@ -12,9 +12,10 @@ pourcentage.
 
 | Écran | Constat |
 |---|---|
+| **Accueil** | Barre FireStrain (symbole, nom, pages), hero (titre, texte, « Explorer la carte », « Méthode et sources »), aperçu en direct des feux des 12 mois, chiffres du moment avec leur date, trois entrées, pied de page (sources, licences, indépendance, urgences). |
 | **Suivi — répartition** | Barre du haut : titre, « 12 derniers mois » / Archives, points chauds 72 h (compte et interrupteur), Liste, Méthode. Colonne de gauche : titre de la période, trois chiffres (feux, surface, depuis 7 jours), heure d'interrogation d'EFFIS, recherche, tri, liste des feux. Douze mois sous la carte (nombre de feux, barre de surface, filtre). Aucune prose de synthèse ni classement. |
 | **Carte — relief** | France seule en relief clair, pays voisins à plat ; un disque par feu, aire ∝ surface, couleur par âge (moins de 7 jours, moins d'un mois, plus ancien), liseré blanc ; au zoom le disque s'efface devant le contour brûlé ; points chauds en anneaux ambre ; hachures des années précédentes en calque facultatif. |
-| **Carte — commandes** | Légende en haut à gauche ; zoom, vue d'ensemble, « Fond et calques » en bas à droite ; échelle et sources en bas à gauche ; zoom par pincement sur écran tactile. |
+| **Carte — commandes** | Légende en haut à gauche ; zoom, vue d'ensemble, « Fond et calques » (Relief, Plan, Photos aériennes) en bas à droite ; échelle et sources en bas à gauche ; zoom par pincement sur écran tactile. |
 | **Fiche d'un feu** | Dans la colonne (feuille par le bas sur téléphone), retour à la liste ; commune, département, surface, âge, dates de détection et de mise à jour, végétation, points chauds, BDIFF à part, lien vers la fiche EFFIS. Faits cités retirés (aspect narratif). |
 | **Carte 2D** | Mêmes couleurs et mêmes filtres, motif de repli en une ligne. |
 | **Liste, Méthode** | En-tête « Carte des feux récents », tableau et texte sur la même palette. |
@@ -27,7 +28,7 @@ pourcentage.
 |---|---|---|
 | Aucun chiffre sans source, date de donnée et lien | ✅ | `SourceTag` sous chaque chiffre (source · donnée du · récupérée le · lien et citation). Ajoutés lors de cette revue : compte FIRMS de la frise, chapitres EFFIS du récit, comparaison d'échelle. |
 | Totaux du pipeline comparés aux chiffres officiels, écarts expliqués | ✅ | `docs/VALIDATION_REPORT.md` (06-validate) : identiques chaque année sauf 2011 (La Réunion). |
-| Lighthouse ≥ 90 accessibilité et bonnes pratiques ; performance ≥ 80 (mobile) | ✅ | Suivi (20/11/2026) : performance 93–95 (LCP 2,6 s ; réponse EFFIS compressée, 149 ko), accessibilité, bonnes pratiques et SEO 100 ; liste 97 et Méthode 99 en performance. Mesuré en Chrome sans tête, donc sans accélération graphique : la carte y est en 2D. |
+| Lighthouse ≥ 90 accessibilité et bonnes pratiques ; performance ≥ 80 (mobile) | ✅ | 20/11/2026 : accueil 99, carte 95 (LCP 2,6 s ; réponse EFFIS en gzip, 149 ko), liste 98, Méthode 99 en performance ; accessibilité, bonnes pratiques et SEO 100 partout. Mesuré en Chrome sans tête, donc sans accélération graphique : la carte y est en 2D. |
 | Fonctionne sans WebGL et avec `prefers-reduced-motion` | ✅ | Tests Playwright `repli-2d` (WebGL 2 absent, rendu logiciel, `rendu=2d`) ; mouvement réduit : coupes de caméra et lecture jour par jour. |
 | Interface utilisable au clavier | ✅ | Test `clavier` : chaque arrêt de tabulation affiche un anneau de 2 px ; frise des années et lecture au clavier (`carte`) ; carte aux flèches ; liste des feux en alternative à la 3D. |
 | Aucune clé d'API dans le bundle client | ✅ | La valeur de `FIRMS_MAP_KEY` est absente de `.next/static`, de `public/` et des réponses de `/api/firms/recent` (vérifié à chaque build de la phase). |

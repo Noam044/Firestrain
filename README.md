@@ -9,7 +9,8 @@ contrôles des données : [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.m
 
 | Page | Contenu |
 |---|---|
-| `/` | Le suivi : un marqueur par feu (taille : surface ; couleur : âge ; contour réel au zoom), liste des feux de la période (récents ou plus grands, recherche par commune), douze mois sous la carte (filtre), fiche de chaque feu, points chauds des 72 dernières heures, archives par année civile, fonds et calques. État partageable dans l'adresse : `?annee=2022&mois=2022-07&fire=562583&fond=satellite` (sans `annee` : les douze derniers mois). `/explorer` y redirige. |
+| `/` | Accueil FireStrain : présentation, bouton « Explorer la carte », état du moment (feux des 7 derniers jours, dernier feu, surface sur 12 mois, points chauds 72 h) et aperçu en direct des feux. |
+| `/carte` | Le suivi : un marqueur par feu (taille : surface ; couleur : âge ; contour réel au zoom), liste des feux de la période (récents ou plus grands, recherche par commune), douze mois sous la carte (filtre), fiche de chaque feu, points chauds des 72 dernières heures, archives par année civile, fonds et calques. État partageable dans l'adresse : `?annee=2022&mois=2022-07&fire=562583&fond=ortho` (sans `annee` : les douze derniers mois). `/explorer` et les anciennes adresses `/?fire=…` y redirigent. |
 | `/liste` | Les mêmes surfaces en tableau triable et filtrable : l'alternative accessible à la carte. |
 | `/methode` | Sources, licences, limites, règles de rapprochement et de regroupement, contrôles. |
 | `/api/effis/recent` | Route serveur : surfaces brûlées EFFIS des douze derniers mois, interrogées à l'API EFFIS et gardées en cache environ une heure ; en cas d'échec, la carte reprend les fichiers du site et le signale. |
@@ -52,6 +53,7 @@ npm run data:effis     # 02 — surfaces brûlées EFFIS 2006–2026 et statisti
 npm run data:bdiff     # 04 — BDIFF (feux déclarés) et rapprochements avec EFFIS
 npm run data:firms     # 03 — détections NASA FIRMS par année civile (clé requise pour 2026)
 npm run data:events    # 07 — faits sourcés : vérifie les citations de data/events.json, regroupe les polygones
+npm run data:basemaps  # 09 — images France entière des fonds Plan IGN et photos aériennes (WMS, une fois)
 npm run data:validate  # 06 — contrôles croisés, écrit docs/VALIDATION_REPORT.md
 npm run data           # toute la chaîne, dans l'ordre
 node scripts/01-dem.ts --refresh   # ignore le cache et retélécharge
@@ -74,8 +76,9 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
 - **Pays voisins** (fond neutre, sans relief) : Natural Earth, Admin 0 – Countries 1:10m — domaine public.
-- **Fonds de carte** (`?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
-  BD ORTHO — IGN / CNES, Licence Ouverte 2.0, demandés par le navigateur au WMS de la Géoplateforme (sans clé).
+- **Fonds de carte** (`?fond=plan|ortho`) : Plan IGN et BD ORTHO — IGN, Licence Ouverte 2.0. L'image de la
+  France entière est demandée une fois au WMS (`09-basemaps`) et servie par le site ; les vues rapprochées
+  assemblent les tuiles WMTS Lambert-93 de la Géoplateforme (sans clé), chargées du centre vers les bords.
 - **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
 - **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.
 - **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.

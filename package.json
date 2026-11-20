@@ -21,15 +21,16 @@
     "data:bdiff": "node scripts/04-bdiff.ts",
     "data:firms": "node scripts/03-firms.ts",
     "data:events": "node scripts/07-events.ts",
+    "data:basemaps": "node scripts/09-basemaps.ts",
     "data:validate": "node scripts/06-validate.ts",
-    "data": "npm run data:dem && npm run data:admin && npm run data:neighbours && npm run data:effis && npm run data:bdiff && npm run data:firms && npm run data:events && npm run data:validate"
+    "data": "npm run data:dem && npm run data:admin && npm run data:neighbours && npm run data:effis && npm run data:bdiff && npm run data:firms && npm run data:events && npm run data:basemaps && npm run data:validate"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "@tanstack/react-query": "^5.104.5",
     "@tanstack/react-table": "^9.3.1",
-    "next": "16.4.2",
+    "next": "16.4.6",
     "nuqs": "^2.10.2",
     "proj4": "^2.22.0",
     "radix-ui": "^1.8.1",
@@ -47,7 +48,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.4.6",
     "lighthouse": "^13.5.0",
     "mapshaper": "^0.7.91",
     "tailwindcss": "^4",

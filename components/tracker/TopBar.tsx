@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { formatInteger } from "@/lib/format";
 import { useRecentDetections } from "@/lib/data/queries";
 import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
@@ -80,26 +79,12 @@ function LiveToggle() {
   );
 }
 
-/** Title, period, live layer and the other pages. */
+/** The tracker's own bar: which period the map shows, and the live hotspots. */
 export function TopBar() {
   return (
-    <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule bg-sheet px-4 py-2.5 lg:flex-nowrap lg:px-5">
-      <h1 className="mr-auto text-base leading-tight lg:mr-2">
-        Feux de forêt en France
-        <span className="block text-xs font-normal text-ink-3">Suivi par satellite, métropole et Corse</span>
-      </h1>
-      <nav aria-label="Autres pages" className="order-2 flex gap-4 text-sm lg:order-4 lg:ml-auto">
-        <Link href="/liste" className="font-bold text-ink-2 hover:text-ink">
-          Liste
-        </Link>
-        <Link href="/methode" className="font-bold text-ink-2 hover:text-ink">
-          Méthode
-        </Link>
-      </nav>
-      <div className="order-3 flex w-full flex-wrap items-center gap-2 lg:order-2 lg:w-auto">
-        <PeriodSwitch />
-        <LiveToggle />
-      </div>
-    </header>
+    <div className="flex flex-wrap items-center gap-2 border-b border-rule bg-sheet px-4 py-2 lg:px-5">
+      <PeriodSwitch />
+      <LiveToggle />
+    </div>
   );
 }

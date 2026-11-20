@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("un feu passé dans l'adresse ouvre sa fiche", async ({ page }) => {
-  await page.goto(`/?fire=${largest.id}`);
+  await page.goto(`/carte?fire=${largest.id}`);
   const title = page.locator("#feu-titre");
   await expect(title).toHaveText(largest.commune);
   await expect(page.getByText(frenchNumber(largest.areaHa)).first()).toBeVisible();
@@ -19,7 +19,7 @@ test("un feu passé dans l'adresse ouvre sa fiche", async ({ page }) => {
 });
 
 test("la liste triée par surface ouvre le plus grand feu", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/carte");
   await page.getByRole("button", { name: "Plus grands" }).click();
   await page.getByRole("list", { name: "Feux de la période" }).getByRole("button").first().click();
   await expect(page.locator("#feu-titre")).toHaveText(largest.commune);
@@ -27,13 +27,13 @@ test("la liste triée par surface ouvre le plus grand feu", async ({ page }) => 
 });
 
 test("la recherche filtre la liste par commune", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/carte");
   await page.getByRole("searchbox", { name: /Chercher une commune/ }).fill(largest.commune);
   await expect(page.getByRole("list", { name: "Feux de la période" }).getByRole("button").first()).toContainText(largest.commune);
 });
 
 test("un identifiant inconnu est ignoré", async ({ page }) => {
-  await page.goto("/?fire=1");
+  await page.goto("/carte?fire=1");
   await expect(page.getByRole("heading", { level: 2, name: "Les 12 derniers mois" })).toBeVisible();
   await expect(page.locator("#feu-titre")).toHaveCount(0);
 });

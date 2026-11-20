@@ -284,7 +284,7 @@ export function FiresTable() {
                     {cell.column.id === "commune" ? (
                       // The first column carries the link, so it stays reachable on narrow screens.
                       <Link
-                        href={`/?annee=${safeYear}&fire=${row.original.id}`}
+                        href={`/carte?annee=${safeYear}&fire=${row.original.id}`}
                         className="underline decoration-rule underline-offset-4 hover:decoration-ink-3"
                       >
                         {row.original.commune}

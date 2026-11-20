@@ -13,7 +13,6 @@ import { AGE_CLASSES } from "@/components/scene/markers";
 const SWATCH: Record<string, string> = {
   relief: "linear-gradient(135deg, #ffffff 0%, #efefec 45%, #a9b0b4 100%)",
   plan: "linear-gradient(135deg, #f6f2e8 0%, #f6f2e8 55%, #f0a64a 55%, #f0a64a 62%, #dfe8d2 62%)",
-  satellite: "linear-gradient(135deg, #4d5b3c 0%, #6c7651 50%, #8b8a6a 100%)",
   ortho: "linear-gradient(135deg, #5f7a4a 0%, #9ba77a 45%, #c9c2a7 100%)",
 };
 
@@ -140,7 +139,7 @@ export function MapControls() {
       <div className="pointer-events-auto absolute bottom-3 left-3 flex flex-col items-start gap-1.5">
         {renderMode === "3d" && <ScaleBar />}
         <p className="rounded bg-white/85 px-1.5 py-0.5 text-[11px] leading-4 text-ink-2">
-          EFFIS · IGN{current.source ? ` · ${current.source.name}` : ""} · NASA FIRMS ·{" "}
+          EFFIS · IGN · NASA FIRMS ·{" "}
           <Link href="/methode" className="underline decoration-rule-strong underline-offset-2 hover:text-ink">
             sources
           </Link>

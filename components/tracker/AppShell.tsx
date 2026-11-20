@@ -34,9 +34,9 @@ function MapTooltip() {
 }
 
 /**
- * The tracker, in four zones: a top bar (title, period, live hotspots); the
- * list of the period's fires on the left (or the fire chosen); the map; and
- * the twelve months under the map. On phones: top bar, map, months, list.
+ * The map page (/carte), in four zones under the site bar: a bar (period, live
+ * hotspots); the list of the period's fires on the left (or the fire chosen);
+ * the map; the twelve months under the map. On phones: bar, map, months, list.
  * In the DOM the controls come before the canvas, so the keyboard reaches them first.
  */
 export function AppShell({ initialData }: { initialData: { effisIndex: EffisIndex; bdiffAnnual: BdiffAnnual } }) {
@@ -51,7 +51,7 @@ export function AppShell({ initialData }: { initialData: { effisIndex: EffisInde
   });
   return (
     <SpanFiresProvider>
-      <div className="flex min-h-dvh flex-col bg-paper lg:grid lg:h-dvh lg:grid-cols-[380px_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:overflow-hidden">
+      <div className="flex flex-col bg-paper lg:grid lg:h-[calc(100dvh-3.5rem-1px)] lg:grid-cols-[380px_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:overflow-hidden">
         <div className="order-1 lg:col-span-2">
           <TopBar />
         </div>

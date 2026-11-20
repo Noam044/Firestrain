@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next } from "next/font/google";
+import { SiteHeader } from "@/components/brand/SiteHeader";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -17,9 +18,10 @@ const atkinsonMono = Atkinson_Hyperlegible_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Feux de forêt en France — suivi", template: "%s · Feux de forêt en France" },
+  title: { default: "FireStrain — les feux de forêt en France, vus par satellite", template: "%s · FireStrain" },
+  applicationName: "FireStrain",
   description:
-    "Les feux de forêt des douze derniers mois en France métropolitaine, mois par mois, sur une carte en relief : surfaces brûlées EFFIS (Copernicus) et points chauds NASA FIRMS des dernières 72 heures.",
+    "FireStrain : les feux de forêt des douze derniers mois en France métropolitaine, mois par mois, sur une carte en relief : surfaces brûlées EFFIS (Copernicus) et points chauds NASA FIRMS des dernières 72 heures.",
 };
 
 export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light" };
@@ -28,7 +30,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${atkinson.variable} ${atkinsonMono.variable}`}>
       <body className="min-h-dvh bg-paper text-ink">
-        <Providers>{children}</Providers>
+        <Providers>
+          <SiteHeader />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -10,11 +10,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("la carte s'ouvre sur les 12 derniers mois, avec la date des données", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /Feux de forêt en France/ })).toBeVisible();
+  await page.goto("/carte");
+  await expect(page.getByRole("link", { name: /FireStrain/ })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "Les 12 derniers mois" })).toBeVisible();
   await expect(page.getByRole("radio", { name: /12 mois/ })).toHaveAttribute("aria-checked", "true");
-  await expect(page.getByText(/interrogé le 20 oct\. 2026/)).toBeVisible();
+  await expect(page.getByText(/interrogé le 20 oct\. 2026/).first()).toBeVisible();
   const summary = page.getByRole("complementary", { name: "Feux de la période" });
   await expect(summary.getByText(frenchNumber(live.length)).first()).toBeVisible();
   // The hotspots of the last 72 hours, counted in the top bar.
@@ -22,7 +22,7 @@ test("la carte s'ouvre sur les 12 derniers mois, avec la date des données", asy
 });
 
 test("les mois se choisissent à la souris et au clavier, et se partagent", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/carte");
   await page.getByRole("radio", { name: /^juillet 2026 :/ }).click();
   await expect(page).toHaveURL(/mois=2026-07/);
   await expect(page.getByRole("heading", { level: 2, name: "Juillet 2026" })).toBeVisible();
@@ -35,7 +35,7 @@ test("les mois se choisissent à la souris et au clavier, et se partagent", asyn
 });
 
 test("les archives montrent une année civile", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/carte");
   await page.getByRole("combobox", { name: /Archives/ }).selectOption("2022");
   await expect(page).toHaveURL(/annee=2022/);
   await expect(page.getByRole("heading", { level: 2, name: "Année 2022" })).toBeVisible();
@@ -48,13 +48,35 @@ test("les archives montrent une année civile", async ({ page }) => {
 test("si le suivi en direct ne répond pas, les fichiers du site prennent le relais", async ({ page }) => {
   await page.unrouteAll();
   await mockLive(page, { effis: false });
-  await page.goto("/");
+  await page.goto("/carte");
   await expect(page.getByText(/Le suivi en direct ne répond pas/)).toBeVisible();
   await expect(page.getByRole("list", { name: "Feux de la période" }).getByRole("button").first()).toBeVisible();
 });
 
 test("l'ancienne adresse /explorer mène à la carte", async ({ page }) => {
   await page.goto("/explorer?year=2022");
-  await expect(page).toHaveURL(/\/\?(year|annee)=2022/);
+  await expect(page).toHaveURL(/\/carte\?(year|annee)=2022/);
   await expect(page.getByRole("heading", { level: 2, name: "Année 2022" })).toBeVisible();
+});
+
+test("une adresse partagée de l'ancienne carte (/?fire=…) ouvre /carte", async ({ page }) => {
+  const fire = live.find((candidate) => candidate.commune)!;
+  await page.goto(`/?fire=${fire.id}`);
+  await expect(page).toHaveURL(new RegExp(`/carte\\?fire=${fire.id}`));
+  await expect(page.locator("#feu-titre")).toHaveText(fire.commune);
+});
+
+test("l'accueil présente FireStrain, l'état du moment et mène à la carte", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1, name: /feux de forêt en France, vus par satellite/ })).toBeVisible();
+  const moment = page.getByRole("region", { name: "En ce moment" });
+  await expect(moment.getByText(/interrogées le 20 oct\. 2026/)).toBeVisible();
+  const latest = [...live].sort((a, b) => b.firedate.localeCompare(a.firedate))[0];
+  await expect(moment.getByText(latest.commune, { exact: true })).toBeVisible();
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "EFFIS" })).toBeVisible();
+  await expect(footer.getByText(/projet indépendant/)).toBeVisible();
+  await page.getByRole("link", { name: /Explorer la carte/ }).click();
+  await expect(page).toHaveURL(/\/carte$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Les 12 derniers mois" })).toBeVisible();
 });

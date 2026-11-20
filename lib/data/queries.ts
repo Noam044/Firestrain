@@ -156,7 +156,9 @@ export const useRecentFires = (enabled: boolean) =>
     queryFn: async (): Promise<RecentFireData> => {
       const response = await fetch("/api/effis/recent");
       if (!response.ok) throw new Error(`effis/recent : HTTP ${response.status}`);
-      const data = RecentFiresSchema.parse(await response.json());
+      // A gzip file (see the route), or plain JSON if something on the way already inflated it.
+      const bytes = await gunzipIfNeeded(new Uint8Array(await response.arrayBuffer()));
+      const data = RecentFiresSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
       return { generatedAt: data.generatedAt, fires: data.fires.map(decodeFire) };
     },
     enabled,

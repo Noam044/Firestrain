@@ -10,7 +10,7 @@ import { BASEMAPS } from "@/lib/geo/basemaps";
 const BASEMAP_IDS = BASEMAPS.map((basemap) => basemap.id);
 
 /**
- * Shareable state: ?annee=2022&mois=2022-07&fire=562583&cam=gironde&fond=satellite
+ * Shareable state: ?annee=2022&mois=2022-07&fire=562583&cam=gironde&fond=ortho
  * (no `annee`: the last twelve months). The URL seeds the store once; afterwards
  * the store writes back to the URL (replace, not push). `year` is the former
  * name of `annee`. A month or a fire outside the window shown is dropped.

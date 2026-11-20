@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { L93_EXTENT, SCENE_SIZE } from "@/lib/geo/frame";
-import { basemapById, wmsUrl } from "@/lib/geo/basemaps";
+import { useEffect, useMemo } from "react";
+import { SCENE_SIZE } from "@/lib/geo/frame";
+import { basemapById, farImagePath } from "@/lib/geo/basemaps";
 import type { DecodedFire } from "@/lib/data/fires";
 import { useDepartements2D, useEffisYears, useNeighbours, useRecentDetections } from "@/lib/data/queries";
 import { useSpanFires } from "@/lib/data/span-fires";
 import { recentToColumns } from "@/lib/data/firms-recent";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
 import { AGE_CLASSES, ageClass, markerRadius } from "./markers";
+import { useUnitsPerPx } from "./useUnitsPerPx";
 
 const toSvg = (x: number, z: number) => [x + SCENE_SIZE.width / 2, z + SCENE_SIZE.depth / 2] as const;
 
@@ -24,23 +25,6 @@ function ringsPath(rings: readonly ArrayLike<number>[], digits = 2): string {
       return `M${points.join("L")}Z`;
     })
     .join("");
-}
-
-/** SVG user units per CSS pixel of an element showing `viewBox` with preserveAspectRatio "meet". */
-function useUnitsPerPx(viewBox: readonly number[] | undefined) {
-  const ref = useRef<SVGSVGElement>(null);
-  const [unitsPerPx, setUnitsPerPx] = useState(1);
-  useEffect(() => {
-    const svg = ref.current;
-    if (!svg || !viewBox) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) setUnitsPerPx(Math.max(viewBox[2] / width, viewBox[3] / height));
-    });
-    observer.observe(svg);
-    return () => observer.disconnect();
-  }, [viewBox]);
-  return { ref, unitsPerPx };
 }
 
 /**
@@ -65,11 +49,9 @@ export default function Map2D({ reason }: { reason: string }) {
   const archiveYear = useMapStore((state) => state.archiveYear);
   const showLive = useMapStore((state) => state.showLive) && archiveYear === null;
   const live = useRecentDetections(showLive);
-  // Imagery base maps in 2D: one whole-France image, clipped to the departments.
+  // Imagery base maps in 2D: the whole-France image served by the site, clipped to the departments.
   const basemap = useMapStore((state) => basemapById(state.basemap));
-  const imageUrl = basemap.layer
-    ? wmsUrl(basemap, [L93_EXTENT.xmin, L93_EXTENT.ymin], [L93_EXTENT.xmax, L93_EXTENT.ymax], 1600, Math.round((1600 * SCENE_SIZE.depth) / SCENE_SIZE.width))
-    : null;
+  const imageUrl = basemap.ign ? `/data/${farImagePath(basemap.id)}` : null;
   useEffect(() => {
     setRenderMode("2d");
     return () => setRenderMode(null);
