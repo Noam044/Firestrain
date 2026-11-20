@@ -245,11 +245,54 @@
   box-shadow: var(--shadow-pop);
 }
 
-/* Sensor grid behind the home page's opening: fixed pitch, faded at the edges. */
-@utility sensor-grid {
-  background-image: radial-gradient(circle at 1px 1px, var(--rule-strong) 1px, transparent 0);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, black 30%, transparent 75%);
+/*
+ * Motion: short, eased out, transform and opacity only. Everything below is
+ * switched off by the reduced-motion block at the end.
+ */
+@theme inline {
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pop-in: pop-in 140ms var(--ease-out-soft);
+  --animate-fade-in: fade-in 600ms var(--ease-out-soft) both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(2px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * Text links: a quiet underline at rest (a link must not rely on colour alone),
+ * and a signal-orange one drawn from the left on hover, after the animated
+ * underline links of 21st.dev.
+ */
+@utility link-draw {
+  text-decoration: none;
+  background-image: linear-gradient(var(--signal), var(--signal)), linear-gradient(var(--rule-strong), var(--rule-strong));
+  background-position:
+    0 100%,
+    0 100%;
+  background-repeat: no-repeat;
+  background-size:
+    0% 1px,
+    100% 1px;
+  padding-bottom: 1px;
+  transition:
+    background-size 360ms var(--ease-out-soft),
+    color 200ms;
+  &:hover {
+    background-size:
+      100% 1px,
+      100% 1px;
+    color: var(--ink);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -56,8 +56,9 @@ export default function MethodePage() {
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              La date donnée est celle de la <strong className="font-medium text-ink">première détection
-              satellite</strong>, pas l’heure d’alerte des pompiers. EFFIS ne publie pas de date de fin.
+              La date indiquée est celle de la <strong className="font-medium text-ink">première détection
+              satellite</strong>. L’heure d’alerte des pompiers vient de la BDIFF, quand une fiche correspond. EFFIS ne
+              publie pas de date de fin.
             </li>
             <li>
               La commune associée par EFFIS à un contour n’est pas nécessairement celle où le feu a démarré, et un même

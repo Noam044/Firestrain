@@ -81,7 +81,7 @@ function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
         <p className={`mt-2 text-xs leading-4 ${source.kind === "fallback" ? "rounded-md bg-amber/15 px-2 py-1.5 text-ink" : "text-ink-3"}`}>
           {source.kind === "live" && <>Surfaces brûlées EFFIS (Copernicus), interrogé le {formatDateTime(source.asOf)}.</>}
           {source.kind === "fallback" && (
-            <>Le suivi en direct ne répond pas : surfaces EFFIS des fichiers du site, mises à jour le {formatDate(source.asOf)}.</>
+            <>Le suivi en direct ne répond pas. La carte affiche les fichiers du site, mis à jour le {formatDate(source.asOf)}.</>
           )}
           {source.kind === "year" && <>Surfaces brûlées EFFIS (Copernicus), données au {formatDate(source.asOf)}.</>}
         </p>
@@ -107,7 +107,7 @@ function FireRow({ fire }: { fire: SpanFire }) {
         onMouseLeave={() => setHover(null)}
         onFocus={() => setHover({ id: fire.id, x: null, y: null })}
         onBlur={() => setHover(null)}
-        className="grid w-full grid-cols-[14px_minmax(0,1fr)_auto] items-baseline gap-x-2.5 border-b border-rule px-4 py-2 text-left hover:bg-paper lg:px-5"
+        className="grid w-full grid-cols-[14px_minmax(0,1fr)_auto] items-baseline gap-x-2.5 border-b border-rule px-4 py-2 text-left transition-colors duration-150 hover:bg-raised lg:px-5"
       >
         <span
           aria-hidden

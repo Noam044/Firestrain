@@ -110,7 +110,7 @@ function FireActivity({ fire }: { fire: SpanFire }) {
       </svg>
       <p className="mt-1 text-xs leading-4">
         {formatInteger(total)} points chauds du {formatDate(dateOf(days[0]))} au {formatDate(dateOf(days.at(-1) ?? days[0]))}, à moins de
-        400 m du contour (NASA FIRMS, VIIRS). Ce sont des détections de chaleur, pas une surface.
+        400 m du contour (NASA FIRMS, VIIRS).
       </p>
     </>
   );
@@ -207,7 +207,7 @@ export function FireCard({ fire, onBack }: { fire: SpanFire; onBack: () => void 
           )}
         </Block>
         <p className="border-t border-rule pt-3 text-xs leading-4 text-ink-3">
-          Commune indiquée par EFFIS pour ce contour, pas forcément celle du départ du feu ·{" "}
+          Commune attribuée par EFFIS à ce contour ; le feu a pu partir d’une commune voisine.{" "}
           <a
             href={`https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/${fire.id}/`}
             target="_blank"

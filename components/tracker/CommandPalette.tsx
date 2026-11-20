@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  CalendarBlank,
-  Fire,
-  MagnifyingGlass,
-  MapTrifold,
-} from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Command } from "cmdk";
 import { useMemo, useState, type ReactNode } from "react";
 import { Kbd } from "@/components/ui/kbd";
@@ -162,7 +157,6 @@ export default function CommandPalette({
                 value={`mois-${month.index}`}
                 onSelect={() => run(() => store().setMonth(month.index))}
               >
-                <CalendarBlank size={16} aria-hidden className="text-ink-3" />
                 <span className="first-letter:uppercase">{month.label}</span>
               </Item>
             ))}
@@ -176,7 +170,6 @@ export default function CommandPalette({
                 value={`annee-${year}`}
                 onSelect={() => run(() => store().setArchiveYear(year))}
               >
-                <Fire size={16} aria-hidden className="text-ink-3" />
                 Année {year}
               </Item>
             ))}
@@ -190,7 +183,6 @@ export default function CommandPalette({
                 value={`fond-${basemap.id}`}
                 onSelect={() => run(() => store().setBasemap(basemap.id))}
               >
-                <MapTrifold size={16} aria-hidden className="text-ink-3" />
                 {basemap.label}
               </Item>
             ))}

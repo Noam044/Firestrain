@@ -37,22 +37,22 @@ export function SiteFooter() {
         <Column title="Le site">
           <ul>
             <li>
-              <Link href="/carte" className="hover:text-ink hover:underline">
+              <Link href="/carte" className="link-draw">
                 Carte des feux récents
               </Link>
             </li>
             <li>
-              <Link href="/liste" className="hover:text-ink hover:underline">
+              <Link href="/liste" className="link-draw">
                 Liste des feux
               </Link>
             </li>
             <li>
-              <Link href="/methode" className="hover:text-ink hover:underline">
+              <Link href="/methode" className="link-draw">
                 Méthode et sources
               </Link>
             </li>
             <li>
-              <a href="https://github.com/Noam044/Firestrain" className="hover:text-ink hover:underline">
+              <a href="https://github.com/Noam044/Firestrain" className="link-draw">
                 Code source (licence MIT)
               </a>
             </li>
@@ -73,8 +73,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-rule">
         <p className="mx-auto max-w-6xl px-5 py-4 text-xs leading-5 text-ink-3 md:px-8">
-          FireStrain est un projet indépendant, sans lien avec les organismes cités. Surfaces estimées par satellite :
-          elles diffèrent des bilans officiels, qui restent la référence.
+          FireStrain est un projet indépendant, sans lien avec les organismes cités. Les surfaces sont estimées par satellite et peuvent différer des bilans officiels.
         </p>
       </div>
     </footer>
