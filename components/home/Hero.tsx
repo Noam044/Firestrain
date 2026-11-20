@@ -4,14 +4,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
 import { useLiveSummary } from "./live";
+import { FireBackdrop } from "./FireBackdrop";
 import { ThermalView } from "./ThermalView";
 
 /** The home page's opening: what the site does, the way to the map, and the map's picture. */
 export function Hero() {
   const { summary, error } = useLiveSummary();
   return (
-    <section aria-labelledby="accueil-titre" className="border-b border-rule">
-      <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-5 pb-14 pt-10 md:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12 lg:pb-20 lg:pt-14">
+    <section aria-labelledby="accueil-titre" className="relative isolate overflow-hidden border-b border-rule">
+      <FireBackdrop />
+      <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-5 pb-28 pt-10 md:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12 lg:pb-32 lg:pt-14">
         <div>
           <h1 id="accueil-titre" tabIndex={-1} className="outline-none text-[2.5rem] leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem] xl:text-[3.9rem]">
             Suivre les feux de forêt en France
