@@ -84,22 +84,30 @@ function treeline(
     state = (state * 1664525 + 1013904223) % 4294967296;
     return state / 4294967296;
   };
+  const r = (n: number) => Math.round(n * 10) / 10;
   let d = `M0 ${height}`;
   for (let x = -10; x < width + 20;) {
     const w = step[0] + random() * (step[1] - step[0]);
     const h = minH + random() * (maxH - minH);
-    const top = height - h;
     // A pine: three tiers narrowing to the tip.
-    d += ` L${x} ${height - h * 0.18} L${x + w * 0.18} ${top + h * 0.52} L${x + w * 0.08} ${top + h * 0.52}`;
-    d += ` L${x + w * 0.3} ${top + h * 0.22} L${x + w * 0.22} ${top + h * 0.22} L${x + w / 2} ${top}`;
-    d += ` L${x + w * 0.78} ${top + h * 0.22} L${x + w * 0.7} ${top + h * 0.22} L${x + w * 0.92} ${top + h * 0.52}`;
-    d += ` L${x + w * 0.82} ${top + h * 0.52} L${x + w} ${height - h * 0.18}`;
+    const tiers: [number, number][] = [
+      [0, 0.18], [0.18, 0.48], [0.08, 0.48], [0.3, 0.78], [0.22, 0.78], [0.5, 1],
+      [0.78, 0.78], [0.7, 0.78], [0.92, 0.48], [0.82, 0.48], [1, 0.18],
+    ];
+    for (const [dx, dy] of tiers) d += ` L${r(x + w * dx)} ${r(height - h * dy)}`;
     x += w * (0.55 + random() * 0.35);
   }
   return `${d} L${width + 40} ${height} Z`;
 }
-const FAR_TREES = treeline(7, 1600, 150, 40, 95, [18, 34]);
-const NEAR_TREES = treeline(23, 1600, 150, 28, 70, [22, 42]);
+/**
+ * The treeline is drawn wider than any screen and scaled to its strip's height
+ * (`slice` then trims the sides only): a narrower drawing would be scaled to
+ * the width on wide screens and lose the tops of the tallest pines.
+ */
+const TREES_WIDTH = 4800;
+const TREES_HEIGHT = 150;
+const FAR_TREES = treeline(7, TREES_WIDTH, TREES_HEIGHT, 40, 95, [18, 34]);
+const NEAR_TREES = treeline(23, TREES_WIDTH, TREES_HEIGHT, 28, 70, [22, 42]);
 
 /** True only with a GPU: one probing context, refused at once when WebGL would be software-rendered. */
 function hasGpu(): boolean {
@@ -263,7 +271,7 @@ export function FireBackdrop() {
       />
       {/* Treeline: the far trees take a little of the fire's light, the near ones are the page itself. */}
       <svg
-        viewBox="0 0 1600 150"
+        viewBox={`0 0 ${TREES_WIDTH} ${TREES_HEIGHT}`}
         preserveAspectRatio="xMidYMax slice"
         className="absolute inset-x-0 bottom-0 h-24 w-full sm:h-32"
       >
