@@ -1,9 +1,9 @@
 "use client";
 
-import { CornersOut, Minus, Plus } from "@phosphor-icons/react";
+import { CaretDown, CornersOut, Minus, Plus } from "@phosphor-icons/react";
 import Link from "next/link";
 import { Popover } from "radix-ui";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { BASEMAPS, basemapById } from "@/lib/geo/basemaps";
 import { niceLength } from "@/lib/geo/scale";
 import { formatDistance } from "@/lib/format";
@@ -75,15 +75,32 @@ function HatchSwatch() {
   );
 }
 
-/** What the markers and colours mean, at the top left of the map. */
+/**
+ * What the markers and colours mean, at the top left of the map. It folds to its
+ * title while a fire is open, so it never covers that fire's outline; a click
+ * on the title opens or folds it either way.
+ */
 function MapLegend() {
   const archiveYear = useMapStore((state) => state.archiveYear);
   const showLive = useMapStore((state) => state.showLive);
   const showHistory = useMapStore((state) => state.showHistory);
+  const fireOpen = useMapStore((state) => state.selectedFireId !== null);
+  // The reader's own choice, kept until the fire changes; by default, folded while a fire is open.
+  const [choice, setChoice] = useState<{ open: boolean; fireOpen: boolean } | null>(null);
+  const open = choice && choice.fireOpen === fireOpen ? choice.open : !fireOpen;
   return (
     <div className="map-key pointer-events-auto absolute left-3 top-3 hidden px-2.5 py-2 text-xs leading-4 text-ink-2 sm:block">
-      <p className="label">Feux {archiveYear === null ? "détectés" : `de ${archiveYear}`}</p>
-      <ul className="mt-1 space-y-0.5">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="cle-carte"
+        onClick={() => setChoice({ open: !open, fireOpen })}
+        className="label flex items-center gap-1.5 hover:text-ink"
+      >
+        Feux {archiveYear === null ? "détectés" : `de ${archiveYear}`}
+        <CaretDown size={10} weight="bold" aria-hidden className={`transition-transform duration-150 ${open ? "" : "-rotate-90"}`} />
+      </button>
+      <ul id="cle-carte" hidden={!open} className="mt-1 space-y-0.5">
         {archiveYear === null ? (
           AGE_CLASSES.map((c) => (
             <li key={c.token} className="flex items-center gap-2">
