@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Funnel_Display, Funnel_Sans, Martian_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/brand/SiteHeader";
 import { Providers } from "./providers";
@@ -36,6 +37,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SiteHeader />
           {children}
         </Providers>
+        {/* Real visitors' Core Web Vitals, collected by Vercel without cookies. The script is served only on Vercel deployments. */}
+        <SpeedInsights />
       </body>
     </html>
   );
