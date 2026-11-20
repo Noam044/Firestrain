@@ -13,7 +13,7 @@ export function Hero() {
     <section aria-labelledby="accueil-titre" className="border-b border-rule">
       <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-5 pb-14 pt-10 md:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12 lg:pb-20 lg:pt-14">
         <div>
-          <h1 id="accueil-titre" className="text-[2.5rem] leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem] xl:text-[3.9rem]">
+          <h1 id="accueil-titre" tabIndex={-1} className="outline-none text-[2.5rem] leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem] xl:text-[3.9rem]">
             Suivre les feux de forêt en France
           </h1>
           <p className="mt-6 max-w-[44ch] text-lg leading-8 text-ink-2">

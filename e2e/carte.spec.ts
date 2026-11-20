@@ -81,3 +81,15 @@ test("l'accueil présente FireStrain, l'état du moment et mène à la carte", a
   await expect(page).toHaveURL(/\/carte$/);
   await expect(page.getByRole("heading", { level: 2, name: "Les 12 derniers mois" })).toBeVisible();
 });
+
+test("le pied de page crédite l'auteur, et le logo ramène au début de l'accueil", async ({ page }) => {
+  await page.goto("/");
+  const credit = page.getByRole("contentinfo").getByRole("link", { name: /Noam Bouriche/ });
+  await expect(credit).toHaveAttribute("href", "https://noambouriche.fr");
+  await expect(credit).toHaveAttribute("target", "_blank");
+  await page.getByRole("region", { name: "Archives depuis 2006" }).scrollIntoViewIfNeeded();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+  await page.getByRole("banner").getByRole("link", { name: /FireStrain/ }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+});

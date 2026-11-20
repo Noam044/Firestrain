@@ -72,9 +72,19 @@ export function SiteFooter() {
         </Column>
       </div>
       <div className="border-t border-rule">
-        <p className="mx-auto max-w-6xl px-5 py-4 text-xs leading-5 text-ink-3 md:px-8">
-          FireStrain est un projet indépendant, sans lien avec les organismes cités. Les surfaces sont estimées par satellite et peuvent différer des bilans officiels.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-4 text-xs leading-5 text-ink-3 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-8">
+          <p>
+            FireStrain est un projet indépendant, sans lien avec les organismes cités. Les surfaces sont estimées par
+            satellite et peuvent différer des bilans officiels.
+          </p>
+          <p className="shrink-0">
+            Site créé par{" "}
+            <a href="https://noambouriche.fr" target="_blank" rel="noopener" className="link-draw font-semibold text-ink-2">
+              Noam Bouriche
+              <span className="sr-only"> (portfolio, s’ouvre dans un nouvel onglet)</span>
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );
