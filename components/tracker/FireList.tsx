@@ -17,6 +17,7 @@ import type { SpanFire } from "@/lib/data/fires";
 import { useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
 import { AGE_CLASSES, ageClass } from "@/components/scene/markers";
+import { PeriodChips } from "./PeriodChips";
 
 const PAGE = 50;
 
@@ -156,6 +157,7 @@ export function FireList() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="border-b border-rule px-4 pb-3 pt-4 lg:px-5">
         <PeriodSummary fires={inPeriod} />
+        <PeriodChips />
         <div className="mt-3 flex items-center gap-2">
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Chercher une commune ou un département</span>

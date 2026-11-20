@@ -10,7 +10,6 @@ import { SpanFiresProvider, useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
 import { FirePanel } from "./FirePanel";
 import { MapControls } from "./MapControls";
-import { MonthStrip } from "./MonthStrip";
 import { TopBar } from "./TopBar";
 
 /** Name of the fire under the pointer (mouse only; touch selects directly). */
@@ -34,9 +33,9 @@ function MapTooltip() {
 }
 
 /**
- * The map page (/carte), in four zones under the site bar: a bar (period, live
- * hotspots); the list of the period's fires on the left (or the fire chosen);
- * the map; the twelve months under the map. On phones: bar, map, months, list.
+ * The map page (/carte), in three zones under the site bar: a bar (period, live
+ * hotspots); on the left the period's figures, its months as chips and its
+ * fires (or the fire chosen); the map, full height. On phones: bar, map, panel.
  * In the DOM the controls come before the canvas, so the keyboard reaches them first.
  */
 export function AppShell({ initialData }: { initialData: { effisIndex: EffisIndex; bdiffAnnual: BdiffAnnual } }) {
@@ -51,21 +50,14 @@ export function AppShell({ initialData }: { initialData: { effisIndex: EffisInde
   });
   return (
     <SpanFiresProvider>
-      <div className="flex flex-col bg-paper lg:grid lg:h-[calc(100dvh-3.5rem-1px)] lg:grid-cols-[380px_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)_auto] lg:overflow-hidden">
+      <div className="flex flex-col bg-paper lg:grid lg:h-[calc(100dvh-3.5rem-1px)] lg:grid-cols-[380px_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:overflow-hidden">
         <div className="order-1 lg:col-span-2">
           <TopBar />
         </div>
 
-        <section
-          aria-label="Choisir le mois"
-          className="order-3 border-y border-rule bg-sheet px-3 py-2.5 lg:col-start-2 lg:row-start-3 lg:border-b-0 lg:px-4"
-        >
-          <MonthStrip />
-        </section>
-
         <aside
           aria-label="Feux de la période"
-          className="order-4 flex flex-col bg-sheet lg:col-start-1 lg:row-span-2 lg:row-start-2 lg:min-h-0 lg:border-r lg:border-rule"
+          className="order-3 flex flex-col border-t border-rule bg-sheet lg:col-start-1 lg:row-start-2 lg:border-t-0 lg:min-h-0 lg:border-r lg:border-rule"
         >
           <FirePanel />
         </aside>
