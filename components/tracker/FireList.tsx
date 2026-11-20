@@ -169,7 +169,7 @@ export function FireList() {
                 setQuery(event.target.value);
                 setShown(PAGE);
               }}
-              placeholder="Rechercher"
+              placeholder="Filtrer la liste"
               className="h-8 w-full rounded-md border border-rule-strong bg-sheet pl-8 pr-2 text-sm placeholder:text-ink-3 focus:border-ink focus-visible:outline-offset-0"
             />
           </label>

@@ -98,7 +98,11 @@ export function formatCount(count: number, singular: string, plural: string): st
   return `${formatInteger(count)} ${count > 1 ? plural : singular}`;
 }
 
-/** A burnt area in whole hectares; below one hectare, "< 1" rather than a misleading 0. */
+/**
+ * A burnt area in whole hectares; below one hectare, "< 1" rather than a
+ * misleading 0. EFFIS rounds areas to the hectare, so a mapped outline can
+ * come with 0 ha: it burnt less than one hectare, not nothing.
+ */
 export function formatArea(areaHa: number): string {
-  return areaHa > 0 && areaHa < 1 ? "< 1" : formatInteger(areaHa);
+  return areaHa < 1 ? "< 1" : formatInteger(areaHa);
 }

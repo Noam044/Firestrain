@@ -7,7 +7,8 @@ import { useMapStore } from "@/lib/store";
 
 /**
  * The period, chosen above the list it filters: the whole window first, then
- * each month, newest first like the list, with its number of fires. A radio
+ * each month, newest first like the list, with its number of fires and a bar
+ * for its burnt area against the largest month's. A radio
  * group (arrows move along the row); the row scrolls sideways and keeps the
  * chosen month in view.
  */
@@ -71,6 +72,7 @@ export function PeriodChips() {
     `flex shrink-0 flex-col items-start rounded-md border px-2.5 py-1 text-left ${
       chosen ? "border-ink bg-ink text-sheet" : "border-rule-strong bg-sheet text-ink hover:border-ink"
     }`;
+  const max = Math.max(1, ...totals.map((t) => t.areaHa));
   const sub = (chosen: boolean) => `figure whitespace-nowrap text-[11px] leading-4 ${chosen ? "text-sheet/75" : "text-ink-3"}`;
 
   return (
@@ -126,6 +128,13 @@ export function PeriodChips() {
               {showYear && ` ${m.year}`}
             </span>
             <span className={sub(chosen)}>{fires ? formatCount(total.count, "feu", "feux") : "–"}</span>
+            {/* The month's burnt area against the largest month's: the shape of the year at a glance. */}
+            <span aria-hidden className={`mt-1 block h-[3px] w-full overflow-hidden rounded-full ${chosen ? "bg-sheet/25" : "bg-rule"}`}>
+              <span
+                className={`block h-full rounded-full ${chosen ? "bg-sheet" : "bg-fire-month"}`}
+                style={{ width: total.areaHa > 0 ? `max(3px, ${(total.areaHa / max) * 100}%)` : "0" }}
+              />
+            </span>
           </button>
         );
       })}
