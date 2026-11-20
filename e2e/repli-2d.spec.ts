@@ -22,7 +22,8 @@ test("sans WebGL 2, la carte 2D prend le relais", async ({ page }) => {
   });
   await page.goto("/carte");
   await expect(page.getByText("WebGL 2 n’est pas disponible", { exact: false })).toBeVisible();
-  // The fires are drawn as selectable markers in 2D.
+  // The fires are drawn as selectable markers in 2D, once the loading screen is gone.
+  await expect(page.getByRole("progressbar", { name: "Chargement des données satellite" })).toBeHidden();
   await page.locator("svg circle.cursor-pointer").first().click({ force: true });
   await expect(page.locator("#feu-titre")).toBeVisible();
 });

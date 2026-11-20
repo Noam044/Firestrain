@@ -26,8 +26,8 @@ function status(progress: SourceProgress): string {
 }
 
 /**
- * Over the map while the live data loads: one bar from 0 to 100 %, and a line
- * per source. It appears only while a request is under way (not when the data
+ * Over the whole screen, blurred, while the live data loads: one bar from 0 to
+ * 100 %, and a line per source. It appears only while a request is under way (not when the data
  * is already in the cache), holds 100 % for a moment, then goes.
  */
 export function DataLoading() {
@@ -67,12 +67,13 @@ export function DataLoading() {
   const percent = active ? Math.min(99, Math.floor(share * 100)) : 100;
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center p-4">
+    // The whole screen blurred behind the popup: nothing is ready to read or click until the data is in.
+    <div className="fixed inset-0 z-50 grid place-items-center bg-paper/40 p-4 backdrop-blur-sm">
       <div className="map-key w-full max-w-80 px-4 py-3.5 animate-pop-in">
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-sm font-bold text-ink">Chargement des données satellite</p>
           <p className="figure shrink-0 whitespace-nowrap text-sm text-ink" aria-hidden>
-            {percent} %
+            {percent} %
           </p>
         </div>
         <div
