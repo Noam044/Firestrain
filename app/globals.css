@@ -1,59 +1,137 @@
 @import "tailwindcss";
 
-/*
- * Design tokens — wildfire tracker.
- * A working tool: white panels and hairlines around a light relief map, the
- * fires in red, the hotspots of the last 72 hours in amber. Colour carries the
- * data; the interface itself stays black, grey and white.
- * The WebGL shaders read the same variables (lib/tokens.ts).
- * Contrast on white: ink 18:1, ink-2 8.6:1, ink-3 5.4:1, link 8:1, fire-month 5.9:1.
- */
-:root {
-  /* Interface */
-  --paper: #f3f3f1;
-  --sheet: #ffffff;
-  --ink: #16181b;
-  --ink-2: #454b52;
-  --ink-3: #626870;
-  --rule: #e4e5e2;
-  --rule-strong: #cdd0cc;
-  --link: #1f4f8f;
+/* Theme variants follow next-themes' class on <html> (dark when no class: the default). */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
 
-  /* Fires by age (live view), burnt ground, earlier years, hotspots */
-  --fire-new: #e8401c;
-  --fire-month: #b8321b;
-  --fire-old: #a2817a;
-  --scorch: #b83a1b;
+/*
+ * FireStrain design tokens: "thermal".
+ * The language of infrared satellite imagery. An anthracite instrument (dark by
+ * default, light available), one interface accent (signal orange), and a
+ * thermal ramp kept for the data only: hottest and most recent in yellow, active
+ * in signal orange, cooling in brown. The WebGL shaders read the same variables
+ * (lib/tokens.ts): the map is redrawn when the theme changes.
+ * shadcn/ui semantic names (--background, --primary...) alias these tokens, so
+ * components written in its conventions follow the theme.
+ */
+
+/* Dark: the default, also without JavaScript. */
+:root,
+.dark {
+  color-scheme: dark;
+  --paper: #0f1112;
+  --sheet: #15181a;
+  --raised: #1c2023;
+  --ink: #ecebe7;
+  --ink-2: #b6b9bb;
+  --ink-3: #8a9094;
+  --rule: #23282b;
+  --rule-strong: #353b40;
+  /* Interface accent: fills, focus, current page. --signal-ink for text on --sheet. */
+  --signal: #ff5b1f;
+  --signal-ink: #ff7a45;
+  --on-signal: #140a05;
+  --link: #ff8a5c;
+
+  /* Thermal ramp (data only). */
+  --fire-new: #ffc94a;
+  --fire-month: #ff5b1f;
+  --fire-old: #a0482a;
+  --marker-edge: #0f1112;
+  --scorch: #c8461f;
+  --scorch-ink: #ff8a4c;
+  --cendre: #5e5852;
+  --amber: #fff0a6;
+
+  /* Night relief. */
+  --sea: #0b0e10;
+  --relief-light: #545c62;
+  --relief-flat: #1e2225;
+  --relief-shadow: #07080a;
+  --relief-high: #6d757b;
+  --water: #0e1417;
+  --coast: #6b747a;
+  --boundary: #343b40;
+  --neighbour: #131618;
+  --neighbour-line: #262b2f;
+
+  --shadow-tint: 0 0 0;
+}
+
+.light {
+  color-scheme: light;
+  --paper: #f2f2ef;
+  --sheet: #ffffff;
+  --raised: #f7f7f5;
+  --ink: #141617;
+  --ink-2: #464b50;
+  --ink-3: #62686e;
+  --rule: #e3e4e0;
+  --rule-strong: #cbcec9;
+  --signal: #ff5b1f;
+  --signal-ink: #c2400d;
+  --on-signal: #140a05;
+  --link: #b83a0a;
+
+  --fire-new: #f29200;
+  --fire-month: #e2441b;
+  --fire-old: #a8695a;
+  --marker-edge: #ffffff;
+  --scorch: #c63b1b;
   --scorch-ink: #6e1e0e;
   --cendre: #978b7e;
   --amber: #ef8a00;
 
-  /* Map ground */
-  --sea: #dfe5e8;
+  --sea: #dfe4e7;
   --relief-light: #ffffff;
-  --relief-flat: #efefec;
+  --relief-flat: #eeeeeb;
   --relief-shadow: #8f979b;
   --relief-high: #ffffff;
   --water: #cbd7dd;
   --coast: #59626a;
   --boundary: #a1a7aa;
-  /* Neighbouring countries: flat, neutral, a step below France. */
   --neighbour: #e6e7e4;
   --neighbour-line: #bfc3c2;
+
+  --shadow-tint: 30 32 34;
 }
 
-/* Tailwind gets these tokens only — the default palette and fonts are removed. */
+:root,
+.dark,
+.light {
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --popover: var(--raised);
+  --popover-foreground: var(--ink);
+  --primary: var(--signal);
+  --primary-foreground: var(--on-signal);
+  --muted: var(--raised);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--raised);
+  --accent-foreground: var(--ink);
+  --border: var(--rule);
+  --input: var(--rule-strong);
+  --ring: var(--signal);
+}
+
+/* Tailwind gets these tokens only: the default palette and fonts are removed. */
 @theme inline {
   --color-*: initial;
   --font-*: initial;
 
   --color-paper: var(--paper);
   --color-sheet: var(--sheet);
+  --color-raised: var(--raised);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-on-signal: var(--on-signal);
   --color-link: var(--link);
   --color-fire-new: var(--fire-new);
   --color-fire-month: var(--fire-month);
@@ -65,21 +143,42 @@
   --color-sea: var(--sea);
   --color-white: #ffffff;
 
-  --font-sans: var(--font-atkinson), system-ui, sans-serif;
-  --font-mono: var(--font-atkinson-mono), ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-funnel-sans), system-ui, sans-serif;
+  --font-display: var(--font-funnel-display), var(--font-funnel-sans), system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-pop: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -12px rgb(var(--shadow-tint) / 0.55);
 }
 
 @layer base {
   html {
     background-color: var(--paper);
     color: var(--ink);
-    color-scheme: light;
+    scroll-behavior: smooth;
   }
 
   body {
     font-family: var(--font-sans);
     font-size: 0.9375rem;
-    line-height: 1.45;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -87,40 +186,49 @@
   h1,
   h2,
   h3 {
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
+  p {
+    text-wrap: pretty;
+  }
+
   a {
-    text-underline-offset: 0.18em;
+    text-underline-offset: 0.2em;
     text-decoration-thickness: 1px;
   }
 
-  /* 2 px ink ring, offset so it never merges with the data colours. */
+  /* 2 px signal ring, offset so it never merges with the data colours. */
   :focus-visible {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--signal);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--ink);
-    color: var(--sheet);
+    background: var(--signal);
+    color: var(--on-signal);
   }
 }
 
-/* Small labels and axes. */
+/* Small readouts: the mono, condensed. Sentence case, no tracking games. */
 @utility label {
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   line-height: 1rem;
-  font-weight: 600;
+  font-weight: 450;
+  font-stretch: 87.5%;
   color: var(--ink-3);
 }
 
-/* Figures, dates and counts: the monospaced cut, so columns line up. */
+/* Figures, dates and counts: Martian Mono, condensed, so columns line up and read as instruments. */
 @utility figure {
   font-family: var(--font-mono);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  font-stretch: 87.5%;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -128,21 +236,32 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Small map controls: white keys on the map. */
+/* Map controls: raised keys on the map. */
 @utility map-key {
-  background: #ffffff;
+  background: var(--raised);
+  color: var(--ink);
   border: 1px solid var(--rule-strong);
   border-radius: 6px;
-  box-shadow: 0 1px 2px rgb(22 24 27 / 0.12);
+  box-shadow: var(--shadow-pop);
+}
+
+/* Sensor grid behind the home page's opening: fixed pitch, faded at the edges. */
+@utility sensor-grid {
+  background-image: radial-gradient(circle at 1px 1px, var(--rule-strong) 1px, transparent 0);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, black 30%, transparent 75%);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

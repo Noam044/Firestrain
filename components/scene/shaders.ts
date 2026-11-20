@@ -283,6 +283,7 @@ void main() {
 export const fireMarkersFragmentShader = /* glsl */ `
 uniform float uPixelRatio;
 uniform vec3 uInk;
+uniform vec3 uEdge;
 varying vec3 vColor;
 varying float vAlpha;
 varying float vRadius;
@@ -291,14 +292,14 @@ varying float vRing;
 
 void main() {
   if (vAlpha <= 0.01) discard;
-  // Distance from the centre in device pixels; a white edge (ink when hovered or selected).
+  // Distance from the centre in device pixels; an edge in the background tone (ink when hovered or selected).
   float d = length(gl_PointCoord - 0.5) * 2.0 * vHalf;
   float stroke = (vRing > 1.5 ? 2.5 : vRing > 0.5 ? 2.0 : 1.5) * uPixelRatio;
   float aa = uPixelRatio;
   float fill = 1.0 - smoothstep(vRadius - aa, vRadius, d);
   float body = 1.0 - smoothstep(vRadius + stroke - aa, vRadius + stroke, d);
   if (body <= 0.0) discard;
-  vec3 edge = vRing > 0.5 ? uInk : vec3(1.0);
+  vec3 edge = vRing > 0.5 ? uInk : uEdge;
   gl_FragColor = vec4(mix(edge, vColor, fill), body * vAlpha);
 }
 `;

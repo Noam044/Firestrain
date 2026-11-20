@@ -1,35 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, Martian_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/brand/SiteHeader";
 import { Providers } from "./providers";
 import "./globals.css";
 
-// Drawn for legibility (Braille Institute): text in the sans, figures and dates in the mono.
-const atkinson = Atkinson_Hyperlegible_Next({
-  subsets: ["latin"],
-  variable: "--font-atkinson",
-  display: "swap",
-});
-const atkinsonMono = Atkinson_Hyperlegible_Mono({
-  subsets: ["latin"],
-  variable: "--font-atkinson-mono",
-  display: "swap",
-  preload: false,
-});
+// Funnel Sans for the interface, Funnel Display for titles, Martian Mono (condensed) for every reading.
+const funnelSans = Funnel_Sans({ subsets: ["latin"], variable: "--font-funnel-sans", display: "swap" });
+const funnelDisplay = Funnel_Display({ subsets: ["latin"], variable: "--font-funnel-display", display: "swap" });
+// Martian Mono is not preloaded: readings swap to it as soon as it arrives, the first paint does not wait.
+const martian = Martian_Mono({ subsets: ["latin"], axes: ["wdth"], variable: "--font-martian", display: "swap", preload: false });
 
 export const metadata: Metadata = {
-  title: { default: "FireStrain — les feux de forêt en France, vus par satellite", template: "%s · FireStrain" },
+  title: { default: "FireStrain, les feux de forêt en France en direct", template: "%s · FireStrain" },
   applicationName: "FireStrain",
   description:
     "FireStrain : les feux de forêt des douze derniers mois en France métropolitaine, mois par mois, sur une carte en relief : surfaces brûlées EFFIS (Copernicus) et points chauds NASA FIRMS des dernières 72 heures.",
 };
 
-export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light" };
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0f1112" },
+    { media: "(prefers-color-scheme: light)", color: "#f2f2ef" },
+  ],
+};
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${atkinson.variable} ${atkinsonMono.variable}`}>
+    // next-themes sets the theme class before the first paint: the attribute differs from the server render.
+    <html lang="fr" className={`${funnelSans.variable} ${funnelDisplay.variable} ${martian.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh bg-paper text-ink">
+        <a href="#contenu" className="sr-only z-50 rounded-md bg-signal px-3 py-2 font-bold text-on-signal focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
+          Aller au contenu
+        </a>
         <Providers>
           <SiteHeader />
           {children}

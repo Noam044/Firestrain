@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
 import {
@@ -131,9 +132,7 @@ export function FireCard({ fire, onBack }: { fire: SpanFire; onBack: () => void 
         onClick={onBack}
         className="-ml-1 flex items-center gap-1 rounded px-1 py-0.5 text-sm font-bold text-ink-2 hover:text-ink"
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-          <path d="M8.5 3 4.5 7l4 4" fill="none" stroke="currentColor" strokeWidth="1.6" />
-        </svg>
+        <CaretLeft size={14} weight="bold" aria-hidden />
         Tous les feux
       </button>
 
@@ -148,18 +147,18 @@ export function FireCard({ fire, onBack }: { fire: SpanFire; onBack: () => void 
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-rule bg-rule">
-        <div className="bg-white px-3 py-2">
+        <div className="bg-sheet px-3 py-2">
           <dt className="label">Surface brûlée</dt>
           <dd className="figure text-2xl leading-8 text-ink">
             {formatArea(fire.areaHa)}
             <span className="ml-1 text-sm text-ink-3">ha</span>
           </dd>
         </div>
-        <div className="bg-white px-3 py-2">
+        <div className="bg-sheet px-3 py-2">
           <dt className="label">Détecté</dt>
           <dd className="text-base font-bold leading-8 text-ink first-letter:uppercase">{age !== null && age <= 31 ? formatAge(age) : formatDate(fire.firedate)}</dd>
         </div>
-        <div className="col-span-2 bg-white px-3 py-2 text-xs leading-5 text-ink-2">
+        <div className="col-span-2 bg-sheet px-3 py-2 text-xs leading-5 text-ink-2">
           <p>
             Première détection satellite : <span className="font-bold text-ink">{formatDateTime(fire.firedate)}</span>
           </p>

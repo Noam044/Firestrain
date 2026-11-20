@@ -68,11 +68,12 @@ test("une adresse partagée de l'ancienne carte (/?fire=…) ouvre /carte", asyn
 
 test("l'accueil présente FireStrain, l'état du moment et mène à la carte", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /feux de forêt en France, vus par satellite/ })).toBeVisible();
-  const moment = page.getByRole("region", { name: "En ce moment" });
-  await expect(moment.getByText(/interrogées le 20 oct\. 2026/)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /feux de forêt en France, en direct/ })).toBeVisible();
+  await expect(page.getByText(/Relevé EFFIS du 20 oct\. 2026/)).toBeVisible();
+  const months = page.getByRole("region", { name: /Douze mois de feux/ });
+  await expect(months.getByText(frenchNumber(live.length)).first()).toBeAttached();
   const latest = [...live].sort((a, b) => b.firedate.localeCompare(a.firedate))[0];
-  await expect(moment.getByText(latest.commune, { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Les derniers feux détectés" }).getByText(latest.commune, { exact: true })).toBeVisible();
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByRole("link", { name: "EFFIS" })).toBeVisible();
   await expect(footer.getByText(/projet indépendant/)).toBeVisible();

@@ -1,5 +1,7 @@
 "use client";
 
+import { CaretDown } from "@phosphor-icons/react";
+import { CommandMenu } from "./CommandMenu";
 import { formatInteger } from "@/lib/format";
 import { useRecentDetections } from "@/lib/data/queries";
 import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
@@ -17,11 +19,11 @@ function PeriodSwitch() {
         type="button"
         aria-pressed={live}
         onClick={() => setArchiveYear(null)}
-        className={`h-8 px-3 font-bold ${live ? "bg-ink text-sheet" : "bg-white text-ink-2 hover:text-ink"}`}
+        className={`h-8 px-3 font-bold ${live ? "bg-ink text-sheet" : "bg-sheet text-ink-2 hover:text-ink"}`}
       >
         12 derniers mois
       </button>
-      <label className={`relative flex h-8 items-center border-l border-rule-strong ${live ? "bg-white text-ink-2" : "bg-ink text-sheet"}`}>
+      <label className={`relative flex h-8 items-center border-l border-rule-strong ${live ? "bg-sheet text-ink-2" : "bg-ink text-sheet"}`}>
         <span className="sr-only">Archives : choisir une année</span>
         <select
           value={archiveYear ?? ""}
@@ -32,14 +34,12 @@ function PeriodSwitch() {
             Archives
           </option>
           {ARCHIVE_YEARS.map((year) => (
-            <option key={year} value={year} className="bg-white text-ink">
+            <option key={year} value={year} className="bg-sheet text-ink">
               {year}
             </option>
           ))}
         </select>
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden className="pointer-events-none absolute right-2.5">
-          <path d="m2 3.5 3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
+        <CaretDown size={12} weight="bold" aria-hidden className="pointer-events-none absolute right-2.5" />
       </label>
     </div>
   );
@@ -61,7 +61,7 @@ function LiveToggle() {
       onClick={() => setShowLive(!showLive)}
       title="Détections de chaleur des satellites VIIRS (NASA FIRMS) des 72 dernières heures"
       className={`flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60 ${
-        showLive ? "border-amber bg-amber/10 text-ink" : "border-rule-strong bg-white text-ink-2 hover:text-ink"
+        showLive ? "border-amber bg-amber/10 text-ink" : "border-rule-strong bg-sheet text-ink-2 hover:text-ink"
       }`}
     >
       <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="shrink-0">
@@ -85,6 +85,9 @@ export function TopBar() {
     <div className="flex flex-wrap items-center gap-2 border-b border-rule bg-sheet px-4 py-2 lg:px-5">
       <PeriodSwitch />
       <LiveToggle />
+      <div className="ml-auto">
+        <CommandMenu />
+      </div>
     </div>
   );
 }

@@ -89,7 +89,7 @@ export default function Map2D({ reason }: { reason: string }) {
   return (
     <figure className="absolute inset-0 m-0 flex flex-col">
       <figcaption className="self-start px-3 pt-3">
-        <span className="rounded bg-white/90 px-1.5 py-0.5 text-[11px] leading-4 text-ink-2">{reason}</span>
+        <span className="rounded bg-sheet/90 px-1.5 py-0.5 text-[11px] leading-4 text-ink-2">{reason}</span>
       </figcaption>
       <div className="relative min-h-0 flex-1 px-4 pb-14 pt-2">
         {data ? (
@@ -150,7 +150,7 @@ export default function Map2D({ reason }: { reason: string }) {
                   cy={cy}
                   r={markerRadius(fire.areaHa) * unitsPerPx}
                   fill={`var(${AGE_CLASSES[ageClass(fire.ageDays)].token})`}
-                  stroke={ring > 1.5 ? "var(--ink)" : "#ffffff"}
+                  stroke={ring > 1.5 ? "var(--ink)" : "var(--marker-edge)"}
                   strokeWidth={ring}
                   vectorEffect="non-scaling-stroke"
                   className="cursor-pointer"
@@ -161,7 +161,7 @@ export default function Map2D({ reason }: { reason: string }) {
                   onMouseMove={(event) => setHover({ id: fire.id, x: event.clientX, y: event.clientY })}
                   onMouseLeave={() => setHover(null)}
                 >
-                  <title>{`${fire.commune}, ${fire.province} — ${fire.areaHa} ha (EFFIS)`}</title>
+                  <title>{`${fire.commune}, ${fire.province}, ${fire.areaHa} ha (EFFIS)`}</title>
                 </circle>
               );
             })}

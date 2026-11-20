@@ -44,7 +44,7 @@ export default function MethodePage() {
 
         <Section title="EFFIS : surfaces brûlées vues par satellite">
           <p>
-            Le système européen d’information sur les feux de forêt (EFFIS, programme Copernicus, Commission européenne –
+            Le système européen d’information sur les feux de forêt (EFFIS, programme Copernicus, Commission européenne,
             JRC) cartographie les surfaces brûlées à partir d’images satellitaires, toute végétation confondue : forêt,
             landes, cultures. La carte en affiche les contours pour la France métropolitaine de {effisIndex.years[0].year}{" "}
             à {effisIndex.years.at(-1)?.year}, sous licence CC BY 4.0, après reprojection et simplification.
@@ -93,7 +93,7 @@ export default function MethodePage() {
               plus ancien. Un feu détecté il y a longtemps peut encore être actif : EFFIS ne publie pas de date de fin.
             </li>
             <li>
-              Les archives ({effisIndex.years[0].year}–{effisIndex.years.at(-1)?.year}) viennent des fichiers du site,
+              Les archives ({effisIndex.years[0].year}-{effisIndex.years.at(-1)?.year}) viennent des fichiers du site,
               année civile par année civile.
             </li>
           </ul>
@@ -261,7 +261,7 @@ export default function MethodePage() {
               {files.map(([path, file]) => (
                 <li key={path} className="py-5">
                   <h3 className="font-sans text-sm font-medium tracking-normal text-ink">{file.title}</h3>
-                  <p className="mt-1 text-sm text-ink-2">{file.source}</p>
+                  <p className="mt-1 text-sm text-ink-2">{file.source.replaceAll(" — ", ", ")}</p>
                   <dl className="mt-3 grid grid-cols-[8rem_1fr] gap-x-4 gap-y-1 tabular text-[11px] leading-4 text-ink-2">
                     <dt className="text-ink-3">Licence</dt>
                     <dd>

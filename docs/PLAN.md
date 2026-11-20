@@ -191,6 +191,30 @@ proportionnel à la surface et contour réel au zoom ; données rafraîchies par
 - Lighthouse mobile : accueil 99, carte 95, liste 98, Méthode 99 en performance ; 100 ailleurs. Tests : 38
   Playwright, 27 unitaires.
 
+## Identité « Thermique » (demande du 20/11/2026)
+
+Demande : un UI/UX prononcé et moderne, identité forte, non générique, sans AI slop, avec les skills UI/UX
+importés (redesign-existing-projects, design-taste-frontend) et les références magicui.design et ui.shadcn.com ;
+un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satellite infrarouge).
+
+- **Thème** : anthracite par défaut, clair au choix (next-themes, sans flash) ; une seule couleur d'interface,
+  l'orange signal ; une rampe thermique réservée aux données (moins de 7 jours jaune, moins d'un mois orange,
+  plus ancien brun). Relief 3D nocturne en sombre ; la scène est redessinée au changement de thème (tokens relus).
+  Noms sémantiques shadcn/ui (`--background`, `--primary`…) en alias des tokens.
+- **Typographie** : Funnel Display (titres), Funnel Sans (interface), Martian Mono condensée (toutes les mesures).
+- **Logo** : flamme en trois isothermes (signal, jaune chaud, cœur blanc) dans un réticule de visée, en SVG
+  (net à 16 px, suit le thème) plutôt qu'une image générée.
+- **Accueil** : cinq sections de formes différentes, toutes sur données réelles : hero (mosaïque aérienne IGN en
+  gris « caméra thermique » + feux des 12 mois + réticule), mesures (compteur Magic UI, rendu d'abord avec la vraie
+  valeur), derniers feux (liste animée Magic UI), grille des sources (contour réel du plus grand feu), archives
+  (21 barres cliquables, défilement horizontal sur téléphone).
+- **Carte** : palette ⌘K / Ctrl+K façon shadcn Command (cmdk, chargée à la première ouverture), icônes Phosphor,
+  couleurs codées en dur remplacées par les tokens.
+- Mouvement réservé à ce qu'il signifie (compteurs, arrivée des détections, état « en direct ») et coupé avec
+  « réduire les animations » ; aucun tiret cadratin visible.
+- Lighthouse mobile : accueil 86, carte 88–92, liste 92, Méthode 96 en performance ; 100 en accessibilité, bonnes
+  pratiques et SEO. Tests : 38 Playwright, 27 unitaires.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

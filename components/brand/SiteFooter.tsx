@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 import { Logo } from "./Logo";
 
 const SOURCES = [
-  { name: "EFFIS", detail: "Copernicus, Commission européenne / JRC — CC BY 4.0", href: "https://forest-fire.emergency.copernicus.eu/" },
+  { name: "EFFIS", detail: "Copernicus, Commission européenne / JRC, CC BY 4.0", href: "https://forest-fire.emergency.copernicus.eu/" },
   { name: "NASA FIRMS", detail: "détections VIIRS (LANCE / ESDIS)", href: "https://firms.modaps.eosdis.nasa.gov/" },
-  { name: "IGN", detail: "BD ALTI, ADMIN EXPRESS, Plan IGN, BD ORTHO — Licence Ouverte 2.0", href: "https://geoservices.ign.fr/" },
-  { name: "BDIFF", detail: "IGN, ministère de l’Agriculture — Licence Ouverte 2.0", href: "https://bdiff.agriculture.gouv.fr/" },
-  { name: "Natural Earth", detail: "pays voisins — domaine public", href: "https://www.naturalearthdata.com/" },
+  { name: "IGN", detail: "BD ALTI, ADMIN EXPRESS, Plan IGN, BD ORTHO, Licence Ouverte 2.0", href: "https://geoservices.ign.fr/" },
+  { name: "BDIFF", detail: "IGN, ministère de l’Agriculture, Licence Ouverte 2.0", href: "https://bdiff.agriculture.gouv.fr/" },
+  { name: "Natural Earth", detail: "pays voisins, domaine public", href: "https://www.naturalearthdata.com/" },
 ] as const;
 
 function Column({ title, children }: { title: string; children: ReactNode }) {

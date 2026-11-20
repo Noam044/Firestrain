@@ -77,6 +77,7 @@ export function FireMarkers({ fires, heightTexture, exaggeration, dayRange }: Fi
           uHover: { value: -1 },
           uColors: { value: AGE_CLASSES.map((c) => new THREE.Vector3(...readColorToken(c.token))) },
           uInk: { value: new THREE.Vector3(...readColorToken("--ink")) },
+          uEdge: { value: new THREE.Vector3(...readColorToken("--marker-edge")) },
         },
       }),
     [heightTexture, exaggeration],

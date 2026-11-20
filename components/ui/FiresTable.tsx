@@ -83,7 +83,7 @@ const columns = helper.columns([
     sortUndefined: "last",
     cell: (info) => {
       const value = info.getValue();
-      return value === undefined ? "—" : `${formatDecimal(value, value < 10 ? 1 : 0)} ha`;
+      return value === undefined ? "-" : `${formatDecimal(value, value < 10 ? 1 : 0)} ha`;
     },
   }),
 ]);

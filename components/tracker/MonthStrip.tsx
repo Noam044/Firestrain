@@ -50,7 +50,7 @@ export function MonthStrip() {
   if (!span) {
     return <div aria-hidden className="h-[74px]" />;
   }
-  const range = `${MONTH_ABBREVIATIONS[span.months[0].month - 1]} ${span.months[0].year} – ${MONTH_ABBREVIATIONS[span.months[11].month - 1]} ${span.months[11].year}`;
+  const range = `${MONTH_ABBREVIATIONS[span.months[0].month - 1]} ${span.months[0].year} - ${MONTH_ABBREVIATIONS[span.months[11].month - 1]} ${span.months[11].year}`;
 
   return (
     <div role="radiogroup" aria-label="Mois affiché" onKeyDown={onKeyDown} className="flex items-stretch gap-2 sm:gap-3">
@@ -64,7 +64,7 @@ export function MonthStrip() {
         tabIndex={current === -1 ? 0 : -1}
         onClick={() => choose(-1)}
         className={`flex w-[4.75rem] shrink-0 flex-col justify-end rounded-md border px-2 pb-1.5 pt-1 text-left sm:w-24 ${
-          current === -1 ? "border-ink bg-ink text-sheet" : "border-rule-strong bg-white text-ink hover:border-ink"
+          current === -1 ? "border-ink bg-ink text-sheet" : "border-rule-strong bg-sheet text-ink hover:border-ink"
         }`}
       >
         <span className="text-sm font-bold leading-tight">{span.kind === "recent" ? "12 mois" : `Année ${span.year}`}</span>

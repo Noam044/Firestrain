@@ -1,5 +1,6 @@
 "use client";
 
+import { CornersOut, Minus, Plus } from "@phosphor-icons/react";
 import Link from "next/link";
 import { Popover } from "radix-ui";
 import type { ReactNode } from "react";
@@ -11,7 +12,7 @@ import { AGE_CLASSES } from "@/components/scene/markers";
 
 /** Swatches standing for each base map in the picker. */
 const SWATCH: Record<string, string> = {
-  relief: "linear-gradient(135deg, #ffffff 0%, #efefec 45%, #a9b0b4 100%)",
+  relief: "linear-gradient(135deg, var(--relief-light) 0%, var(--relief-flat) 45%, var(--relief-shadow) 100%)",
   plan: "linear-gradient(135deg, #f6f2e8 0%, #f6f2e8 55%, #f0a64a 55%, #f0a64a 62%, #dfe8d2 62%)",
   ortho: "linear-gradient(135deg, #5f7a4a 0%, #9ba77a 45%, #c9c2a7 100%)",
 };
@@ -84,7 +85,7 @@ function MapLegend() {
         {archiveYear === null ? (
           AGE_CLASSES.map((c) => (
             <li key={c.token} className="flex items-center gap-2">
-              <span aria-hidden className="size-2.5 rounded-full ring-1 ring-white" style={{ background: `var(${c.token})` }} />
+              <span aria-hidden className="size-2.5 rounded-full ring-1 ring-[color:var(--marker-edge)]" style={{ background: `var(${c.token})` }} />
               {c.label}
             </li>
           ))
@@ -138,7 +139,7 @@ export function MapControls() {
       <MapLegend />
       <div className="pointer-events-auto absolute bottom-3 left-3 flex flex-col items-start gap-1.5">
         {renderMode === "3d" && <ScaleBar />}
-        <p className="rounded bg-white/85 px-1.5 py-0.5 text-[11px] leading-4 text-ink-2">
+        <p className="rounded bg-sheet/85 px-1.5 py-0.5 text-[11px] leading-4 text-ink-2">
           EFFIS · IGN · NASA FIRMS ·{" "}
           <Link href="/methode" className="underline decoration-rule-strong underline-offset-2 hover:text-ink">
             sources
@@ -150,19 +151,13 @@ export function MapControls() {
         {renderMode === "3d" && (
           <div className="map-key flex flex-col divide-y divide-rule overflow-hidden">
             <Key label="Zoomer" touch={false} onClick={() => requestCamera({ kind: "zoom", factor: 1.8 })}>
-              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-                <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.6" />
-              </svg>
+              <Plus size={16} weight="bold" aria-hidden />
             </Key>
             <Key label="Dézoomer" touch={false} onClick={() => requestCamera({ kind: "zoom", factor: 1 / 1.8 })}>
-              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-                <path d="M2 7h10" stroke="currentColor" strokeWidth="1.6" />
-              </svg>
+              <Minus size={16} weight="bold" aria-hidden />
             </Key>
             <Key label="Revenir à la France entière" onClick={() => requestCamera({ kind: "preset", preset: "france" })}>
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <CornersOut size={17} weight="bold" aria-hidden />
             </Key>
           </div>
         )}

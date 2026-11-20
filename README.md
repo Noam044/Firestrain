@@ -9,8 +9,8 @@ contrôles des données : [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.m
 
 | Page | Contenu |
 |---|---|
-| `/` | Accueil FireStrain : présentation, bouton « Explorer la carte », état du moment (feux des 7 derniers jours, dernier feu, surface sur 12 mois, points chauds 72 h) et aperçu en direct des feux. |
-| `/carte` | Le suivi : un marqueur par feu (taille : surface ; couleur : âge ; contour réel au zoom), liste des feux de la période (récents ou plus grands, recherche par commune), douze mois sous la carte (filtre), fiche de chaque feu, points chauds des 72 dernières heures, archives par année civile, fonds et calques. État partageable dans l'adresse : `?annee=2022&mois=2022-07&fire=562583&fond=ortho` (sans `annee` : les douze derniers mois). `/explorer` et les anciennes adresses `/?fire=…` y redirigent. |
+| `/` | Accueil FireStrain : hero (vue thermique des feux des 12 mois sur la mosaïque aérienne IGN, bouton « Explorer la carte »), mesures en direct, derniers feux détectés, sources, vingt ans d'archives. Thème sombre par défaut, clair au choix. |
+| `/carte` | Le suivi : un marqueur par feu (taille : surface ; couleur : âge ; contour réel au zoom), liste des feux de la période (récents ou plus grands, recherche par commune), douze mois sous la carte (filtre), fiche de chaque feu, points chauds des 72 dernières heures, archives par année civile, fonds et calques, recherche ⌘K / Ctrl+K (feu, mois, année, fond). État partageable dans l'adresse : `?annee=2022&mois=2022-07&fire=562583&fond=ortho` (sans `annee` : les douze derniers mois). `/explorer` et les anciennes adresses `/?fire=…` y redirigent. |
 | `/liste` | Les mêmes surfaces en tableau triable et filtrable : l'alternative accessible à la carte. |
 | `/methode` | Sources, licences, limites, règles de rapprochement et de regroupement, contrôles. |
 | `/api/effis/recent` | Route serveur : surfaces brûlées EFFIS des douze derniers mois, interrogées à l'API EFFIS et gardées en cache environ une heure ; en cas d'échec, la carte reprend les fichiers du site et le signale. |

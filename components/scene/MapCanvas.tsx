@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
+import { useTheme } from "next-themes";
 import type { CameraControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import * as THREE from "three";
@@ -53,6 +54,7 @@ export default function MapCanvas() {
   const outline = useFranceOutline();
   const borders = useBorders();
   const controlsRef = useRef<CameraControls | null>(null);
+  const { resolvedTheme } = useTheme();
 
   const mask = useMemo(
     () =>
@@ -123,7 +125,8 @@ export default function MapCanvas() {
         camera={{ fov: 30, near: 1, far: 12_000, position: [0, 1400, 1100] }}
       >
         <CameraRig controlsRef={controlsRef} />
-        {ready && <Scene {...ready} detail={detail} />}
+        {/* The scene reads its colours from the theme's tokens once: a new theme redraws it. */}
+        {ready && <Scene key={resolvedTheme ?? "dark"} {...ready} detail={detail} />}
       </Canvas>
       {error ? (
         <MapStatus>Les données du relief n’ont pas pu être chargées : {error.message}</MapStatus>

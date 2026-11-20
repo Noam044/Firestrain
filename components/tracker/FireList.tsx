@@ -1,5 +1,6 @@
 "use client";
 
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useDeferredValue, useMemo, useState } from "react";
 import {
   MONTH_ABBREVIATIONS,
@@ -39,7 +40,7 @@ function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
   const subtitle = !span
     ? "Chargement…"
     : month === null && span.kind === "recent" && first && last
-      ? `${MONTH_ABBREVIATIONS[first.month - 1]} ${first.year} – ${MONTH_ABBREVIATIONS[last.month - 1]} ${last.year}`
+      ? `${MONTH_ABBREVIATIONS[first.month - 1]} ${first.year} - ${MONTH_ABBREVIATIONS[last.month - 1]} ${last.year}`
       : span.kind === "recent"
         ? "Feux détectés ce mois-là"
         : "Archives";
@@ -50,7 +51,7 @@ function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
 
   return (
     <div>
-      <h2 className="text-xl leading-tight first-letter:uppercase">{title}</h2>
+      <h2 className="text-2xl leading-tight tracking-[-0.025em] first-letter:uppercase">{title}</h2>
       <p className="text-sm text-ink-3">{subtitle}</p>
       <dl className="mt-3 grid grid-cols-3 divide-x divide-rule rounded-md border border-rule">
         <div className="px-2.5 py-1.5">
@@ -110,7 +111,7 @@ function FireRow({ fire }: { fire: SpanFire }) {
       >
         <span
           aria-hidden
-          className="size-2.5 translate-y-[1px] self-center rounded-full ring-1 ring-white"
+          className="size-2.5 translate-y-[1px] self-center rounded-full ring-1 ring-[color:var(--marker-edge)]"
           style={{ background: `var(${AGE_CLASSES[ageClass(age)].token})` }}
         />
         <span className="min-w-0 truncate font-bold text-ink">{fire.commune || "Commune non renseignée"}</span>
@@ -158,10 +159,7 @@ export function FireList() {
         <div className="mt-3 flex items-center gap-2">
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Chercher une commune ou un département</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3">
-              <circle cx="6" cy="6" r="4.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              <path d="m9.2 9.2 3.3 3.3" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
+            <MagnifyingGlass size={15} weight="bold" aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" />
             <input
               type="search"
               value={query}
@@ -170,7 +168,7 @@ export function FireList() {
                 setShown(PAGE);
               }}
               placeholder="Rechercher"
-              className="h-8 w-full rounded-md border border-rule-strong bg-white pl-8 pr-2 text-sm placeholder:text-ink-3 focus:border-ink focus-visible:outline-offset-0"
+              className="h-8 w-full rounded-md border border-rule-strong bg-sheet pl-8 pr-2 text-sm placeholder:text-ink-3 focus:border-ink focus-visible:outline-offset-0"
             />
           </label>
           <div role="group" aria-label="Trier les feux" className="flex shrink-0 overflow-hidden rounded-md border border-rule-strong text-xs">
@@ -185,7 +183,7 @@ export function FireList() {
                 type="button"
                 aria-pressed={sort === value}
                 onClick={() => setSort(value)}
-                className={`h-8 px-2.5 font-bold ${sort === value ? "bg-ink text-sheet" : "bg-white text-ink-2 hover:text-ink"}`}
+                className={`h-8 px-2.5 font-bold ${sort === value ? "bg-ink text-sheet" : "bg-sheet text-ink-2 hover:text-ink"}`}
               >
                 {label}
               </button>

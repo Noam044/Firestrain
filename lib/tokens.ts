@@ -7,6 +7,7 @@ export type ColorToken =
   | "--fire-new"
   | "--fire-month"
   | "--fire-old"
+  | "--marker-edge"
   | "--sea"
   | "--relief-light"
   | "--relief-flat"

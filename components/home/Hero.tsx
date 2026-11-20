@@ -1,118 +1,59 @@
 "use client";
 
+import { ArrowRight } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useMemo, type ReactNode } from "react";
-import { formatAge, formatDateTime, formatInteger } from "@/lib/format";
-import { useRecentDetections, useRecentFires } from "@/lib/data/queries";
-import { daysBetween } from "@/lib/span";
-import { LogoMark } from "@/components/brand/Logo";
-import { LiveMap } from "./LiveMap";
+import { Button } from "@/components/ui/button";
+import { formatDateTime } from "@/lib/format";
+import { useLiveSummary } from "./live";
+import { ThermalView } from "./ThermalView";
 
-/** The home page's opening: what FireStrain is, the way to the map, and a live preview of it. */
-export function Hero() {
-  const live = useRecentFires(true);
+/** Live status: when EFFIS was last read. The pulsing dot is a real state, not a decoration. */
+function LiveStatus({ asOf, error }: { asOf: string | undefined; error: boolean }) {
   return (
-    <section aria-labelledby="accueil-titre" className="border-b border-rule bg-sheet">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-10 md:px-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 lg:py-16">
+    <p className="inline-flex items-center gap-2 rounded-md border border-rule-strong bg-sheet/80 px-2.5 py-1 text-xs text-ink-2">
+      <span aria-hidden className="relative flex size-2">
+        {asOf && <span className="absolute inline-flex size-full animate-ping rounded-full bg-signal opacity-60 motion-reduce:hidden" />}
+        <span className={`relative inline-flex size-2 rounded-full ${asOf ? "bg-signal" : "bg-ink-3"}`} />
+      </span>
+      <span className="figure">
+        {asOf ? `Relevé EFFIS du ${formatDateTime(asOf)}` : error ? "Relevé en direct indisponible" : "Relevé EFFIS en cours"}
+      </span>
+    </p>
+  );
+}
+
+/** The home page's opening: the promise, the way to the map, and the map's picture. */
+export function Hero() {
+  const { summary, error } = useLiveSummary();
+  return (
+    <section aria-labelledby="accueil-titre" className="relative overflow-hidden border-b border-rule">
+      <div aria-hidden className="sensor-grid pointer-events-none absolute inset-0" />
+      <div className="relative mx-auto grid max-w-[1320px] items-center gap-10 px-5 pb-14 pt-10 md:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12 lg:pb-20 lg:pt-14">
         <div>
-          <p className="flex items-center gap-2 text-sm font-bold text-fire-month">
-            <LogoMark size={20} />
-            Suivi des feux · métropole et Corse
-          </p>
-          <h1 id="accueil-titre" className="mt-4 text-[2.1rem] leading-[1.08] tracking-[-0.02em] text-ink sm:text-5xl">
-            Les feux de forêt en France, vus par satellite.
+          <LiveStatus asOf={summary?.asOf} error={error} />
+          <h1
+            id="accueil-titre"
+            className="mt-6 text-[2.5rem] leading-[1.02] tracking-[-0.04em] sm:text-[3.4rem] xl:text-[3.9rem]"
+          >
+            Les feux de forêt en France, <span className="text-signal-ink">en direct.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-ink-2 sm:text-lg sm:leading-8">
-            FireStrain place sur une carte en relief chaque surface brûlée cartographiée par EFFIS (Copernicus) depuis
-            douze mois, avec sa date, sa taille et la végétation touchée, et les points chauds détectés par la NASA
-            dans les dernières 72 heures. Les données sont relues chaque heure.
+          <p className="mt-6 max-w-[36ch] text-lg leading-8 text-ink-2">
+            Chaque surface brûlée détectée par satellite depuis douze mois, sur une carte en relief relevée chaque heure.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/carte"
-              className="inline-flex h-12 items-center gap-2 rounded-md bg-ink px-5 text-base font-bold text-sheet hover:bg-ink-2"
-            >
-              Explorer la carte
-              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-                <path d="M2 7h10M8 3l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.7" />
-              </svg>
-            </Link>
-            <Link
-              href="/methode"
-              className="inline-flex h-12 items-center rounded-md border border-rule-strong px-5 text-base font-bold text-ink hover:border-ink"
-            >
-              Méthode et sources
+          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Button asChild variant="signal" size="lg">
+              <Link href="/carte">
+                Explorer la carte
+                <ArrowRight size={18} weight="bold" />
+              </Link>
+            </Button>
+            <Link href="/methode" className="text-sm font-semibold text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">
+              Comment c’est mesuré
             </Link>
           </div>
         </div>
-        <LiveMap fires={live.data?.fires} asOf={live.data?.generatedAt} />
+        <ThermalView fires={summary?.fires} />
       </div>
-    </section>
-  );
-}
-
-function Fact({ label, children, note }: { label: string; children: ReactNode; note?: ReactNode }) {
-  return (
-    <div className="min-w-0 border-t border-rule pt-3">
-      <dt className="text-sm text-ink-2">{label}</dt>
-      <dd className="mt-1">
-        {children}
-        {note && <span className="mt-0.5 block text-xs text-ink-3">{note}</span>}
-      </dd>
-    </div>
-  );
-}
-
-/** The state of the last twelve months as of the latest EFFIS query, and the hotspots of the last 72 hours. */
-export function LiveFacts() {
-  const live = useRecentFires(true);
-  const hotspots = useRecentDetections(true);
-  const facts = useMemo(() => {
-    if (!live.data) return null;
-    const { fires, generatedAt } = live.data;
-    const latest = fires.reduce<(typeof fires)[number] | null>((best, fire) => (!best || fire.firedate > best.firedate ? fire : best), null);
-    return {
-      asOf: generatedAt,
-      lastWeek: fires.filter((fire) => daysBetween(fire.firedate, generatedAt) <= 7).length,
-      count: fires.length,
-      areaHa: fires.reduce((sum, fire) => sum + fire.areaHa, 0),
-      latest: latest && { fire: latest, age: Math.max(0, daysBetween(latest.firedate, generatedAt)) },
-    };
-  }, [live.data]);
-  const figure = (value: string | null, unit?: string) => (
-    <span className="figure text-3xl text-ink">
-      {value ?? "–"}
-      {unit && value && <span className="ml-1 text-sm text-ink-3">{unit}</span>}
-    </span>
-  );
-
-  return (
-    <section aria-labelledby="moment-titre" className="mx-auto max-w-6xl px-5 py-10 md:px-8">
-      <h2 id="moment-titre" className="text-xl">
-        En ce moment
-      </h2>
-      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
-        <Fact label="Feux détectés depuis 7 jours">{figure(facts ? formatInteger(facts.lastWeek) : null)}</Fact>
-        <Fact
-          label="Dernier feu détecté"
-          note={facts?.latest ? `${facts.latest.fire.province}, ${formatAge(facts.latest.age)}` : undefined}
-        >
-          <span className="block truncate text-2xl font-bold leading-9 text-ink">
-            {facts?.latest ? facts.latest.fire.commune || "Commune non renseignée" : "–"}
-          </span>
-        </Fact>
-        <Fact label="Surface brûlée en 12 mois" note={facts ? `${formatInteger(facts.count)} feux cartographiés` : undefined}>
-          {figure(facts ? formatInteger(facts.areaHa) : null, "ha")}
-        </Fact>
-        <Fact label="Points chauds, 72 dernières heures">{figure(hotspots.data ? formatInteger(hotspots.data.count) : null)}</Fact>
-      </dl>
-      <p className="mt-4 text-xs leading-4 text-ink-3">
-        {facts
-          ? `Surfaces EFFIS interrogées le ${formatDateTime(facts.asOf)} ; points chauds NASA FIRMS (VIIRS).`
-          : live.isError
-            ? "Suivi en direct indisponible pour l’instant : la carte reprend les fichiers du site."
-            : "Interrogation d’EFFIS…"}
-      </p>
     </section>
   );
 }
