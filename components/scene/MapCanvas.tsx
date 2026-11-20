@@ -1,30 +1,31 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
+import { useTheme } from "next-themes";
 import type { CameraControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import * as THREE from "three";
 import {
   useBorders,
-  useEffisYear,
-  useDetections,
-  useNeighbours,
-  useRecentDetections,
   useEffisYears,
   useFranceOutline,
+  useNeighbours,
+  useRecentDetections,
   useTerrain,
   type DemResolution,
   type TerrainData,
 } from "@/lib/data/queries";
-import { fireTimelineDay, type DecodedFire } from "@/lib/data/fires";
-import { monthRange } from "@/lib/timeline";
+import type { DecodedFire } from "@/lib/data/fires";
+import { useSpanFires } from "@/lib/data/span-fires";
 import { recentToColumns } from "@/lib/data/firms-recent";
 import { rasterizeLandMask, type LandMask } from "@/lib/data/land-mask";
 import type { Borders as BordersData } from "@/lib/data/schemas";
+import { spanMonthRange } from "@/lib/span";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
 import { Borders } from "./Borders";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
+import { FireMarkers } from "./FireMarkers";
 import { FirePoints } from "./FirePoints";
 import { Neighbours } from "./Neighbours";
 import { useImagery } from "./Imagery";
@@ -53,6 +54,7 @@ export default function MapCanvas() {
   const outline = useFranceOutline();
   const borders = useBorders();
   const controlsRef = useRef<CameraControls | null>(null);
+  const { resolvedTheme } = useTheme();
 
   const mask = useMemo(
     () =>
@@ -123,7 +125,8 @@ export default function MapCanvas() {
         camera={{ fov: 30, near: 1, far: 12_000, position: [0, 1400, 1100] }}
       >
         <CameraRig controlsRef={controlsRef} />
-        {ready && <Scene {...ready} detail={detail} />}
+        {/* The scene reads its colours from the theme's tokens once: a new theme redraws it. */}
+        {ready && <Scene key={resolvedTheme ?? "dark"} {...ready} detail={detail} />}
       </Canvas>
       {error ? (
         <MapStatus>Les données du relief n’ont pas pu être chargées : {error.message}</MapStatus>
@@ -150,9 +153,9 @@ const maskSize = (detail: Detail) =>
 function Scene({ terrain, mask, borders, detail }: SceneProps) {
   const exaggeration = useMapStore((state) => state.exaggeration);
   const setRenderMode = useMapStore((state) => state.setRenderMode);
-  const year = useMapStore((state) => state.year);
   const showHistory = useMapStore((state) => state.showHistory);
   const selectedFireId = useMapStore((state) => state.selectedFireId);
+  const month = useMapStore((state) => state.month);
   const textures = useTerrainTextures(terrain, mask);
   useEffect(() => {
     setRenderMode("3d");
@@ -162,43 +165,38 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
   const basemap = useMapStore((state) => state.basemap);
   const imagery = useImagery(basemap, true, detail.dem !== 500);
   const neighbours = useNeighbours();
-  const current = useEffisYear(year);
-  const historyYears = useMemo(
-    () => Array.from({ length: Math.max(0, year - FIRST_YEAR) }, (_, i) => FIRST_YEAR + i),
-    [year],
-  );
+  const { span, fires } = useSpanFires();
+  // Earlier years hatched: every archive year before the window (the window's own first year
+  // included in the live view; its fires inside the window are drawn on top).
+  const historyYears = useMemo(() => {
+    if (!span) return [];
+    const last = span.kind === "recent" ? span.months[0].year : span.year - 1;
+    return Array.from({ length: Math.max(0, last - FIRST_YEAR + 1) }, (_, i) => FIRST_YEAR + i);
+  }, [span]);
   const history = useEffisYears(historyYears, showHistory);
   const historyFires = (showHistory && history.data) || NO_FIRES;
   const size = maskSize(detail);
-  const burn = useBurnMask(current.data?.fires, historyFires, size);
-  const selected = current.data?.fires.find((fire) => fire.id === selectedFireId) ?? null;
-  // Only the burnt areas on screen (month filter, timeline) can be hovered and clicked.
-  const month = useMapStore((state) => state.month);
-  const day = useMapStore((state) => (state.timelineDay === null ? null : Math.floor(state.timelineDay)));
-  const visibleFires = useMemo(() => {
-    const fires = current.data?.fires;
-    if (!fires) return undefined;
-    const [from, to] = month ? monthRange(year, month) : [0, day ?? Number.POSITIVE_INFINITY];
-    return fires.filter((fire) => {
-      const firstDay = fireTimelineDay(fire);
-      return firstDay >= from && firstDay <= to;
-    });
-  }, [current.data, month, day, year]);
-  const detections = useDetections(year);
-  const showRecent = useMapStore((state) => state.showRecent);
-  const recent = useRecentDetections(showRecent);
-  const recentColumns = useMemo(() => recentToColumns(recent.data), [recent.data]);
+  const burn = useBurnMask(fires, historyFires, size);
+  const selected = fires?.find((fire) => fire.id === selectedFireId) ?? null;
+  const dayRange = useMemo(() => (span && month !== null ? spanMonthRange(span, month) : null), [span, month]);
+  // Only the fires on screen (month filter) can be hovered and clicked.
+  const visibleFires = useMemo(
+    () => (fires && month !== null ? fires.filter((fire) => fire.monthIndex === month) : fires),
+    [fires, month],
+  );
+  const archiveYear = useMapStore((state) => state.archiveYear);
+  const showLive = useMapStore((state) => state.showLive) && archiveYear === null;
+  const live = useRecentDetections(showLive);
+  const liveColumns = useMemo(() => recentToColumns(live.data), [live.data]);
   const invalidate = useThree((state) => state.invalidate);
-  // Frames are rendered on demand: redraw when the timeline moves.
-  useEffect(() => useMapStore.subscribe((state, previous) => {
-    if (
-      state.timelineDay !== previous.timelineDay ||
-      state.showRecent !== previous.showRecent ||
-      state.month !== previous.month
-    ) {
-      invalidate();
-    }
-  }), [invalidate]);
+  // Frames are rendered on demand: redraw when the selection or the hovered fire changes.
+  useEffect(
+    () =>
+      useMapStore.subscribe((state, previous) => {
+        if (state.hover?.id !== previous.hover?.id || state.selectedFireId !== previous.selectedFireId) invalidate();
+      }),
+    [invalidate],
+  );
 
   return (
     <>
@@ -211,6 +209,7 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
         lightAltitudeDeg={35}
         burn={burn}
         showHistory={showHistory}
+        dayRange={dayRange}
         imagery={imagery}
       />
       <Borders
@@ -219,14 +218,13 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
         exaggeration={exaggeration}
         maxSegmentKm={terrain.meta.pixelSizeM / 1000}
       />
-      {showRecent
-        ? recentColumns && (
-            <FirePoints detections={recentColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
-          )
-        : detections.data && (
-            <FirePoints detections={detections.data} heightTexture={textures.height} exaggeration={exaggeration} />
-          )}
+      {showLive && liveColumns && (
+        <FirePoints detections={liveColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
+      )}
       {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
+      {fires && (
+        <FireMarkers fires={fires} heightTexture={textures.height} exaggeration={exaggeration} dayRange={dayRange} />
+      )}
       <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={visibleFires} />
     </>
   );

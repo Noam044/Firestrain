@@ -1,14 +1,22 @@
-import { AppShell } from "@/components/atlas/AppShell";
-import bdiffAnnualJson from "@/public/data/bdiff/annuel.json";
-import effisIndexJson from "@/public/data/effis/index.json";
-import { BdiffAnnualSchema, EffisIndexSchema } from "@/lib/data/schemas";
+import { SiteFooter } from "@/components/brand/SiteFooter";
+import { Archives } from "@/components/home/Archives";
+import { Hero } from "@/components/home/Hero";
+import { LatestFires } from "@/components/home/LatestFires";
+import { LiveStrip } from "@/components/home/LiveStrip";
+import { Sources } from "@/components/home/Sources";
 
-// The year strip and the totals ship with the page: they are on screen before any data request.
-const initialData = {
-  effisIndex: EffisIndexSchema.parse(effisIndexJson),
-  bdiffAnnual: BdiffAnnualSchema.parse(bdiffAnnualJson),
-};
-
-export default function MapPage() {
-  return <AppShell initialData={initialData} />;
+/** Home page: the promise and the map's picture, the twelve months, the latest fires, the sources, the archives. */
+export default function HomePage() {
+  return (
+    <>
+      <main id="contenu">
+        <Hero />
+        <LiveStrip />
+        <LatestFires />
+        <Sources />
+        <Archives />
+      </main>
+      <SiteFooter />
+    </>
+  );
 }

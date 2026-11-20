@@ -79,7 +79,7 @@ export function Neighbours({ data }: { data: NeighboursData }) {
           <Html key={label.name} position={[p.x, 0, p.z]} center zIndexRange={[5, 0]} style={{ pointerEvents: "none" }}>
             <span
               aria-hidden
-              className={`whitespace-nowrap text-[11px] leading-none [font-stretch:85%] ${
+              className={`whitespace-nowrap text-[11px] leading-none ${
                 label.kind === "sea" ? "italic text-ink-3/80" : "font-medium uppercase tracking-[0.12em] text-ink-3"
               }`}
             >

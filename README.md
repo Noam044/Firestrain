@@ -1,17 +1,20 @@
 # FireStrain
 
-Carte interactive des feux de forêt et de végétation en France métropolitaine, année par année de 2006 à 2026 :
-surfaces brûlées vues par satellite, mois par mois, jour par jour, avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) ·
+Suivi des feux de forêt et de végétation en France métropolitaine sur une carte en relief : les feux des douze
+derniers mois, mois par mois, mis à jour chaque heure depuis EFFIS (Copernicus), les points chauds NASA FIRMS des
+72 dernières heures, et les archives de 2006 à 2026, avec la source de chaque chiffre. Brief : [`docs/BRIEF.md`](docs/BRIEF.md) ·
 audit des données : [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) · plan et décisions : [`docs/PLAN.md`](docs/PLAN.md) ·
 contrôles des données : [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) · revue finale :
 [`docs/REVIEW.md`](docs/REVIEW.md).
 
 | Page | Contenu |
 |---|---|
-| `/` | La carte : frise des années (surface brûlée de chaque année, cliquable), total et rang de l'année, mois de l'année (filtre), lecture jour par jour avec les points chauds FIRMS, plus grandes surfaces, détail de chaque feu, fonds de carte. État partageable dans l'adresse : `?year=2026&mois=7&date=2026-07-22&fire=562583&fond=satellite`. `/explorer` y redirige. |
+| `/` | Accueil FireStrain : hero (vue thermique des feux des 12 mois sur la mosaïque aérienne IGN, bouton « Explorer la carte »), mesures en direct, derniers feux détectés, sources, vingt ans d'archives. Thème sombre par défaut, clair au choix. |
+| `/carte` | Le suivi : un marqueur par feu (taille : surface ; couleur : âge ; contour réel au zoom), liste des feux de la période (récents ou plus grands, recherche par commune), douze mois sous la carte (filtre), fiche de chaque feu, points chauds des 72 dernières heures, archives par année civile, fonds et calques, recherche ⌘K / Ctrl+K (feu, mois, année, fond). État partageable dans l'adresse : `?annee=2022&mois=2022-07&fire=562583&fond=ortho` (sans `annee` : les douze derniers mois). `/explorer` et les anciennes adresses `/?fire=…` y redirigent. |
 | `/liste` | Les mêmes surfaces en tableau triable et filtrable : l'alternative accessible à la carte. |
 | `/methode` | Sources, licences, limites, règles de rapprochement et de regroupement, contrôles. |
-| `/api/firms/recent` | Route serveur facultative : détections VIIRS des 72 dernières heures (clé FIRMS côté serveur). |
+| `/api/effis/recent` | Route serveur : surfaces brûlées EFFIS des douze derniers mois, interrogées à l'API EFFIS et gardées en cache environ une heure ; en cas d'échec, la carte reprend les fichiers du site et le signale. |
+| `/api/firms/recent` | Route serveur : détections VIIRS des 72 dernières heures (clé FIRMS côté serveur, cache d'une heure). |
 
 ## Lancer le projet
 
@@ -50,13 +53,14 @@ npm run data:effis     # 02 — surfaces brûlées EFFIS 2006–2026 et statisti
 npm run data:bdiff     # 04 — BDIFF (feux déclarés) et rapprochements avec EFFIS
 npm run data:firms     # 03 — détections NASA FIRMS par année civile (clé requise pour 2026)
 npm run data:events    # 07 — faits sourcés : vérifie les citations de data/events.json, regroupe les polygones
+npm run data:basemaps  # 09 — images France entière des fonds Plan IGN et photos aériennes (WMS, une fois)
 npm run data:validate  # 06 — contrôles croisés, écrit docs/VALIDATION_REPORT.md
 npm run data           # toute la chaîne, dans l'ordre
 node scripts/01-dem.ts --refresh   # ignore le cache et retélécharge
 ```
 
-Les faits de terrain (préfectures, assureurs) affichés dans le panneau de quelques feux sont saisis à la main
-dans `data/events.json`, chacun avec sa page source et une citation courte que `07-events` retrouve dans la page.
+`07-events` (faits de terrain sourcés de quelques feux, `data/events.json`) reste dans la chaîne et ses citations
+restent vérifiées, mais l'interface ne les affiche plus depuis le passage au suivi (aspect narratif retiré).
 
 Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté serveur, et mapshaper
 (dépendance de développement) simplifie les limites.
@@ -72,8 +76,9 @@ Aucun outil SIG externe n'est nécessaire : l'IGN reprojette le relief côté se
 - **Relief** : IGN, BD ALTI® — Licence Ouverte Etalab 2.0.
 - **Limites administratives** : IGN, ADMIN EXPRESS COG CARTO — Licence Ouverte Etalab 2.0.
 - **Pays voisins** (fond neutre, sans relief) : Natural Earth, Admin 0 – Countries 1:10m — domaine public.
-- **Fonds de carte** (`?fond=plan|satellite|ortho`) : Plan IGN, ORTHO-SAT SPOT 2025,
-  BD ORTHO — IGN / CNES, Licence Ouverte 2.0, demandés par le navigateur au WMS de la Géoplateforme (sans clé).
+- **Fonds de carte** (`?fond=plan|ortho`) : Plan IGN et BD ORTHO — IGN, Licence Ouverte 2.0. L'image de la
+  France entière est demandée une fois au WMS (`09-basemaps`) et servie par le site ; les vues rapprochées
+  assemblent les tuiles WMTS Lambert-93 de la Géoplateforme (sans clé), chargées du centre vers les bords.
 - **Surfaces brûlées** : EFFIS (Copernicus, Commission européenne / JRC) — CC BY 4.0.
 - **Feux déclarés** : BDIFF (IGN, ministère de l'Agriculture) — Licence Ouverte 2.0.
 - **Anomalies thermiques** : NASA FIRMS (VIIRS) — données ouvertes de la NASA.

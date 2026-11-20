@@ -7,22 +7,24 @@ import { SCENE_SIZE, sceneToL93 } from "@/lib/geo/frame";
 import { l93ToLonLat, lonLatToScene, sceneToLonLat } from "@/lib/geo/projection";
 import { createGridSampler, intersectHeightfield, type Vec3 } from "@/lib/geo/heightfield";
 import type { TerrainData } from "@/lib/data/queries";
-import { findFireAt, type DecodedFire } from "@/lib/data/fires";
+import { findFireAt, type SpanFire } from "@/lib/data/fires";
 import type { LandMask } from "@/lib/data/land-mask";
 import { useMapStore } from "@/lib/store";
+import { pxPerUnit } from "./FireMarkers";
+import { markerFade, markerRadius, realRadiusKm } from "./markers";
 
 type MapProbeProps = {
   terrain: TerrainData;
   mask: LandMask;
   exaggeration: number;
-  /** Fires of the year shown, clickable. */
-  fires: readonly DecodedFire[] | undefined;
+  /** Fires on screen (window, month filter), clickable. */
+  fires: readonly SpanFire[] | undefined;
 };
 
 /**
  * Measures the view for the map furniture (scale at the centre, north), reads
  * the ground under the pointer (coordinates, BD ALTI altitude) and turns a click
- * on a burnt area into a selection.
+ * on a marker, or on a burnt outline once its marker has faded, into a selection.
  */
 export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) {
   const camera = useThree((state) => state.camera);
@@ -56,6 +58,40 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       });
     },
     [raycaster, camera, sampler, maxHeight],
+  );
+
+  // Marker anchors on the relief, as drawn by FireMarkers.
+  const anchors = useMemo(
+    () =>
+      (fires ?? []).map((fire) => ({
+        fire,
+        position: new THREE.Vector3(fire.center[0], sampler(fire.center[0], fire.center[1]), fire.center[1]),
+        radius: markerRadius(fire.areaHa),
+        realKm: realRadiusKm(fire.areaHa),
+      })),
+    [fires, sampler],
+  );
+
+  /** Smallest visible marker under a screen point (CSS px relative to the canvas), if any. */
+  const markerAt = useCallback(
+    (px: number, py: number): SpanFire | null => {
+      const scale = pxPerUnit(camera, size.height);
+      const view = new THREE.Vector3();
+      const ndc = new THREE.Vector3();
+      let best: SpanFire | null = null;
+      for (const { fire, position, radius, realKm } of anchors) {
+        view.copy(position).applyMatrix4(camera.matrixWorldInverse);
+        if (view.z >= 0) continue;
+        if (markerFade(radius, (realKm * scale) / -view.z) < 0.3) continue;
+        ndc.copy(position).project(camera);
+        const sx = ((ndc.x + 1) / 2) * size.width;
+        const sy = ((1 - ndc.y) / 2) * size.height;
+        if (Math.hypot(sx - px, sy - py) > radius + 2) continue;
+        if (!best || fire.areaHa < best.areaHa) best = fire;
+      }
+      return best;
+    },
+    [anchors, camera, size],
   );
 
   const lastMatrix = useRef(new THREE.Matrix4());
@@ -109,16 +145,24 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       );
     };
 
+    const markerUnder = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return markerAt(event.clientX - rect.left, event.clientY - rect.top);
+    };
+    /** Marker under the pointer, else the burnt outline under it. */
+    const fireAt = (event: PointerEvent, hit: Vec3 | null) =>
+      markerUnder(event) ?? (hit && fires ? findFireAt(fires, hit.x, hit.z) : null);
+
     const update = () => {
       frame = 0;
       if (!lastEvent) return;
       const hit = groundAt(lastEvent);
-      // Hint that burnt areas can be clicked (standard pointer) and name them in a tooltip.
-      const hovered = hit && fires ? findFireAt(fires, hit.x, hit.z) : null;
+      // Hint that fires can be clicked (standard pointer) and name them in a tooltip.
+      const hovered = fireAt(lastEvent, hit);
       surface.style.cursor = hovered ? "pointer" : "";
       const previous = useMapStore.getState().hover;
       if (hovered) setHover({ id: hovered.id, x: lastEvent.clientX, y: lastEvent.clientY });
-      else if (previous) setHover(null);
+      else if (previous && previous.x !== null) setHover(null);
       if (!hit) {
         setCursor(null);
         return;
@@ -161,8 +205,11 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       const quick = performance.now() - pressed.at < 600;
       pressed = null;
       if (moved > 6 || !quick) return;
-      const hit = groundAt(event);
-      selectFire(hit ? (findFireAt(fires, hit.x, hit.z)?.id ?? null) : null);
+      // A marker flies to its fire; an outline (already close) is selected where it is.
+      const marker = markerUnder(event);
+      const fire = marker ?? fireAt(event, groundAt(event));
+      selectFire(fire?.id ?? null);
+      if (marker) useMapStore.getState().requestCamera({ kind: "bbox", bbox: marker.bbox });
     };
 
     surface.addEventListener("pointermove", onMove);
@@ -177,7 +224,7 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       surface.style.cursor = "";
       onLeave();
     };
-  }, [canvas, events, pick, terrain, mask, fires, setCursor, selectFire, setHover]);
+  }, [canvas, events, pick, markerAt, terrain, mask, fires, setCursor, selectFire, setHover]);
 
   return null;
 }

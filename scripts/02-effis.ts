@@ -15,61 +15,29 @@
  */
 import mapshaper from "mapshaper";
 import { z } from "zod";
-import { l93ToScene } from "../lib/geo/frame.ts";
 import { lonLatToL93 } from "../lib/geo/projection.ts";
-import { ringsBBox } from "../lib/geo/polygon.ts";
-import { encodeRing } from "../lib/geo/rings.ts";
 import type { FeatureCollection, Geometry, Position } from "../lib/geo/geojson.ts";
+import { EffisIndexSchema, EffisStatsSchema, EffisYearSchema, type EffisFire } from "../lib/data/schemas.ts";
 import {
-  EffisIndexSchema,
-  EffisStatsSchema,
-  EffisYearSchema,
-  LAND_COVER_KEYS,
-  type EffisFire,
-} from "../lib/data/schemas.ts";
+  EFFIS_API as API,
+  EFFIS_LICENCE,
+  EFFIS_SOURCE,
+  RawPageSchema as RawPage,
+  effisFire,
+  encodeL93Polygons,
+  isMetropolitan,
+  recordPolygons,
+  type RawRecord,
+} from "../lib/data/effis-records.ts";
 import { fetchCached, refreshRequested, type Fetched } from "./lib/http.ts";
 import { writeDataFile } from "./lib/manifest.ts";
 
-const API = "https://api.effis.emergency.copernicus.eu/rest/2/burntareas/current/";
 const STATS_API = "https://api2.effis.emergency.copernicus.eu/statistics/v2/effis";
 const PAGE_SIZE = 500;
 const FIRST_YEAR = 2006;
 const LAST_YEAR = 2026;
 const THRESHOLD_HA = 30;
 const SIMPLIFY_M = 40;
-/** Metropolitan France incl. Corsica (excludes the overseas polygons labelled FR). */
-const METRO = { lonMin: -5.5, lonMax: 10, latMin: 41, latMax: 51.5 };
-
-const EFFIS_LICENCE = {
-  licence: "CC BY 4.0",
-  licenceUrl: "https://creativecommons.org/licenses/by/4.0/",
-} as const;
-const EFFIS_SOURCE = "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC)";
-
-const NumberLike = z.union([z.number(), z.string()]).nullable();
-const RawRecord = z.object({
-  id: z.number().int(),
-  centroid: z.object({ type: z.literal("Point"), coordinates: z.array(z.number()).min(2) }),
-  shape: z.object({
-    type: z.enum(["Polygon", "MultiPolygon"]),
-    coordinates: z.array(z.unknown()),
-  }),
-  country: z.string(),
-  province: z.string().nullable(),
-  commune: z.string().nullable(),
-  firedate: z.string(),
-  lastupdate: z.string(),
-  area_ha: z.number(),
-  percna2k: NumberLike,
-  ...Object.fromEntries(LAND_COVER_KEYS.map((key) => [key, NumberLike])),
-});
-type RawRecord = z.infer<typeof RawRecord> & Record<string, unknown>;
-const RawPage = z.object({ count: z.number().int(), results: z.array(RawRecord) });
-
-const toNumber = (value: unknown): number | null =>
-  value === null || value === undefined || value === "" ? null : Number(value);
-const round1 = (value: number) => Math.round(value * 10) / 10;
-const iso = (value: string) => new Date(value).toISOString();
 /** Year of the date as published by EFFIS (local time, e.g. "2026-07-22T11:55:00+02:00"). */
 const localYear = (date: string) => Number(date.slice(0, 4));
 
@@ -91,24 +59,18 @@ console.log(`  ${total} polygones téléchargés (${pages.length} pages)`);
 
 // ── Selection and reprojection ───────────────────────────────────────────────
 const selected = records.filter((r) => {
-  const [lon, lat] = r.centroid.coordinates;
   const year = localYear(r.firedate);
-  return (
-    lon >= METRO.lonMin && lon <= METRO.lonMax && lat >= METRO.latMin && lat <= METRO.latMax &&
-    year >= FIRST_YEAR && year <= LAST_YEAR
-  );
+  return isMetropolitan(r) && year >= FIRST_YEAR && year <= LAST_YEAR;
 });
 
-const toL93 = (coordinates: unknown, type: "Polygon" | "MultiPolygon"): Position[][][] => {
-  const polygons = (type === "Polygon" ? [coordinates] : coordinates) as Position[][][];
-  return polygons.map((rings) => rings.map((ring) => ring.map(([lon, lat]) => [...lonLatToL93([lon, lat])])));
-};
+const toL93 = (r: RawRecord): Position[][][] =>
+  recordPolygons(r).map((rings) => rings.map((ring) => ring.map(([lon, lat]) => [...lonLatToL93([lon, lat])])));
 const collection: FeatureCollection<Geometry, { id: number }> = {
   type: "FeatureCollection",
   features: selected.map((r) => ({
     type: "Feature",
     properties: { id: r.id },
-    geometry: { type: "MultiPolygon", coordinates: toL93(r.shape.coordinates, r.shape.type) },
+    geometry: { type: "MultiPolygon", coordinates: toL93(r) },
   })),
 };
 
@@ -121,52 +83,16 @@ const simplifiedOut = await mapshaper.applyCommands(
 const simplified = JSON.parse(String(simplifiedOut["output.json"])) as FeatureCollection<Geometry, { id: number }>;
 const geometryById = new Map(simplified.features.map((f) => [f.properties.id, f.geometry]));
 
-function encodeGeometry(geometry: Geometry): { polygons: number[][][]; bbox: EffisFire["bbox"] } {
-  const polygons =
-    geometry.type === "Polygon" ? [geometry.coordinates] : geometry.type === "MultiPolygon" ? geometry.coordinates : [];
-  const sceneRings: number[][] = [];
-  const encoded = polygons
-    .map((rings) =>
-      rings
-        .map((ring) => {
-          const flat = ring.flatMap(([x, y]) => {
-            const p = l93ToScene([x, y]);
-            return [p.x, p.z];
-          });
-          sceneRings.push(flat);
-          return encodeRing(flat);
-        })
-        .filter((ring) => ring.length >= 6),
-    )
-    .filter((rings) => rings.length > 0);
-  const box = ringsBBox(sceneRings).map((v) => Math.round(v * 100) / 100);
-  return { polygons: encoded, bbox: [box[0], box[1], box[2], box[3]] };
-}
-
-function landCover(r: RawRecord): EffisFire["landCover"] {
-  const values = LAND_COVER_KEYS.map((key) => toNumber(r[key]));
-  return values.some((v) => v === null) ? null : values.map((v) => round1(v as number));
-}
+const polygonsOf = (geometry: Geometry): Position[][][] =>
+  geometry.type === "Polygon" ? [geometry.coordinates] : geometry.type === "MultiPolygon" ? geometry.coordinates : [];
 
 const firesByYear = new Map<number, EffisFire[]>();
 for (const r of selected) {
   const geometry = geometryById.get(r.id);
   if (!geometry) throw new Error(`polygon ${r.id} lost during simplification`);
-  const { polygons, bbox } = encodeGeometry(geometry);
-  if (polygons.length === 0) throw new Error(`polygon ${r.id} has no ring left after encoding`);
-  const natura = toNumber(r.percna2k);
-  const fire: EffisFire = {
-    id: r.id,
-    firedate: iso(r.firedate),
-    lastUpdate: iso(r.lastupdate),
-    areaHa: r.area_ha,
-    province: r.province ?? "",
-    commune: r.commune ?? "",
-    landCover: landCover(r),
-    natura2000Pct: natura === null ? null : round1(natura),
-    bbox,
-    polygons,
-  };
+  const outline = encodeL93Polygons(polygonsOf(geometry));
+  if (outline.polygons.length === 0) throw new Error(`polygon ${r.id} has no ring left after encoding`);
+  const fire: EffisFire = effisFire(r, outline);
   const year = localYear(r.firedate);
   firesByYear.set(year, [...(firesByYear.get(year) ?? []), fire]);
 }

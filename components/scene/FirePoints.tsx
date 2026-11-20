@@ -4,7 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
-import { useMapStore } from "@/lib/store";
 import { readColorToken } from "@/lib/tokens";
 import { firePointsFragmentShader, firePointsVertexShader } from "./shaders";
 
@@ -23,17 +22,14 @@ type FirePointsProps = {
   detections: HotspotColumns;
   heightTexture: THREE.Texture;
   exaggeration: number;
-  /** Fixed "today" instead of the timeline day (last 72 hours: days are ≤ 0, today = 0). */
-  fixedDay?: number;
-  /** Smaller, fainter symbols where many detections overlap (story views of large fires). */
+  /** "Today" in the detections' day scale (last 72 hours: days are ≤ 0, today = 0). */
+  fixedDay: number;
+  /** Smaller, fainter symbols where many detections overlap. */
   sizeScale?: number;
   opacity?: number;
 };
 
-/**
- * FIRMS hotspots, shown only while the timeline is in use or for the last
- * 72 hours (amber: active detections).
- */
+/** FIRMS hotspots of the last 72 hours (amber: active detections), fading with age. */
 export function FirePoints({
   detections,
   heightTexture,
@@ -88,8 +84,7 @@ export function FirePoints({
     const points = pointsRef.current;
     if (!points) return;
     const uniforms = (points.material as THREE.ShaderMaterial).uniforms;
-    const day = fixedDay ?? useMapStore.getState().timelineDay;
-    uniforms.uDay.value = day ?? -1000;
+    uniforms.uDay.value = fixedDay;
     uniforms.uPixelRatio.value = state.viewport.dpr;
   });
 

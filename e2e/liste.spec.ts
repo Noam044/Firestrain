@@ -13,7 +13,7 @@ test("la liste reprend le total officiel et mène à la carte", async ({ page })
   await header.getByRole("button").click();
   await expect(header).toHaveAttribute("aria-sort", "ascending");
   await page.getByRole("link", { name: /voir sur la carte/ }).first().click();
-  await expect(page).toHaveURL(/\/\?year=2026&fire=\d+/);
+  await expect(page).toHaveURL(/\/carte\?annee=2026&fire=\d+/);
   await expect(page.locator("#feu-titre")).toBeVisible();
 });
 

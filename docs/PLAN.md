@@ -142,6 +142,79 @@ ne soit pas seule ».
   (barres des mois élargies à 24 px : vitesses de lecture passées dans l'en-tête), bonnes pratiques et SEO ;
   liste 96, Méthode 96. Tests : 29 Playwright, 25 unitaires.
 
+## Suivi des feux récents (demande du 20/11/2026)
+
+Demande : changer la direction artistique — garder la 3D, retirer l'aspect narratif, faire un site « wildfire
+tracker » (référence : *Build a Wildfire Tracker With React & NASA API*, Traversy Media : une carte, un marqueur par
+feu, un clic pour le détail) pour voir les feux récents en France, mois par mois, sans « AI slop ». Choix validés :
+douze derniers mois glissants avec les archives en second plan ; interface claire type outil ; marqueur
+proportionnel à la surface et contour réel au zoom ; données rafraîchies par une route serveur chaque heure.
+
+- **Données en direct** : `/api/effis/recent` interroge l'API EFFIS (`firedate__gte` = 1er du mois, onze mois plus
+  tôt), garde la métropole, reprojette et simplifie (Douglas–Peucker 40 m, `lib/geo/simplify.ts`), encode comme les
+  fichiers d'archive (`lib/data/effis-records.ts`, partagé avec `02-effis`, dont la sortie est inchangée) ;
+  `'use cache'` + `cacheLife('hours')`, réponse compressée (≈ 150 ko). Échec → fichiers du site jusqu'à leur date,
+  avec un avertissement.
+- **Temps** : `lib/span.ts` — fenêtre de douze mois (glissante ou année civile), jours comptés depuis son premier
+  jour (heure de Paris) ; le masque de brûlure encode ce jour, le filtre de mois passe par le shader.
+- **Marqueurs** (`FireMarkers.tsx`, `markers.ts`) : un point par feu au centroïde de sa plus grande partie, rayon
+  4 + 0,22 √ha px (≤ 30), couleur par âge ; il s'efface quand le contour à l'écran dépasse le disque. Sélection au
+  disque puis au contour ; un clic sur un disque vole vers le feu.
+- **Interface** (`components/tracker/`) : barre du haut (période, archives, points chauds 72 h), liste des feux
+  (tri, recherche), fiche du feu sans faits cités, douze mois sous la carte, légende et calques sur la carte.
+  `components/atlas/`, la frise des années, la lecture jour par jour et `lib/timeline.ts` sont supprimés.
+- **Identité** : blanc, gris, filets, rouge feu par âge, ambre pour les points chauds ; Atkinson Hyperlegible Next
+  et Mono (nombres seuls). Adresse : `?annee=&mois=AAAA-MM&fire=&fond=` (`year` reste accepté).
+- Tests : 32 Playwright (routes serveur simulées depuis les fichiers du site, repli testé), 27 unitaires.
+  Lighthouse mobile : suivi 93–95, liste 97, Méthode 99 en performance ; 100 ailleurs.
+- Limite : la première requête après un démarrage à froid attend EFFIS (≈ 12 s) ; ensuite la réponse en cache
+  part en quelques millisecondes.
+
+## Marque, sécurité et fonds rapides (demande du 20/11/2026)
+
+- **Sécurité** : Next.js 16.4.2 → 16.4.6 (sept avis, dont fuites de cache `use cache` et injection de réponse en
+  auto-hébergement), `eslint-config-next` 16.4.6, `npm audit fix` (minimatch via typescript-eslint) : 0 vulnérabilité.
+- **FireStrain** : symbole (flamme en trois courbes de niveau, `components/brand/Logo.tsx`, favicon), barre du site
+  sur toutes les pages, pied de page (sources et licences, code MIT, mention d'indépendance, numéros d'urgence).
+  Accueil `/` à part (demande : « un hero classique et un bouton explorer la carte qui redirige vers la page 3D ») :
+  hero, bouton « Explorer la carte », aperçu en direct des feux (même symbolique que la carte), chiffres du moment,
+  trois entrées (douze mois, 72 h, archives). La carte passe à `/carte`, plein écran sous la barre ; les adresses
+  `/?fire=…`, `/?annee=…` et `/explorer` y redirigent avec leurs paramètres.
+- **Fonds de carte** : mesuré, le WMS mettait 5–6 s pour l'image France et 2,5–4 s par vue rapprochée. L'image France
+  est désormais publiée par le site (`09-basemaps`, ≈ 720 ko, ≈ 90 ms) ; la vue rapprochée assemble les tuiles WMTS
+  Lambert-93 de la Géoplateforme (`…PLANIGNV2.L93`, `HR.ORTHOIMAGERY.ORTHOPHOTOS.L93`, grille `2154_10cm_6_20`,
+  donc sans reprojection) : centre d'abord, affichage au fil de l'eau (alpha prémultiplié, l'image France reste
+  dessous), cache mémoire de 600 tuiles, cache navigateur de 21 jours, une seconde tentative par tuile. Première tuile
+  ≈ 120 ms, vue complète ≈ 2,5 s à froid. Satellite SPOT supprimé (WMS seulement).
+- **Route EFFIS** : renvoyée comme fichier gzip (`application/gzip`) et décompressée par la page : un
+  `Content-Encoding` posé à la main était recompressé par le serveur de dev.
+- Lighthouse mobile : accueil 99, carte 95, liste 98, Méthode 99 en performance ; 100 ailleurs. Tests : 38
+  Playwright, 27 unitaires.
+
+## Identité « Thermique » (demande du 20/11/2026)
+
+Demande : un UI/UX prononcé et moderne, identité forte, non générique, sans AI slop, avec les skills UI/UX
+importés (redesign-existing-projects, design-taste-frontend) et les références magicui.design et ui.shadcn.com ;
+un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satellite infrarouge).
+
+- **Thème** : anthracite par défaut, clair au choix (next-themes, sans flash) ; une seule couleur d'interface,
+  l'orange signal ; une rampe thermique réservée aux données (moins de 7 jours jaune, moins d'un mois orange,
+  plus ancien brun). Relief 3D nocturne en sombre ; la scène est redessinée au changement de thème (tokens relus).
+  Noms sémantiques shadcn/ui (`--background`, `--primary`…) en alias des tokens.
+- **Typographie** : Funnel Display (titres), Funnel Sans (interface), Martian Mono condensée (toutes les mesures).
+- **Logo** : flamme en trois isothermes (signal, jaune chaud, cœur blanc) dans un réticule de visée, en SVG
+  (net à 16 px, suit le thème) plutôt qu'une image générée.
+- **Accueil** : cinq sections de formes différentes, toutes sur données réelles : hero (mosaïque aérienne IGN en
+  gris « caméra thermique » + feux des 12 mois + réticule), mesures (compteur Magic UI, rendu d'abord avec la vraie
+  valeur), derniers feux (liste animée Magic UI), grille des sources (contour réel du plus grand feu), archives
+  (21 barres cliquables, défilement horizontal sur téléphone).
+- **Carte** : palette ⌘K / Ctrl+K façon shadcn Command (cmdk, chargée à la première ouverture), icônes Phosphor,
+  couleurs codées en dur remplacées par les tokens.
+- Mouvement réservé à ce qu'il signifie (compteurs, arrivée des détections, état « en direct ») et coupé avec
+  « réduire les animations » ; aucun tiret cadratin visible.
+- Lighthouse mobile : accueil 86, carte 88–92, liste 92, Méthode 96 en performance ; 100 en accessibilité, bonnes
+  pratiques et SEO. Tests : 38 Playwright, 27 unitaires.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

@@ -66,6 +66,8 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^events\/events\.json$/, EventsSchema],
 ];
 const BINARY = /^(terrain\/dem-\d+m|firms\/detections-\d{4})\.bin$/;
+/** Base-map images (09-basemaps): checked for the JPEG signature. */
+const JPEG = /^fonds\/[a-z]+-france\.jpg$/;
 
 async function listFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -88,6 +90,11 @@ for (const [path, entry] of Object.entries(manifest.files)) {
   if (createHash("sha256").update(bytes).digest("hex") !== entry.sha256) problems.push(`${path} : sha256 différent du manifest`);
   if (BINARY.test(path)) {
     checked++;
+    continue;
+  }
+  if (JPEG.test(path)) {
+    if (bytes[0] !== 0xff || bytes[1] !== 0xd8) problems.push(`${path} : pas une image JPEG`);
+    else checked++;
     continue;
   }
   const schema = SCHEMAS.find(([pattern]) => pattern.test(path))?.[1];

@@ -85,7 +85,9 @@ void main() {
   // control flow keeps the mipmap derivatives valid).
   vec2 nearUv = (vUv - uNearRect.xy) / max(uNearRect.zw - uNearRect.xy, vec2(1e-6));
   vec3 farImage = texture2D(uImageryFar, vUv).rgb;
-  vec3 nearImage = texture2D(uImageryNear, clamp(nearUv, 0.0, 1.0)).rgb;
+  // Premultiplied: where no tile has arrived yet (alpha 0), the France image shows through.
+  vec4 nearTiles = texture2D(uImageryNear, clamp(nearUv, 0.0, 1.0));
+  vec3 nearImage = nearTiles.rgb + farImage * (1.0 - nearTiles.a);
   float inset = min(min(nearUv.x, 1.0 - nearUv.x), min(nearUv.y, 1.0 - nearUv.y));
   vec3 image = mix(farImage, nearImage, uHasNear * smoothstep(0.0, 0.03, inset));
   float imageShade = mix(1.0, clamp(0.55 + 0.45 * relative, 0.4, 1.35), uImageryShade);
@@ -227,5 +229,77 @@ void main() {
   // vValue is a whole day (1 – 366): high byte in B, low byte in A.
   float high = floor(vValue / 256.0 + 0.001);
   gl_FragColor = vec4(1.0, 0.0, high, (vValue - 256.0 * high) / 255.0);
+}
+`;
+
+/**
+ * Fire markers (FireMarkers.tsx, markers.ts): one disc per burnt area, constant
+ * screen size, drawn over the relief. A marker fades out once the real outline
+ * of its fire is drawn larger than the disc, so zooming in hands over to the
+ * burnt ground itself. Month filter in the shader: no rebuild when it changes.
+ */
+export const fireMarkersVertexShader = /* glsl */ `
+uniform sampler2D uHeight;
+uniform vec2 uSceneSize;
+uniform float uExag;
+uniform float uDayFrom;
+uniform float uDayTo;
+uniform float uPixelRatio;
+uniform float uPxPerUnit;
+uniform float uSelected;
+uniform float uHover;
+uniform vec3 uColors[3];
+attribute float aDay;
+attribute float aRadius;
+attribute float aRealKm;
+attribute float aClass;
+attribute float aId;
+varying vec3 vColor;
+varying float vAlpha;
+varying float vRadius;
+varying float vHalf;
+varying float vRing;
+
+void main() {
+  float shown = step(uDayFrom - 0.5, aDay) * step(aDay, uDayTo + 0.5);
+  vec3 p = position;
+  vec2 uv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
+  p.y = texture2D(uHeight, uv).r * 0.001 * uExag;
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  float realPx = aRealKm * uPxPerUnit / max(-mv.z, 0.001);
+  float t = clamp((realPx - 0.7 * aRadius) / (0.6 * aRadius), 0.0, 1.0);
+  float fade = 1.0 - t * t * (3.0 - 2.0 * t);
+  // 2: selected, 1: hovered (map or list).
+  vRing = max(2.0 * step(abs(aId - uSelected), 0.5), step(abs(aId - uHover), 0.5));
+  vAlpha = shown * fade;
+  vColor = aClass < 0.5 ? uColors[0] : aClass < 1.5 ? uColors[1] : uColors[2];
+  vRadius = aRadius * uPixelRatio;
+  vHalf = (aRadius + 3.0) * uPixelRatio;
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = vAlpha > 0.01 ? 2.0 * vHalf : 0.0;
+}
+`;
+
+export const fireMarkersFragmentShader = /* glsl */ `
+uniform float uPixelRatio;
+uniform vec3 uInk;
+uniform vec3 uEdge;
+varying vec3 vColor;
+varying float vAlpha;
+varying float vRadius;
+varying float vHalf;
+varying float vRing;
+
+void main() {
+  if (vAlpha <= 0.01) discard;
+  // Distance from the centre in device pixels; an edge in the background tone (ink when hovered or selected).
+  float d = length(gl_PointCoord - 0.5) * 2.0 * vHalf;
+  float stroke = (vRing > 1.5 ? 2.5 : vRing > 0.5 ? 2.0 : 1.5) * uPixelRatio;
+  float aa = uPixelRatio;
+  float fill = 1.0 - smoothstep(vRadius - aa, vRadius, d);
+  float body = 1.0 - smoothstep(vRadius + stroke - aa, vRadius + stroke, d);
+  if (body <= 0.0) discard;
+  vec3 edge = vRing > 0.5 ? uInk : uEdge;
+  gl_FragColor = vec4(mix(edge, vColor, fill), body * vAlpha);
 }
 `;

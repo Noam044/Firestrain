@@ -98,14 +98,14 @@ export function SourceTag({ source }: { source: SourceInfo }) {
 
 export const EFFIS = {
   name: "EFFIS",
-  fullName: "EFFIS — European Forest Fire Information System (Copernicus, Commission européenne / JRC)",
+  fullName: "EFFIS, European Forest Fire Information System (Copernicus, Commission européenne / JRC)",
   licence: "CC BY 4.0",
   licenceUrl: "https://creativecommons.org/licenses/by/4.0/",
 } as const;
 
 export const BDIFF = {
   name: "BDIFF",
-  fullName: "BDIFF — Base de données sur les incendies de forêt en France (IGN, ministère de l’Agriculture)",
+  fullName: "BDIFF, Base de données sur les incendies de forêt en France (IGN, ministère de l’Agriculture)",
   licence: "Licence Ouverte 2.0",
   licenceUrl: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
   url: "https://bdiff.agriculture.gouv.fr/incendies",
@@ -113,7 +113,7 @@ export const BDIFF = {
 
 export const FIRMS = {
   name: "NASA FIRMS",
-  fullName: "NASA FIRMS — Fire Information for Resource Management System, VIIRS 375 m",
+  fullName: "NASA FIRMS, Fire Information for Resource Management System, VIIRS 375 m",
   licence: "Données ouvertes de la NASA",
   licenceUrl: "https://www.earthdata.nasa.gov/data/tools/firms",
   url: "https://firms.modaps.eosdis.nasa.gov/",
@@ -121,7 +121,7 @@ export const FIRMS = {
 
 export const IGN_ADMIN = {
   name: "IGN",
-  fullName: "IGN — ADMIN EXPRESS COG CARTO (limites administratives)",
+  fullName: "IGN, ADMIN EXPRESS COG CARTO (limites administratives)",
   licence: "Licence Ouverte Etalab 2.0",
   licenceUrl: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
   url: "https://geoservices.ign.fr/adminexpress",

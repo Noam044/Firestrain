@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { PageHeader } from "@/components/atlas/PageHeader";
+import { SiteFooter } from "@/components/brand/SiteFooter";
 import { FiresTable } from "@/components/ui/FiresTable";
 
 export const metadata: Metadata = {
@@ -10,9 +10,10 @@ export const metadata: Metadata = {
 
 export default function ListePage() {
   return (
-    <main id="contenu" className="mx-auto max-w-6xl px-5 pb-24 md:px-8">
-      <PageHeader />
-      <h1 className="mt-10 text-3xl [font-stretch:112%] md:text-4xl">Toutes les surfaces brûlées</h1>
+    <>
+      {/* At least a screen tall: the footer never shows (then jumps) before the table. */}
+      <main id="contenu" className="mx-auto min-h-dvh max-w-6xl px-5 pb-24 md:px-8">
+      <h1 className="mt-10 text-3xl md:text-4xl">Toutes les surfaces brûlées</h1>
       <p className="mt-3 max-w-3xl leading-relaxed text-ink-2">
         Les surfaces de la carte, en tableau : triez par colonne, filtrez par mois ou par lieu. Le nom de la commune ouvre
         le feu sur la carte.
@@ -23,6 +24,8 @@ export default function ListePage() {
           <FiresTable />
         </Suspense>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

@@ -2,85 +2,92 @@
 
 import { parseAsInteger, parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
 import { useEffect, useRef } from "react";
-import { useEffisYear } from "@/lib/data/queries";
+import { useSpanFires } from "@/lib/data/span-fires";
 import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
-import { dateOfTimelineDay, timelineDayOfDate } from "@/lib/timeline";
+import { monthKey } from "@/lib/span";
 import { BASEMAPS } from "@/lib/geo/basemaps";
 
 const BASEMAP_IDS = BASEMAPS.map((basemap) => basemap.id);
 
 /**
- * Shareable state: ?year=2026&mois=7&date=2026-07-22&fire=562583&cam=gironde&fond=satellite.
- * The URL seeds the store once; afterwards the store writes back to the URL
- * (replace, not push), except while the timeline is playing.
+ * Shareable state: ?annee=2022&mois=2022-07&fire=562583&cam=gironde&fond=ortho
+ * (no `annee`: the last twelve months). The URL seeds the store once; afterwards
+ * the store writes back to the URL (replace, not push). `year` is the former
+ * name of `annee`. A month or a fire outside the window shown is dropped.
  */
 export function UrlSync() {
   const [params, setParams] = useQueryStates(
     {
+      annee: parseAsInteger,
       year: parseAsInteger,
-      date: parseAsString,
+      mois: parseAsString,
       fire: parseAsInteger,
       cam: parseAsString,
       fond: parseAsStringLiteral(BASEMAP_IDS),
-      mois: parseAsInteger,
     },
     { history: "replace" },
   );
   const seeded = useRef(false);
-  const pendingFocus = useRef<number | null>(null);
+  const pending = useRef<{ month: string | null; fire: number | null; focus: boolean } | null>(null);
+  const { span, fires } = useSpanFires();
+  const latestSpan = useRef(span);
+  useEffect(() => {
+    latestSpan.current = span;
+  }, [span]);
 
   useEffect(() => {
     if (seeded.current) return;
     seeded.current = true;
     const store = useMapStore.getState();
-    if (params.year !== null && params.year >= FIRST_YEAR && params.year <= LAST_YEAR) store.setYear(params.year);
-    const { year } = useMapStore.getState();
-    const day = params.date ? timelineDayOfDate(year, params.date) : null;
-    if (day !== null) store.setTimelineDay(day);
-    else if (params.mois !== null && params.mois >= 1 && params.mois <= 12) store.setMonth(params.mois);
-    if (params.fire !== null) {
-      store.selectFire(params.fire);
-      if (!params.cam) pendingFocus.current = params.fire;
-    }
+    const year = params.annee ?? params.year;
+    if (year !== null && year >= FIRST_YEAR && year <= LAST_YEAR) store.setArchiveYear(year);
+    pending.current = { month: params.mois, fire: params.fire, focus: params.fire !== null && !params.cam };
+    if (params.fire !== null) store.selectFire(params.fire);
     if (params.cam) store.requestCamera({ kind: "preset", preset: params.cam });
     if (params.fond) store.setBasemap(params.fond);
   }, [params]);
 
+  // Month and fire need the window: applied once its fires are loaded.
+  useEffect(() => {
+    const request = pending.current;
+    if (!request || !span || !fires) return;
+    pending.current = null;
+    const store = useMapStore.getState();
+    const month = request.month ? span.months.findIndex((m) => monthKey(m) === request.month) : -1;
+    if (month >= 0) store.setMonth(month);
+    if (request.fire === null) return;
+    const fire = fires.find((candidate) => candidate.id === request.fire);
+    if (!fire || (month >= 0 && fire.monthIndex !== month)) store.selectFire(null);
+    else if (request.focus) store.requestCamera({ kind: "bbox", bbox: fire.bbox });
+  }, [span, fires]);
+
   useEffect(
     () =>
       useMapStore.subscribe((state, previous) => {
-        if (!seeded.current || state.playing) return;
+        if (!seeded.current) return;
         const changed =
-          state.year !== previous.year ||
+          state.archiveYear !== previous.archiveYear ||
+          state.month !== previous.month ||
           state.selectedFireId !== previous.selectedFireId ||
-          state.timelineDay !== previous.timelineDay ||
-          state.playing !== previous.playing ||
-          state.basemap !== previous.basemap ||
-          state.month !== previous.month;
+          state.basemap !== previous.basemap;
         if (!changed) return;
+        const months = latestSpan.current?.months;
         void setParams({
-          year: state.year,
-          date: state.timelineDay === null ? null : dateOfTimelineDay(state.year, state.timelineDay),
-          fire: state.selectedFireId,
+          annee: state.archiveYear,
+          year: null,
           cam: null,
           fond: state.basemap === "relief" ? null : state.basemap,
-          mois: state.month,
+          // Month and fire still waiting for the window keep their place in the address.
+          ...(pending.current
+            ? {}
+            : {
+                mois: state.month !== null && months ? monthKey(months[state.month]) : null,
+                fire: state.selectedFireId,
+              }),
         });
       }),
     [setParams],
   );
-
-  // A fire given in the URL is framed once its outline is loaded; an unknown id is dropped.
-  const year = useMapStore((state) => state.year);
-  const fires = useEffisYear(year).data?.fires;
-  useEffect(() => {
-    const id = pendingFocus.current;
-    if (id === null || !fires) return;
-    pendingFocus.current = null;
-    const fire = fires.find((candidate) => candidate.id === id);
-    if (fire) useMapStore.getState().requestCamera({ kind: "bbox", bbox: fire.bbox });
-    else useMapStore.getState().selectFire(null);
-  }, [fires]);
 
   return null;
 }

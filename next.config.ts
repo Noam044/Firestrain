@@ -3,9 +3,19 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // The map used to live at /explorer; the query string (year, fire…) is kept.
+  // The map lives at /carte. It used to be at /explorer, then at / itself: shared addresses
+  // carrying map state (?fire=…, ?annee=…) still open it. The query string is passed through.
   async redirects() {
-    return [{ source: "/explorer", destination: "/", permanent: true }];
+    const mapKeys = ["fire", "annee", "year", "mois", "fond", "cam", "rendu"];
+    return [
+      { source: "/explorer", destination: "/carte", permanent: true },
+      ...mapKeys.map((key) => ({
+        source: "/",
+        has: [{ type: "query" as const, key }],
+        destination: "/carte",
+        permanent: false,
+      })),
+    ];
   },
   turbopack: {
     rules: {

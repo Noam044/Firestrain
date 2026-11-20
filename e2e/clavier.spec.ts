@@ -1,4 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mockLive } from "./helpers";
+
+test.beforeEach(async ({ page }) => {
+  await mockLive(page);
+});
 
 /** Tabs through the page and returns, for each stop, its label and whether a focus ring is drawn. */
 async function tabStops(page: Page, count: number) {
@@ -19,7 +24,7 @@ async function tabStops(page: Page, count: number) {
   return stops;
 }
 
-for (const path of ["/?year=2026", "/liste?year=2026", "/methode"]) {
+for (const path of ["/", "/carte", "/carte?annee=2022", "/liste?year=2026", "/methode"]) {
   test(`chaque arrêt de tabulation est visible : ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
@@ -31,7 +36,7 @@ for (const path of ["/?year=2026", "/liste?year=2026", "/methode"]) {
 }
 
 test("la carte se manipule au clavier", async ({ page }) => {
-  await page.goto("/?year=2026&rendu=3d");
+  await page.goto("/carte?rendu=3d");
   const map = page.getByRole("application", { name: /Carte en relief/ });
   await map.focus();
   await expect(map).toBeFocused();

@@ -83,7 +83,7 @@ const columns = helper.columns([
     sortUndefined: "last",
     cell: (info) => {
       const value = info.getValue();
-      return value === undefined ? "—" : `${formatDecimal(value, value < 10 ? 1 : 0)} ha`;
+      return value === undefined ? "-" : `${formatDecimal(value, value < 10 ? 1 : 0)} ha`;
     },
   }),
 ]);
@@ -207,7 +207,7 @@ export function FiresTable() {
               setAtLeast30(event.target.checked);
               resetPage();
             }}
-            className="size-4 accent-moss"
+            className="size-4 accent-ink"
           />
           Feux de 30 ha ou plus (seuil des statistiques EFFIS)
         </label>
@@ -284,7 +284,7 @@ export function FiresTable() {
                     {cell.column.id === "commune" ? (
                       // The first column carries the link, so it stays reachable on narrow screens.
                       <Link
-                        href={`/?year=${safeYear}&fire=${row.original.id}`}
+                        href={`/carte?annee=${safeYear}&fire=${row.original.id}`}
                         className="underline decoration-rule underline-offset-4 hover:decoration-ink-3"
                       >
                         {row.original.commune}

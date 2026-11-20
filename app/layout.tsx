@@ -1,30 +1,41 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, Martian_Mono } from "next/font/google";
+import { SiteHeader } from "@/components/brand/SiteHeader";
 import { Providers } from "./providers";
 import "./globals.css";
 
-// One family, used across its width axis: condensed for labels, normal for
-// reading, wide for key figures.
-const archivo = Archivo({
-  subsets: ["latin"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
-  display: "swap",
-});
+// Funnel Sans for the interface, Funnel Display for titles, Martian Mono (condensed) for every reading.
+const funnelSans = Funnel_Sans({ subsets: ["latin"], variable: "--font-funnel-sans", display: "swap" });
+const funnelDisplay = Funnel_Display({ subsets: ["latin"], variable: "--font-funnel-display", display: "swap" });
+// Martian Mono is not preloaded: readings swap to it as soon as it arrives, the first paint does not wait.
+const martian = Martian_Mono({ subsets: ["latin"], axes: ["wdth"], variable: "--font-martian", display: "swap", preload: false });
 
 export const metadata: Metadata = {
-  title: { default: "Feux de forêt en France, 2006–2026", template: "%s · Feux de forêt en France" },
+  title: { default: "FireStrain, les feux de forêt en France en direct", template: "%s · FireStrain" },
+  applicationName: "FireStrain",
   description:
-    "Carte interactive des surfaces brûlées en France métropolitaine, année par année depuis 2006, à partir des données satellite EFFIS.",
+    "FireStrain : les feux de forêt des douze derniers mois en France métropolitaine, mois par mois, sur une carte en relief : surfaces brûlées EFFIS (Copernicus) et points chauds NASA FIRMS des dernières 72 heures.",
 };
 
-export const viewport: Viewport = { themeColor: "#f2f3ee", colorScheme: "light" };
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0f1112" },
+    { media: "(prefers-color-scheme: light)", color: "#f2f2ef" },
+  ],
+};
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={archivo.variable}>
+    // next-themes sets the theme class before the first paint: the attribute differs from the server render.
+    <html lang="fr" className={`${funnelSans.variable} ${funnelDisplay.variable} ${martian.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh bg-paper text-ink">
-        <Providers>{children}</Providers>
+        <a href="#contenu" className="sr-only z-50 rounded-md bg-signal px-3 py-2 font-bold text-on-signal focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
+          Aller au contenu
+        </a>
+        <Providers>
+          <SiteHeader />
+          {children}
+        </Providers>
       </body>
     </html>
   );
