@@ -215,6 +215,23 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
 - Lighthouse mobile : accueil 86, carte 88–92, liste 92, Méthode 96 en performance ; 100 en accessibilité, bonnes
   pratiques et SEO. Tests : 38 Playwright, 27 unitaires.
 
+### Animations discrètes et nettoyage « AI slop » (demande du 20/11/2026)
+
+- **Animations** (références Magic UI, shadcn/ui, 21st.dev ; écartés : shimmer, bordures lumineuses, néon,
+  particules, textes en dégradé) : apparition au défilement façon Blur Fade (8 px, flou 3 px, 0,5 s, une fois),
+  projecteur discret façon Magic Card sur les cartes des sources, info-bulles Radix (140 ms) sur les commandes de
+  carte, les barres de mois et d'années et le thème, remplissage glissant sur le bouton principal, pression à 97 %,
+  soulignement des liens tracé au survol, barres qui grandissent au survol, indicateur de page qui glisse
+  (layout motion), feux de la vue thermique qui apparaissent du plus ancien au plus récent (trois fondus, pas un
+  par feu : 1 700 animations coûtaient une seconde de calcul de styles). Tout est coupé avec « réduire les
+  animations » ; rien d'animé au-dessus de la ligne de flottaison ne retarde le LCP.
+- **Nettoyage** : titres en deux temps et titre à moitié coloré réécrits (« Suivre les feux de forêt en France »,
+  « Les douze derniers mois », « Archives depuis 2006 »…), tournures « X, pas Y » reformulées, pastille « en
+  direct » à point clignotant remplacée par une ligne de texte, étiquettes mono au-dessus des titres de cartes,
+  flèches décoratives, icônes de la palette, trame de points, anneaux et réticule décoratifs supprimés.
+- Lighthouse mobile : accueil 84–89, carte 91, liste 93, Méthode 96 en performance ; 100 ailleurs. 38 tests
+  Playwright, 27 unitaires.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.

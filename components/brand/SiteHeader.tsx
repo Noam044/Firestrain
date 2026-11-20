@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,15 @@ export function SiteHeader() {
                   )}
                 >
                   {page.label}
-                  {current && <span aria-hidden className="absolute inset-x-2 -bottom-[9px] h-0.5 bg-signal sm:inset-x-3" />}
+                  {/* One indicator shared by the links: it slides to the new page (motion layout animation). */}
+                  {current && (
+                    <motion.span
+                      layoutId="page-indicator"
+                      transition={{ type: "spring", stiffness: 420, damping: 36 }}
+                      aria-hidden
+                      className="absolute inset-x-2 -bottom-[9px] h-0.5 bg-signal sm:inset-x-3"
+                    />
+                  )}
                 </Link>
               );
             })}

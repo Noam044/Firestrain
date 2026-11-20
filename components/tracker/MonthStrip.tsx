@@ -95,7 +95,7 @@ export function MonthStrip() {
               <span className="figure hidden text-center text-[11px] leading-3 text-ink-3 sm:block">{fires ? total.count : ""}</span>
               <span className="mt-0.5 flex h-9 items-end">
                 <span
-                  className={`block w-full rounded-t-[2px] ${dimmed ? "bg-rule-strong" : "bg-fire-month"}`}
+                  className={`block w-full origin-bottom rounded-t-[2px] transition-[transform,background-color] duration-300 ease-out group-hover:scale-y-[1.06] ${dimmed ? "bg-rule-strong" : "bg-fire-month"}`}
                   style={{ height: total.areaHa > 0 ? `max(2px, ${(total.areaHa / max) * 100}%)` : "0" }}
                 />
               </span>

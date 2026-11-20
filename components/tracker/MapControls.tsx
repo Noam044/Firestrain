@@ -9,6 +9,7 @@ import { niceLength } from "@/lib/geo/scale";
 import { formatDistance } from "@/lib/format";
 import { useMapStore } from "@/lib/store";
 import { AGE_CLASSES } from "@/components/scene/markers";
+import { Tooltip } from "@/components/ui/tooltip";
 
 /** Swatches standing for each base map in the picker. */
 const SWATCH: Record<string, string> = {
@@ -30,15 +31,16 @@ function Key({
   touch?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      className={`grid size-9 place-items-center text-ink hover:bg-paper ${touch ? "" : "[@media(pointer:coarse)]:hidden"}`}
-    >
-      {children}
-    </button>
+    <Tooltip label={label} side="left">
+      <button
+        type="button"
+        aria-label={label}
+        onClick={onClick}
+        className={`grid size-9 place-items-center text-ink transition-[background-color,transform] duration-150 hover:bg-paper active:scale-90 ${touch ? "" : "[@media(pointer:coarse)]:hidden"}`}
+      >
+        {children}
+      </button>
+    </Tooltip>
   );
 }
 

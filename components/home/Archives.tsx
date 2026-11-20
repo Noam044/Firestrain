@@ -2,6 +2,8 @@ import Link from "next/link";
 import effisIndexJson from "@/public/data/effis/index.json";
 import { EffisIndexSchema } from "@/lib/data/schemas";
 import { formatInteger } from "@/lib/format";
+import { Reveal } from "@/components/motion/reveal";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const index = EffisIndexSchema.parse(effisIndexJson);
 
@@ -16,19 +18,18 @@ export function Archives() {
       className="border-t border-rule bg-sheet"
     >
       <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-8 lg:py-24">
-        <div className="max-w-[60ch]">
+        <Reveal className="max-w-[60ch]">
           <h2
             id="archives-titre"
             className="text-3xl leading-tight sm:text-4xl"
           >
-            Vingt ans d’archives, année par année
+            Archives depuis 2006
           </h2>
           <p className="mt-4 leading-7 text-ink-2">
-            Surface des feux de 30 ha ou plus depuis {years[0].year}, comme les
-            statistiques officielles d’EFFIS. Chaque année se rouvre sur la
-            carte.
+            Surface brûlée par les feux de 30 ha ou plus, année par année, selon
+            EFFIS. Un clic sur une année l’ouvre sur la carte.
           </p>
-        </div>
+        </Reveal>
         {/* On phones the years scroll sideways: each column stays a comfortable target. */}
         <div className="-mx-5 mt-12 overflow-x-auto px-5 pt-6 md:mx-0 md:px-0">
           <div className="min-w-[640px]">
@@ -48,18 +49,22 @@ export function Archives() {
                       </span>
                     )}
                     {/* The whole column is the target, not only the bar (small years are a few pixels high). */}
-                    <Link
-                      href={`/carte?annee=${year.year}`}
-                      aria-label={`${year.year} : ${formatInteger(year.areaHaAtLeast30)} ha. Ouvrir cette année sur la carte`}
-                      className="group flex h-full flex-col justify-end"
+                    <Tooltip
+                      label={`${year.year} : ${formatInteger(year.areaHaAtLeast30)} ha`}
                     >
-                      <span
-                        className={`block rounded-t-sm transition-colors ${isPeak ? "bg-signal" : "bg-rule-strong group-hover:bg-ink-3"}`}
-                        style={{
-                          height: `max(3px, ${(year.areaHaAtLeast30 / max) * 100}%)`,
-                        }}
-                      />
-                    </Link>
+                      <Link
+                        href={`/carte?annee=${year.year}`}
+                        aria-label={`${year.year} : ${formatInteger(year.areaHaAtLeast30)} ha. Ouvrir cette année sur la carte`}
+                        className="group flex h-full flex-col justify-end"
+                      >
+                        <span
+                          className={`block origin-bottom rounded-t-sm transition-[transform,background-color] duration-300 ease-out group-hover:scale-y-[1.04] ${isPeak ? "bg-signal" : "bg-rule-strong group-hover:bg-ink-3"}`}
+                          style={{
+                            height: `max(3px, ${(year.areaHaAtLeast30 / max) * 100}%)`,
+                          }}
+                        />
+                      </Link>
+                    </Tooltip>
                   </li>
                 );
               })}
@@ -83,10 +88,7 @@ export function Archives() {
           </div>
         </div>
         <p className="mt-6">
-          <Link
-            href="/liste"
-            className="font-semibold text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink"
-          >
+          <Link href="/liste" className="link-draw font-semibold text-ink-2">
             Toutes les surfaces dans la liste des feux
           </Link>
         </p>
