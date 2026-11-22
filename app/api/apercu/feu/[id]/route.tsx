@@ -50,9 +50,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 24, color: INK_3 }}>{`Feu de forêt · ${fire.province || "France"}`}</div>
             <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.05, marginTop: 10 }}>{fire.commune || "Commune non renseignée"}</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 28 }}>
-              <span style={{ fontSize: 88, fontWeight: 700, color: SIGNAL }}>{formatArea(fire.areaHa)}</span>
-              <span style={{ fontSize: 34, color: INK_3 }}>ha brûlés</span>
+            {/* Satori has no baseline alignment: both boxes sit on the bottom edge, the small text
+                raised by the difference between the two fonts' descents, so they share a baseline. */}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 28 }}>
+              <span style={{ fontSize: 88, lineHeight: 1, fontWeight: 700, color: SIGNAL }}>{formatArea(fire.areaHa)}</span>
+              <span style={{ fontSize: 34, lineHeight: 1, color: INK_3, paddingBottom: 7 }}>ha brûlés</span>
             </div>
             <div style={{ fontSize: 26, color: INK_3, marginTop: 8 }}>{`Première détection le ${formatDate(fire.firedate)}`}</div>
           </div>
