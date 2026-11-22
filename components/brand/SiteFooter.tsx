@@ -47,6 +47,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/departements" className="link-draw">
+                Feux par département
+              </Link>
+            </li>
+            <li>
               <Link href="/methode" className="link-draw">
                 Méthode et sources
               </Link>
