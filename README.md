@@ -8,7 +8,8 @@ Forest and vegetation fires of metropolitan France and Corsica, mapped from **pu
 
 ### [→ Try it now](https://firestrain.vercel.app)
 
-<!-- Presentation video: drag the .mp4 into the GitHub editor on this line, then replace this comment with the generated link. -->
+
+https://github.com/user-attachments/assets/b728f704-4399-40a2-903c-8b467c8d5808
 
 <br>
 
