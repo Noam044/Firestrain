@@ -97,7 +97,7 @@ function DepartementsToggle() {
       }`}
     >
       <MapTrifold size={14} weight="bold" aria-hidden className={on ? "text-signal" : ""} />
-      Départements
+      Filtrer par département
     </button>
   );
 }

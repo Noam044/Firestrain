@@ -267,13 +267,14 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
    ouvre le feu sur la carte), silhouette du département avec un disque par feu ; générées au build depuis les
    fichiers EFFIS (`lib/server/departements.ts`). La fiche d'un feu renvoie à son département ; plan du site
    (`/sitemap.xml`) pour les moteurs de recherche.
-   **Choisir un département sur la carte** (demandé en cours de route) : bouton « Départements » dans la barre de la
+   **Choisir un département sur la carte** (demandé en cours de route) : bouton « Filtrer par département » dans la barre de la
    carte. Activé, les repères des feux s'effacent (les surfaces brûlées restent sur le relief) et les départements
    répondent au pointeur : celui survolé se soulève (hauteur proportionnelle à l'échelle), s'éclaire d'un contour
    orange, les autres s'assombrissent ; une infobulle donne ses feux et sa surface sur la période. Un clic le choisit :
    la caméra le cadre, la liste, les chiffres et les puces des mois ne montrent plus que lui (`?dep=gironde`), avec
    « Toute la France » et un lien vers sa page. Aussi dans la recherche Ctrl K et dans la carte 2D. Masque des
-   départements rendu une fois sur la carte graphique (`components/scene/Departements.tsx`).
+   départements rendu une fois sur la carte graphique (`components/scene/Departements.tsx`). Les retours dézooment
+   d'un niveau : « Tous les feux » ramène au département choisi (ou à la France), « Toute la France » à la France.
 3. **L'année en cours face à la moyenne** : surface brûlée cumulée depuis janvier, comparée à la moyenne
    2006-2025 et à 2022.
 4. **Image d'aperçu par feu** : contour, commune et surface dans l'aperçu d'un lien `?fire=…`.

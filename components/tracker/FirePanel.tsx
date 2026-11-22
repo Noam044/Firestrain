@@ -3,6 +3,7 @@
 import { Dialog } from "radix-ui";
 import { formatInteger } from "@/lib/format";
 import { useSpanFires } from "@/lib/data/span-fires";
+import { zoomBack } from "@/lib/data/departements-map";
 import { useMapStore } from "@/lib/store";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { FireCard } from "./FireCard";
@@ -18,7 +19,11 @@ export function FirePanel() {
   const wide = useMediaQuery("(min-width: 1024px)", true);
   const { fires } = useSpanFires();
   const fire = fires?.find((candidate) => candidate.id === selectedFireId) ?? null;
-  const close = () => selectFire(null);
+  // Back to the list: the camera zooms out one level (the chosen département, else France).
+  const close = () => {
+    selectFire(null);
+    zoomBack();
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

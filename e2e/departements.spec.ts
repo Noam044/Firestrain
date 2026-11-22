@@ -27,11 +27,11 @@ test("un département sans feu le dit", async ({ page }) => {
   await expect(page.getByText(/EFFIS n’a cartographié aucun feu dans ce département/)).toBeVisible();
 });
 
-test("le mode Départements remplace les feux par les départements, et un clic en choisit un", async ({ page }) => {
+test("le filtre par département remplace les feux par les départements, et un clic en choisit un", async ({ page }) => {
   // Headless Chrome draws the 2D map, which has the same département mode.
   await page.goto("/carte?rendu=2d");
   await expect(page.getByRole("progressbar", { name: "Chargement des données satellite" })).toBeHidden();
-  const toggle = page.getByRole("button", { name: "Départements" });
+  const toggle = page.getByRole("button", { name: "Filtrer par département" });
   await toggle.click();
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
   // The fire markers step back.

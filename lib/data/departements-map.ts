@@ -1,6 +1,7 @@
 import { SCENE_SIZE } from "../geo/frame.ts";
 import { bboxContains, pointInRings, type BBox, type FlatRing } from "../geo/polygon.ts";
 import { slugify } from "../slug.ts";
+import { useMapStore } from "../store.ts";
 
 /**
  * The départements as map shapes: the 2D map's outlines (Lambert-93 km, SVG
@@ -35,8 +36,11 @@ function parseRings(d: string): FlatRing[] {
   return rings;
 }
 
+/** The last list built, so a "back" button can frame the chosen département without loading anything. */
+let known: MapDepartement[] = [];
+
 export function mapDepartements(features: readonly Outline[]): MapDepartement[] {
-  return features.map((feature, k) => {
+  known = features.map((feature, k) => {
     const rings = parseRings(feature.d);
     let [x0, z0, x1, z1] = [Infinity, Infinity, -Infinity, -Infinity];
     for (const ring of rings) {
@@ -49,6 +53,17 @@ export function mapDepartements(features: readonly Outline[]): MapDepartement[] 
     }
     return { index: k + 1, code: feature.code, nom: feature.nom, slug: slugify(feature.nom), bbox: [x0, z0, x1, z1], rings };
   });
+  return known;
+}
+
+/**
+ * Back from a fire: the camera returns one level up, to the chosen département
+ * when there is one, else to the whole of France.
+ */
+export function zoomBack() {
+  const { departement, requestCamera } = useMapStore.getState();
+  const framed = departement ? known.find((d) => d.slug === departement) : undefined;
+  requestCamera(framed ? { kind: "bbox", bbox: framed.bbox } : { kind: "preset", preset: "france" });
 }
 
 /** Département under a scene point, if any. */
