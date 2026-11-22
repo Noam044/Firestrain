@@ -30,7 +30,8 @@ function inFrance(x: number, z: number): boolean {
  * Throws on any failure, so that an error is never cached.
  */
 export async function getRecentDetections(): Promise<RecentDetections> {
-  "use cache";
+  // Remote: shared by every server instance (FIRMS counts the key's requests).
+  "use cache: remote";
   cacheLife("hours");
   const key = process.env.FIRMS_MAP_KEY;
   if (!key) throw new Error("FIRMS_MAP_KEY is not set");
