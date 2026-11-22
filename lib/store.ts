@@ -46,6 +46,12 @@ type MapState = {
   basemap: BasemapId;
   /** One-shot camera move, consumed by the 3D camera rig. */
   cameraRequest: CameraRequest | null;
+  /** Département mode: the départements answer the pointer, the fires step back. */
+  departementsMode: boolean;
+  /** Département under the pointer in that mode (index 1–96), with its screen position for the tooltip. */
+  hoverDepartement: { index: number; x: number; y: number } | null;
+  /** Slug of the chosen département: the list shows its fires only. */
+  departement: string | null;
   setRenderMode: (renderMode: "3d" | "2d" | null) => void;
   setView: (view: { kmPer100px: number | null; northDeg: number }) => void;
   setCursor: (cursor: CursorReadout | null) => void;
@@ -58,6 +64,9 @@ type MapState = {
   setSort: (sort: FireSort) => void;
   setBasemap: (basemap: BasemapId) => void;
   requestCamera: (target: CameraRequest["target"]) => void;
+  setDepartementsMode: (on: boolean) => void;
+  setHoverDepartement: (hover: MapState["hoverDepartement"]) => void;
+  setDepartement: (slug: string | null) => void;
 };
 
 export type CameraRequest = {
@@ -84,6 +93,9 @@ export const useMapStore = create<MapState>()((set) => ({
   sort: "date",
   basemap: "relief",
   cameraRequest: null,
+  departementsMode: false,
+  hoverDepartement: null,
+  departement: null,
   setRenderMode: (renderMode) => set({ renderMode }),
   setView: (view) => set(view),
   setCursor: (cursor) => set({ cursor }),
@@ -97,4 +109,9 @@ export const useMapStore = create<MapState>()((set) => ({
   setSort: (sort) => set({ sort }),
   setBasemap: (basemap) => set({ basemap }),
   requestCamera: (target) => set((state) => ({ cameraRequest: { id: (state.cameraRequest?.id ?? 0) + 1, target } })),
+  // Entering the mode drops the hovered fire; leaving it drops the hovered département.
+  setDepartementsMode: (departementsMode) => set({ departementsMode, hover: null, hoverDepartement: null }),
+  setHoverDepartement: (hoverDepartement) => set({ hoverDepartement }),
+  // A fire belongs to one département: choosing another closes its card.
+  setDepartement: (departement) => set({ departement, selectedFireId: null }),
 }));

@@ -1,12 +1,14 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { SCENE_SIZE } from "@/lib/geo/frame";
 import type { TerrainData } from "@/lib/data/queries";
 import type { LandMask } from "@/lib/data/land-mask";
 import { readColorToken } from "@/lib/tokens";
+import { useMapStore } from "@/lib/store";
+import type { DepartementEase } from "./Departements";
 import type { Imagery } from "./Imagery";
 import { terrainFragmentShader, terrainVertexShader } from "./shaders";
 
@@ -79,6 +81,8 @@ type TerrainProps = {
   dayRange: readonly [number, number] | null;
   /** Base-map imagery (Imagery.ts); the shaded relief when absent. */
   imagery: Imagery;
+  /** Index of each département (Departements.tsx), its eased hover, and the chosen one (0 = none). */
+  departements: { mask: THREE.Texture; ease: RefObject<DepartementEase>; selectedIndex: number };
 };
 
 export function Terrain({
@@ -91,6 +95,7 @@ export function Terrain({
   showHistory,
   dayRange,
   imagery,
+  departements,
 }: TerrainProps) {
   const invalidate = useThree((state) => state.invalidate);
   const meshRef = useRef<THREE.Mesh>(null);
@@ -143,9 +148,16 @@ export function Terrain({
         uColChar: { value: vec3(readColorToken("--scorch")) },
         uColHatch: { value: vec3(readColorToken("--cendre")) },
         uColEdge: { value: vec3(readColorToken("--scorch-ink")) },
+        uColSignal: { value: vec3(readColorToken("--signal")) },
+        uDept: { value: departements.mask },
+        uDeptMode: { value: 0 },
+        uDeptHover: { value: 0 },
+        uDeptSelected: { value: 0 },
+        uDeptLiftIndex: { value: 0 },
+        uDeptLift: { value: 0 },
       },
     });
-  }, [terrain, textures, burn]);
+  }, [terrain, textures, burn, departements.mask]);
 
   useFrame((state) => {
     const mesh = meshRef.current;
@@ -168,6 +180,13 @@ export function Terrain({
     uniforms.uHasNear.value = imagery.near ? 1 : 0;
     uniforms.uNearRect.value.copy(imagery.nearRect);
     uniforms.uImageryShade.value = imagery.shade;
+    const ease = departements.ease.current;
+    const { hoverDepartement, departementsMode } = useMapStore.getState();
+    uniforms.uDeptMode.value = ease.mode;
+    uniforms.uDeptHover.value = departementsMode && hoverDepartement ? hoverDepartement.index : 0;
+    uniforms.uDeptSelected.value = departements.selectedIndex;
+    uniforms.uDeptLiftIndex.value = ease.liftIndex;
+    uniforms.uDeptLift.value = ease.lift * ease.liftKm;
   });
 
   useEffect(

@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown, MapTrifold } from "@phosphor-icons/react";
 import { CommandMenu } from "./CommandMenu";
 import { formatInteger } from "@/lib/format";
 import { useRecentDetections } from "@/lib/data/queries";
@@ -79,12 +79,36 @@ function LiveToggle() {
   );
 }
 
-/** The tracker's own bar: which period the map shows, and the live hotspots. */
+/**
+ * Département mode: the départements answer the pointer (hover lifts one, a
+ * click chooses it) and the fire markers step back, so the two never compete.
+ */
+function DepartementsToggle() {
+  const on = useMapStore((state) => state.departementsMode);
+  const setMode = useMapStore((state) => state.setDepartementsMode);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={() => setMode(!on)}
+      title="Survoler et choisir un département sur la carte"
+      className={`flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-bold ${
+        on ? "border-signal bg-signal/10 text-ink" : "border-rule-strong bg-sheet text-ink-2 hover:text-ink"
+      }`}
+    >
+      <MapTrifold size={14} weight="bold" aria-hidden className={on ? "text-signal" : ""} />
+      Départements
+    </button>
+  );
+}
+
+/** The tracker's own bar: which period the map shows, the live hotspots, the département mode. */
 export function TopBar() {
   return (
     <div className="flex flex-wrap items-center gap-2 border-b border-rule bg-sheet px-4 py-2 lg:px-5">
       <PeriodSwitch />
       <LiveToggle />
+      <DepartementsToggle />
       <div className="ml-auto">
         <CommandMenu />
       </div>

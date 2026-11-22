@@ -4,6 +4,7 @@ import { createContext, createElement, useContext, useMemo, type ReactNode } fro
 import { useEffisIndex, useEffisYears, useRecentFires } from "./queries.ts";
 import type { DecodedFire, SpanFire } from "./fires.ts";
 import { useMapStore } from "../store.ts";
+import { inDepartement } from "./departements-map.ts";
 import { daysBetween, recentSpan, spanDay, spanMonthIndex, yearSpan, type Span } from "../span.ts";
 
 /** Where the fires shown come from, for the source line and the notices. */
@@ -89,4 +90,17 @@ export function useSpanFires(): SpanData {
   const data = useContext(SpanContext);
   if (!data) throw new Error("useSpanFires outside SpanFiresProvider");
   return data;
+}
+
+/**
+ * The fires of the panel: the window's fires, or only the chosen département's
+ * (département mode, ?dep=). The map itself keeps every fire.
+ */
+export function usePanelFires(): readonly SpanFire[] | undefined {
+  const { fires } = useSpanFires();
+  const departement = useMapStore((state) => state.departement);
+  return useMemo(
+    () => (fires && departement ? fires.filter((fire) => inDepartement(fire.province, departement)) : fires),
+    [fires, departement],
+  );
 }

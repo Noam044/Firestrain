@@ -7,6 +7,8 @@ import { Kbd } from "@/components/ui/kbd";
 import { AGE_CLASSES, ageClass } from "@/components/scene/markers";
 import { formatArea, formatDayMonth, formatMonthYear } from "@/lib/format";
 import { useSpanFires } from "@/lib/data/span-fires";
+import { useDepartements2D } from "@/lib/data/queries";
+import { mapDepartements } from "@/lib/data/departements-map";
 import { BASEMAPS } from "@/lib/geo/basemaps";
 import { FIRST_YEAR, LAST_YEAR, useMapStore } from "@/lib/store";
 
@@ -74,6 +76,17 @@ export default function CommandPalette({
     { length: LAST_YEAR - FIRST_YEAR + 1 },
     (_, k) => LAST_YEAR - k,
   ).filter((year) => !needle || String(year).includes(needle));
+  const outlines = useDepartements2D();
+  const allDepartements = useMemo(
+    () => (outlines.data ? mapDepartements(outlines.data.features) : []),
+    [outlines.data],
+  );
+  const departements =
+    needle.length >= 2
+      ? allDepartements
+          .filter((d) => fold(`${d.nom} ${d.code}`).includes(needle))
+          .slice(0, 6)
+      : [];
   const basemaps = BASEMAPS.filter(
     (b) => !needle || fold(`fond ${b.label}`).includes(needle),
   );
@@ -145,6 +158,25 @@ export default function CommandPalette({
                 <span className="figure w-20 text-right text-ink">
                   {formatArea(fire.areaHa)} ha
                 </span>
+              </Item>
+            ))}
+          </Command.Group>
+        )}
+        {departements.length > 0 && (
+          <Command.Group heading="Départements" className={groupClass}>
+            {departements.map((departement) => (
+              <Item
+                key={departement.slug}
+                value={`dep-${departement.slug}`}
+                onSelect={() =>
+                  run(() => {
+                    store().setDepartement(departement.slug);
+                    store().requestCamera({ kind: "bbox", bbox: departement.bbox });
+                  })
+                }
+              >
+                <span className="figure w-7 text-xs text-ink-3">{departement.code}</span>
+                <span className="font-semibold text-ink">{departement.nom}</span>
               </Item>
             ))}
           </Command.Group>

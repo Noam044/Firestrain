@@ -11,6 +11,9 @@ export const terrainVertexShader = /* glsl */ `
 uniform sampler2D uHeight;
 uniform vec2 uSceneSize;
 uniform float uExag;
+uniform sampler2D uDept;
+uniform float uDeptLiftIndex;
+uniform float uDeptLift;
 varying vec2 vUv;
 varying float vHeightM;
 
@@ -19,6 +22,9 @@ void main() {
   vUv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
   vHeightM = texture2D(uHeight, vUv).r;
   p.y = vHeightM * 0.001 * uExag;
+  // Département mode: the hovered département rises above the others (index mask, Departements.tsx).
+  float deptId = floor(texture2D(uDept, vUv).r * 255.0 + 0.5);
+  p.y += step(0.5, uDeptLiftIndex) * step(abs(deptId - uDeptLiftIndex), 0.5) * uDeptLift;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }
 `;
@@ -49,6 +55,11 @@ uniform sampler2D uImageryNear;
 uniform vec4 uNearRect;
 uniform float uHasNear;
 uniform float uImageryShade;
+uniform sampler2D uDept;
+uniform float uDeptMode;
+uniform float uDeptHover;
+uniform float uDeptSelected;
+uniform vec3 uColSignal;
 varying vec2 vUv;
 varying float vHeightM;
 
@@ -117,6 +128,17 @@ void main() {
   float edge = 1.0 - smoothstep(0.0, 1.5 * fwidth(burn.r) + 1e-4, abs(burn.r - 0.5));
   color = mix(color, uColEdge, edge * 0.8 * started);
 
+  // Départements: in their mode the hovered one is lit and tinted, the others step
+  // back; a chosen département keeps a light tint, and the others a lighter dimming.
+  float deptId = floor(texture2D(uDept, vUv).r * 255.0 + 0.5);
+  float hovered = step(0.5, uDeptHover) * step(abs(deptId - uDeptHover), 0.5) * uDeptMode;
+  float chosen = step(0.5, uDeptSelected) * step(abs(deptId - uDeptSelected), 0.5);
+  float focus = max(hovered, chosen);
+  float dim = max(uDeptMode * 0.38, step(0.5, uDeptSelected) * 0.22) * (1.0 - focus);
+  color *= 1.0 - dim;
+  color = mix(color, uColSignal, 0.16 * hovered + 0.08 * chosen * (1.0 - hovered));
+  color *= 1.0 + 0.14 * hovered;
+
   // Outside metropolitan France nothing is drawn and the page shows through.
   // Discarding last keeps derivatives (fwidth, implicit LOD) well defined.
   if (texture2D(uMask, vUv).r < 0.5) discard;
@@ -129,6 +151,7 @@ uniform sampler2D uHeight;
 uniform vec2 uSceneSize;
 uniform float uExag;
 uniform float uLift;
+uniform float uRaise;
 attribute float aProgress;
 varying float vProgress;
 
@@ -136,7 +159,7 @@ void main() {
   vProgress = aProgress;
   vec3 p = position;
   vec2 uv = vec2(p.x / uSceneSize.x + 0.5, p.z / uSceneSize.y + 0.5);
-  p.y = texture2D(uHeight, uv).r * 0.001 * uExag;
+  p.y = texture2D(uHeight, uv).r * 0.001 * uExag + uRaise;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   // Pull slightly towards the camera, proportionally to distance, so the line
   // stays above the relief at every zoom level without visibly floating.

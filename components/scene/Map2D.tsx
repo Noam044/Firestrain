@@ -8,6 +8,7 @@ import { useDepartements2D, useEffisYears, useNeighbours, useRecentDetections } 
 import { useSpanFires } from "@/lib/data/span-fires";
 import { recentToColumns } from "@/lib/data/firms-recent";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
+import { slugify } from "@/lib/slug";
 import { AGE_CLASSES, ageClass, markerRadius } from "./markers";
 import { useUnitsPerPx } from "./useUnitsPerPx";
 
@@ -46,6 +47,11 @@ export default function Map2D({ reason }: { reason: string }) {
   const selectFire = useMapStore((state) => state.selectFire);
   const setHover = useMapStore((state) => state.setHover);
   const month = useMapStore((state) => state.month);
+  const departementsMode = useMapStore((state) => state.departementsMode);
+  const hoverDepartement = useMapStore((state) => (state.departementsMode ? (state.hoverDepartement?.index ?? 0) : 0));
+  const setHoverDepartement = useMapStore((state) => state.setHoverDepartement);
+  const chosenDepartement = useMapStore((state) => state.departement);
+  const setDepartement = useMapStore((state) => state.setDepartement);
   const archiveYear = useMapStore((state) => state.archiveYear);
   const showLive = useMapStore((state) => state.showLive) && archiveYear === null;
   const live = useRecentDetections(showLive);
@@ -120,27 +126,46 @@ export default function Map2D({ reason }: { reason: string }) {
             {imageUrl && (
               <image href={imageUrl} x={0} y={0} width={SCENE_SIZE.width} height={SCENE_SIZE.depth} preserveAspectRatio="none" clipPath="url(#carte-2d-france)" />
             )}
-            {data.features.map((feature) => (
-              <path
-                key={feature.code}
-                d={feature.d}
-                fill={imageUrl ? "none" : "var(--relief-flat)"}
-                stroke="var(--boundary)"
-                strokeWidth={0.75}
-                fillRule="evenodd"
-                vectorEffect="non-scaling-stroke"
-              >
-                <title>{`${feature.nom} (${feature.code})`}</title>
-              </path>
-            ))}
+            {data.features.map((feature, k) => {
+              const index = k + 1;
+              const slug = slugify(feature.nom);
+              const hovered = hoverDepartement === index;
+              const chosen = chosenDepartement === slug;
+              const dimmed = (departementsMode || chosenDepartement !== null) && !hovered && !chosen;
+              return (
+                <path
+                  key={feature.code}
+                  d={feature.d}
+                  fill={imageUrl ? (hovered ? "var(--signal)" : "none") : hovered ? "color-mix(in oklab, var(--relief-flat) 80%, var(--signal))" : "var(--relief-flat)"}
+                  fillOpacity={imageUrl && hovered ? 0.2 : dimmed ? 0.7 : 1}
+                  stroke={hovered || chosen ? "var(--signal)" : "var(--boundary)"}
+                  strokeWidth={hovered || chosen ? 2 : 0.75}
+                  fillRule="evenodd"
+                  vectorEffect="non-scaling-stroke"
+                  className={departementsMode ? "cursor-pointer" : undefined}
+                  {...(departementsMode
+                    ? {
+                        onMouseMove: (event) => setHoverDepartement({ index, x: event.clientX, y: event.clientY }),
+                        onMouseLeave: () => setHoverDepartement(null),
+                        onClick: (event) => {
+                          event.stopPropagation();
+                          setDepartement(slug);
+                        },
+                      }
+                    : {})}
+                >
+                  <title>{`${feature.nom} (${feature.code})`}</title>
+                </path>
+              );
+            })}
             {historyPath && <path d={historyPath} fill="url(#carte-2d-hachures)" fillRule="evenodd" />}
             {outlines.map(({ fire, d }) => (
               <path key={fire.id} d={d} fill="var(--scorch)" stroke="var(--scorch-ink)" strokeWidth={0.5} fillRule="evenodd" vectorEffect="non-scaling-stroke" pointerEvents="none" />
             ))}
-            {livePoints.map((point, k) => (
+            {!departementsMode && livePoints.map((point, k) => (
               <circle key={k} cx={point.x} cy={point.y} r={2.5 * unitsPerPx} fill="none" stroke="var(--amber)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" opacity={point.opacity} pointerEvents="none" />
             ))}
-            {markers.map((fire) => {
+            {!departementsMode && markers.map((fire) => {
               const [cx, cy] = toSvg(fire.center[0], fire.center[1]);
               const ring = fire.id === selectedFireId ? 2.5 : fire.id === hoverId ? 2 : 1.5;
               return (

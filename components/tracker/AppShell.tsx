@@ -1,10 +1,13 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { MapStageLoader } from "@/components/scene/MapStageLoader";
 import { UrlSync } from "@/components/ui/UrlSync";
-import { formatAge, formatArea, formatDate } from "@/lib/format";
+import { formatAge, formatArea, formatCount, formatDate, formatInteger } from "@/lib/format";
+import { useDepartements2D } from "@/lib/data/queries";
+import { inDepartement } from "@/lib/data/departements-map";
+import { slugify } from "@/lib/slug";
 import type { BdiffAnnual, EffisIndex } from "@/lib/data/schemas";
 import { SpanFiresProvider, useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
@@ -29,6 +32,38 @@ function MapTooltip() {
       <p className="figure text-xs leading-4 opacity-80">
         {formatArea(fire.areaHa)} ha · {fire.ageDays !== null ? formatAge(fire.ageDays) : formatDate(fire.firedate)}
       </p>
+    </div>
+  );
+}
+
+/** The département under the pointer, in the département mode: its name and the period's fires there. */
+function DepartementTooltip() {
+  const hover = useMapStore((state) => state.hoverDepartement);
+  const mode = useMapStore((state) => state.departementsMode);
+  const outlines = useDepartements2D();
+  const { fires } = useSpanFires();
+  const feature = hover ? outlines.data?.features[hover.index - 1] : undefined;
+  const totals = useMemo(() => {
+    if (!feature || !fires) return null;
+    const slug = slugify(feature.nom);
+    const inside = fires.filter((fire) => inDepartement(fire.province, slug));
+    return { count: inside.length, areaHa: inside.reduce((sum, fire) => sum + fire.areaHa, 0) };
+  }, [feature, fires]);
+  if (!mode || !hover || !feature) return null;
+  return (
+    <div
+      role="tooltip"
+      className="pointer-events-none fixed z-40 max-w-64 rounded-md bg-ink px-2.5 py-1.5 text-sheet shadow-md"
+      style={{ left: hover.x + 14, top: hover.y + 14 }}
+    >
+      <p className="text-sm font-bold leading-5">
+        {feature.nom} <span className="figure font-normal opacity-70">{feature.code}</span>
+      </p>
+      {totals && (
+        <p className="figure text-xs leading-4 opacity-80">
+          {formatCount(totals.count, "feu", "feux")} · {formatInteger(totals.areaHa)} ha
+        </p>
+      )}
     </div>
   );
 }
@@ -72,6 +107,7 @@ export function AppShell({ initialData }: { initialData: { effisIndex: EffisInde
           <DataLoading />
         </main>
         <MapTooltip />
+        <DepartementTooltip />
         {/* Reads the query string: rendered on the client, outside the static shell. */}
         <Suspense fallback={null}>
           <UrlSync />

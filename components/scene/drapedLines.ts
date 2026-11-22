@@ -67,6 +67,8 @@ export function drapedLineMaterial(
       uSceneSize: { value: new THREE.Vector2(SCENE_SIZE.width, SCENE_SIZE.depth) },
       uExag: { value: exaggeration },
       uLift: { value: 0.0015 },
+      // Vertical offset in scene km (a lifted département's outline).
+      uRaise: { value: 0 },
       uColor: { value: new THREE.Vector3(...readColorToken(color)) },
       uOpacity: { value: opacity },
       uProgress: { value: 1 },
