@@ -19,6 +19,7 @@ import { bboxContains, pointInRings } from "@/lib/geo/polygon";
 import { LAND_COVER_KEYS } from "@/lib/data/schemas";
 import { LAND_COVER_LABELS } from "@/lib/data/land-cover";
 import { AGE_CLASSES, ageClass } from "@/components/scene/markers";
+import { ShareFire } from "./ShareFire";
 
 /** VIIRS pixel half-width: detections this close to the outline are counted (≈ 400 m). */
 const NEAR_KM = 0.4;
@@ -224,6 +225,7 @@ export function FireCard({ fire, onBack }: { fire: SpanFire; onBack: () => void 
             fiche EFFIS {fire.id}
           </a>
         </p>
+        <ShareFire fire={fire} />
       </div>
     </article>
   );
