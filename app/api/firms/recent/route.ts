@@ -7,7 +7,8 @@ export async function GET() {
   await connection();
   try {
     return Response.json(await getRecentDetections(), {
-      headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
+      // Kept 10 min by the CDN, then served while a fresh copy is fetched (up to an hour).
+      headers: { "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=3600" },
     });
   } catch (error) {
     // Our own messages only (see getRecentDetections): never a URL, so never the key.

@@ -39,7 +39,8 @@ function toFire(record: RawRecord) {
  * so that an error is never cached.
  */
 export async function getRecentFires(): Promise<RecentFires> {
-  "use cache";
+  // Remote: shared by every server instance, so a cold instance does not query EFFIS again.
+  "use cache: remote";
   cacheLife("hours");
   const generatedAt = new Date().toISOString();
   const from = spanStartDate(recentSpan(generatedAt));

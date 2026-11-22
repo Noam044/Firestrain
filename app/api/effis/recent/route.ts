@@ -15,7 +15,9 @@ export async function GET() {
     return new Response(gzipSync(JSON.stringify(await getRecentFires())), {
       headers: {
         "Content-Type": "application/gzip",
-        "Cache-Control": "public, max-age=300, stale-while-revalidate=900",
+        // The CDN keeps the answer 15 min, then serves it while it fetches a fresh one (up to a day):
+        // a visitor only waits on EFFIS when nothing at all is cached.
+        "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=86400",
       },
     });
   } catch (error) {

@@ -256,6 +256,18 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
   fixe, sans animation.
 - Lighthouse mobile (sans GPU, donc lueur fixe) : accueil 76–82 en performance, 100 ailleurs. 40 tests Playwright.
 
+### Quatre fonctionnalités rapides (demande du 22/11/2026)
+
+1. **Premier chargement rapide** : les réponses EFFIS et FIRMS sont gardées dans un cache partagé par toutes les
+   instances du serveur (`"use cache: remote"`) et par le CDN de Vercel (`s-maxage` + `stale-while-revalidate`) :
+   un visiteur n'attend EFFIS que lorsque rien n'est en cache (après un déploiement), les autres reçoivent la
+   dernière copie pendant qu'une nouvelle est demandée.
+2. **Une page par département** (`/departement/[slug]`) : feux depuis 2006, plus grands feux, courbe par année,
+   lien vers la carte ; générée au build depuis les fichiers EFFIS.
+3. **L'année en cours face à la moyenne** : surface brûlée cumulée depuis janvier, comparée à la moyenne
+   2006-2025 et à 2022.
+4. **Image d'aperçu par feu** : contour, commune et surface dans l'aperçu d'un lien `?fire=…`.
+
 ## Questions ouvertes (elles changent l'architecture)
 
 1. **Clé FIRMS** : as-tu une `MAP_KEY` ? (Elle est gratuite, et je ne peux pas créer de compte à ta place.) Sans clé, il n'y aura pas de points 2026 : la timeline n'animera que les contours EFFIS, avec un état vide honnête pour FIRMS.
