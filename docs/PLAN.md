@@ -275,8 +275,10 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
    « Toute la France » et un lien vers sa page. Aussi dans la recherche Ctrl K et dans la carte 2D. Masque des
    départements rendu une fois sur la carte graphique (`components/scene/Departements.tsx`). Les retours dézooment
    d'un niveau : « Tous les feux » ramène au département choisi (ou à la France), « Toute la France » à la France.
-3. **L'année en cours face à la moyenne** : surface brûlée cumulée depuis janvier, comparée à la moyenne
-   2006-2025 et à 2022.
+3. **L'année en cours face à la moyenne** (accueil, avant les archives) : surface brûlée cumulée depuis le
+   1er janvier, jour par jour, avec la moyenne 2006-2025 et l'année la plus touchée de la période, et une phrase
+   « au <date>, N ha, soit k fois la moyenne à la même date ». Courbes passées calculées au build
+   (`lib/server/year-pace.ts`) ; année en cours depuis le suivi en direct, ou les archives s'il ne répond pas.
 4. **Image d'aperçu par feu** : contour, commune et surface dans l'aperçu d'un lien `?fire=…`.
 
 ## Questions ouvertes (elles changent l'architecture)

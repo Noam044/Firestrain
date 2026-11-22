@@ -95,6 +95,14 @@ test("l'accueil présente FireStrain, l'état du moment et mène à la carte", a
   await expect(page.getByRole("heading", { level: 2, name: "Les 12 derniers mois" })).toBeVisible();
 });
 
+test("l'accueil compare l'année en cours à la moyenne des années passées", async ({ page }) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: /face aux années passées/ });
+  await expect(section.getByText(/ont brûlé depuis le 1/)).toBeVisible();
+  await expect(section.getByText(/la moyenne 2006-2025 à la même date/)).toBeVisible();
+  await expect(section.getByRole("img", { name: /Surface brûlée cumulée depuis le 1er janvier/ })).toBeVisible();
+});
+
 test("le pied de page crédite l'auteur, et le logo ramène au début de l'accueil", async ({ page }) => {
   await page.goto("/");
   const credit = page.getByRole("contentinfo").getByRole("link", { name: /Noam Bouriche/ });
