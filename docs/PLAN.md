@@ -262,8 +262,11 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
    instances du serveur (`"use cache: remote"`) et par le CDN de Vercel (`s-maxage` + `stale-while-revalidate`) :
    un visiteur n'attend EFFIS que lorsque rien n'est en cache (après un déploiement), les autres reçoivent la
    dernière copie pendant qu'une nouvelle est demandée.
-2. **Une page par département** (`/departement/[slug]`) : feux depuis 2006, plus grands feux, courbe par année,
-   lien vers la carte ; générée au build depuis les fichiers EFFIS.
+2. **Une page par département** (`/departement/[slug]`, 96 pages, et la liste `/departements`) : feux et surface
+   depuis 2006, pire année, colonne par année (chacune ouvre l'année sur la carte), dix plus grands feux (chacun
+   ouvre le feu sur la carte), silhouette du département avec un disque par feu ; générées au build depuis les
+   fichiers EFFIS (`lib/server/departements.ts`). La fiche d'un feu renvoie à son département ; plan du site
+   (`/sitemap.xml`) pour les moteurs de recherche.
 3. **L'année en cours face à la moyenne** : surface brûlée cumulée depuis janvier, comparée à la moyenne
    2006-2025 et à 2022.
 4. **Image d'aperçu par feu** : contour, commune et surface dans l'aperçu d'un lien `?fire=…`.

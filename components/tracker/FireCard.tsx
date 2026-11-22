@@ -2,6 +2,7 @@
 
 import { CaretLeft } from "@phosphor-icons/react";
 import Link from "next/link";
+import { slugify } from "@/lib/slug";
 import { useMemo, type ReactNode } from "react";
 import {
   formatAge,
@@ -142,7 +143,13 @@ export function FireCard({ fire, onBack }: { fire: SpanFire; onBack: () => void 
           <h2 id="feu-titre" className="text-2xl leading-tight">
             {fire.commune || "Commune non renseignée"}
           </h2>
-          <p className="text-sm text-ink-2">{fire.province}</p>
+          {fire.province ? (
+            <Link href={`/departement/${slugify(fire.province)}`} className="link-draw text-sm text-ink-2">
+              {fire.province}
+            </Link>
+          ) : (
+            <p className="text-sm text-ink-2">Département non renseigné</p>
+          )}
         </div>
       </div>
 
