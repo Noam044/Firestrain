@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Funnel_Display, Funnel_Sans, Martian_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/brand/SiteHeader";
 import { Providers } from "./providers";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // Funnel Sans for the interface, Funnel Display for titles, Martian Mono (condensed) for every reading.
@@ -12,6 +13,8 @@ const funnelDisplay = Funnel_Display({ subsets: ["latin"], variable: "--font-fun
 const martian = Martian_Mono({ subsets: ["latin"], axes: ["wdth"], variable: "--font-martian", display: "swap", preload: false });
 
 export const metadata: Metadata = {
+  // Absolute addresses for link previews (og:image).
+  metadataBase: new URL(SITE_URL),
   title: { default: "FireStrain, les feux de forêt en France en direct", template: "%s · FireStrain" },
   applicationName: "FireStrain",
   description:

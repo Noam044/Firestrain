@@ -279,7 +279,10 @@ un meilleur logo. Direction choisie parmi trois : **Thermique** (imagerie satell
    1er janvier, jour par jour, avec la moyenne 2006-2025 et l'année la plus touchée de la période, et une phrase
    « au <date>, N ha, soit k fois la moyenne à la même date ». Courbes passées calculées au build
    (`lib/server/year-pace.ts`) ; année en cours depuis le suivi en direct, ou les archives s'il ne répond pas.
-4. **Image d'aperçu par feu** : contour, commune et surface dans l'aperçu d'un lien `?fire=…`.
+4. **Image d'aperçu par feu** : un lien `/carte?fire=…` (avec `annee=` pour les archives) a son titre, sa description
+   et une image 1200 × 630 (contour EFFIS, commune, département, surface, date), dessinée par
+   `/api/apercu/feu/<id>` et gardée un jour par le CDN. Les robots des réseaux sociaux reçoivent les balises dans
+   l'en-tête de la page (Next.js les attend pour eux) ; `metadataBase` rend les adresses absolues.
 
 ## Questions ouvertes (elles changent l'architecture)
 

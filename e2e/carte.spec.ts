@@ -37,6 +37,8 @@ test("les mois se choisissent à la souris et au clavier, et se partagent", asyn
 
 test("les archives montrent une année civile", async ({ page }) => {
   await page.goto("/carte");
+  // The page answers once the loading screen is gone (it covers the controls until then).
+  await expect(page.getByRole("progressbar", { name: "Chargement des données satellite" })).toBeHidden();
   await page.getByRole("combobox", { name: /Archives/ }).selectOption("2022");
   await expect(page).toHaveURL(/annee=2022/);
   await expect(page.getByRole("heading", { level: 2, name: "Année 2022" })).toBeVisible();
