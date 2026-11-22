@@ -1,6 +1,7 @@
 "use client";
 
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { ArrowLeft, MagnifyingGlass } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import {
   MONTH_ABBREVIATIONS,
@@ -14,7 +15,9 @@ import {
   formatDate,
 } from "@/lib/format";
 import type { SpanFire } from "@/lib/data/fires";
-import { useSpanFires } from "@/lib/data/span-fires";
+import { usePanelFires, useSpanFires } from "@/lib/data/span-fires";
+import { useDepartements2D } from "@/lib/data/queries";
+import { slugify } from "@/lib/slug";
 import { useMapStore } from "@/lib/store";
 import { AGE_CLASSES, ageClass } from "@/components/scene/markers";
 import { PeriodChips } from "./PeriodChips";
@@ -26,7 +29,14 @@ const fold = (text: string) => text.normalize("NFD").replace(/\p{Diacritic}/gu, 
 
 /** The fires of the period shown (window or month), as figures. */
 function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
-  const { span, source, fires: windowFires } = useSpanFires();
+  const { span, source } = useSpanFires();
+  const windowFires = usePanelFires();
+  const departement = useMapStore((state) => state.departement);
+  const setDepartement = useMapStore((state) => state.setDepartement);
+  const outlines = useDepartements2D();
+  const departementName = departement
+    ? (outlines.data?.features.find((f) => slugify(f.nom) === departement)?.nom ?? null)
+    : null;
   const month = useMapStore((state) => state.month);
   const archiveYear = useMapStore((state) => state.archiveYear);
   // The title needs no data: it is on screen before the fires arrive.
@@ -52,6 +62,25 @@ function PeriodSummary({ fires }: { fires: readonly SpanFire[] | undefined }) {
 
   return (
     <div>
+      {departement && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setDepartement(null);
+              useMapStore.getState().requestCamera({ kind: "preset", preset: "france" });
+            }}
+            className="flex items-center gap-1.5 font-bold text-ink hover:text-ink-2"
+          >
+            <ArrowLeft size={14} weight="bold" aria-hidden />
+            Toute la France
+          </button>
+          <Link href={`/departement/${departement}`} className="link-draw text-ink-2">
+            Page du département
+          </Link>
+        </div>
+      )}
+      {departementName && <p className="label">{departementName}</p>}
       <h2 className="text-2xl leading-tight tracking-[-0.025em] first-letter:uppercase">{title}</h2>
       <p className="text-sm text-ink-3">{subtitle}</p>
       {/* Labels may take two lines: the figures sit at the foot of each cell, on one line. */}
@@ -131,7 +160,8 @@ function FireRow({ fire }: { fire: SpanFire }) {
 
 /** The period's figures, then its fires, most recent (or largest) first, searchable by commune or département. */
 export function FireList() {
-  const { fires, error } = useSpanFires();
+  const { error } = useSpanFires();
+  const fires = usePanelFires();
   const month = useMapStore((state) => state.month);
   const sort = useMapStore((state) => state.sort);
   const setSort = useMapStore((state) => state.setSort);

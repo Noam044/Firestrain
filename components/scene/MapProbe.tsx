@@ -8,6 +8,7 @@ import { l93ToLonLat, lonLatToScene, sceneToLonLat } from "@/lib/geo/projection"
 import { createGridSampler, intersectHeightfield, type Vec3 } from "@/lib/geo/heightfield";
 import type { TerrainData } from "@/lib/data/queries";
 import { findFireAt, type SpanFire } from "@/lib/data/fires";
+import { departementAt, type MapDepartement } from "@/lib/data/departements-map";
 import type { LandMask } from "@/lib/data/land-mask";
 import { useMapStore } from "@/lib/store";
 import { pxPerUnit } from "./FireMarkers";
@@ -19,6 +20,9 @@ type MapProbeProps = {
   exaggeration: number;
   /** Fires on screen (window, month filter), clickable. */
   fires: readonly SpanFire[] | undefined;
+  /** Départements, hovered and chosen instead of the fires while their mode is on. */
+  departements: readonly MapDepartement[] | null;
+  departementsMode: boolean;
 };
 
 /**
@@ -26,7 +30,7 @@ type MapProbeProps = {
  * the ground under the pointer (coordinates, BD ALTI altitude) and turns a click
  * on a marker, or on a burnt outline once its marker has faded, into a selection.
  */
-export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) {
+export function MapProbe({ terrain, mask, exaggeration, fires, departements, departementsMode }: MapProbeProps) {
   const camera = useThree((state) => state.camera);
   const canvas = useThree((state) => state.gl.domElement);
   const events = useThree((state) => state.events);
@@ -35,6 +39,8 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
   const setCursor = useMapStore((state) => state.setCursor);
   const selectFire = useMapStore((state) => state.selectFire);
   const setHover = useMapStore((state) => state.setHover);
+  const setHoverDepartement = useMapStore((state) => state.setHoverDepartement);
+  const setDepartement = useMapStore((state) => state.setDepartement);
 
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const sampler = useMemo(
@@ -157,12 +163,19 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       frame = 0;
       if (!lastEvent) return;
       const hit = groundAt(lastEvent);
-      // Hint that fires can be clicked (standard pointer) and name them in a tooltip.
-      const hovered = fireAt(lastEvent, hit);
-      surface.style.cursor = hovered ? "pointer" : "";
-      const previous = useMapStore.getState().hover;
-      if (hovered) setHover({ id: hovered.id, x: lastEvent.clientX, y: lastEvent.clientY });
-      else if (previous && previous.x !== null) setHover(null);
+      if (departementsMode) {
+        // Département mode: the département under the pointer, never a fire.
+        const departement = hit && departements ? departementAt(departements, hit.x, hit.z) : null;
+        surface.style.cursor = departement ? "pointer" : "";
+        setHoverDepartement(departement ? { index: departement.index, x: lastEvent.clientX, y: lastEvent.clientY } : null);
+      } else {
+        // Hint that fires can be clicked (standard pointer) and name them in a tooltip.
+        const hovered = fireAt(lastEvent, hit);
+        surface.style.cursor = hovered ? "pointer" : "";
+        const previous = useMapStore.getState().hover;
+        if (hovered) setHover({ id: hovered.id, x: lastEvent.clientX, y: lastEvent.clientY });
+        else if (previous && previous.x !== null) setHover(null);
+      }
       if (!hit) {
         setCursor(null);
         return;
@@ -194,17 +207,28 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       frame = 0;
       setCursor(null);
       setHover(null);
+      setHoverDepartement(null);
     };
     // A click (no drag) selects the burnt area under the pointer, or clears the selection.
     const onDown = (event: PointerEvent) => {
       pressed = event.button === 0 ? { x: event.clientX, y: event.clientY, at: performance.now() } : null;
     };
     const onUp = (event: PointerEvent) => {
-      if (!pressed || !fires) return;
+      if (!pressed) return;
       const moved = Math.hypot(event.clientX - pressed.x, event.clientY - pressed.y);
       const quick = performance.now() - pressed.at < 600;
       pressed = null;
       if (moved > 6 || !quick) return;
+      if (departementsMode) {
+        // A click (or a tap) chooses the département under it and frames it.
+        const hit = groundAt(event);
+        const departement = hit && departements ? departementAt(departements, hit.x, hit.z) : null;
+        if (!departement) return;
+        setDepartement(departement.slug);
+        useMapStore.getState().requestCamera({ kind: "bbox", bbox: departement.bbox });
+        return;
+      }
+      if (!fires) return;
       // A marker flies to its fire; an outline (already close) is selected where it is.
       const marker = markerUnder(event);
       const fire = marker ?? fireAt(event, groundAt(event));
@@ -224,7 +248,22 @@ export function MapProbe({ terrain, mask, exaggeration, fires }: MapProbeProps) 
       surface.style.cursor = "";
       onLeave();
     };
-  }, [canvas, events, pick, markerAt, terrain, mask, fires, setCursor, selectFire, setHover]);
+  }, [
+    canvas,
+    events,
+    pick,
+    markerAt,
+    terrain,
+    mask,
+    fires,
+    departements,
+    departementsMode,
+    setCursor,
+    selectFire,
+    setHover,
+    setHoverDepartement,
+    setDepartement,
+  ]);
 
   return null;
 }

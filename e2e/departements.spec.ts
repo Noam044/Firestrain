@@ -26,3 +26,34 @@ test("un département sans feu le dit", async ({ page }) => {
   await page.goto("/departement/paris");
   await expect(page.getByText(/EFFIS n’a cartographié aucun feu dans ce département/)).toBeVisible();
 });
+
+test("le filtre par département remplace les feux par les départements, et un clic en choisit un", async ({ page }) => {
+  // Headless Chrome draws the 2D map, which has the same département mode.
+  await page.goto("/carte?rendu=2d");
+  await expect(page.getByRole("progressbar", { name: "Chargement des données satellite" })).toBeHidden();
+  const toggle = page.getByRole("button", { name: "Filtrer par département" });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  // The fire markers step back.
+  await expect(page.locator("svg circle.cursor-pointer")).toHaveCount(0);
+  const gironde = page.locator("svg path", { has: page.locator("title", { hasText: "Gironde (33)" }) });
+  await gironde.hover({ force: true });
+  await expect(page.getByRole("tooltip")).toContainText("Gironde");
+  await gironde.click({ force: true });
+  await expect(page).toHaveURL(/dep=gironde/);
+  const panel = page.getByRole("complementary", { name: "Feux de la période" });
+  await expect(panel.getByRole("button", { name: "Toute la France" })).toBeVisible();
+  await expect(panel.getByRole("link", { name: "Page du département" })).toHaveAttribute("href", "/departement/gironde");
+  for (const province of await panel.getByRole("list", { name: "Feux de la période" }).locator("li").allInnerTexts()) {
+    expect(province).toContain("Gironde");
+  }
+  await panel.getByRole("button", { name: "Toute la France" }).click();
+  await expect(page).not.toHaveURL(/dep=/);
+});
+
+test("une adresse ?dep= ouvre la carte sur le département", async ({ page }) => {
+  await page.goto("/carte?dep=gironde");
+  const panel = page.getByRole("complementary", { name: "Feux de la période" });
+  await expect(panel.getByRole("button", { name: "Toute la France" })).toBeVisible();
+  await expect(panel.locator("p.label", { hasText: "Gironde" })).toBeVisible();
+});

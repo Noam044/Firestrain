@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 import { MONTH_ABBREVIATIONS, MONTH_NAMES, formatCount, formatInteger } from "@/lib/format";
-import { useSpanFires } from "@/lib/data/span-fires";
+import { usePanelFires, useSpanFires } from "@/lib/data/span-fires";
 import { useMapStore } from "@/lib/store";
 
 /**
@@ -13,7 +13,9 @@ import { useMapStore } from "@/lib/store";
  * chosen month in view.
  */
 export function PeriodChips() {
-  const { span, fires } = useSpanFires();
+  const { span } = useSpanFires();
+  // Counts of the panel's fires: the chosen département's, when there is one.
+  const fires = usePanelFires();
   const month = useMapStore((state) => state.month);
   const setMonth = useMapStore((state) => state.setMonth);
   const selectFire = useMapStore((state) => state.selectFire);

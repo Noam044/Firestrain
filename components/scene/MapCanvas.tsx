@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import * as THREE from "three";
 import {
   useBorders,
+  useDepartements2D,
   useEffisYears,
   useFranceOutline,
   useNeighbours,
@@ -22,7 +23,9 @@ import { rasterizeLandMask, type LandMask } from "@/lib/data/land-mask";
 import type { Borders as BordersData } from "@/lib/data/schemas";
 import { spanMonthRange } from "@/lib/span";
 import { FIRST_YEAR, useMapStore } from "@/lib/store";
+import { mapDepartements } from "@/lib/data/departements-map";
 import { Borders } from "./Borders";
+import { DepartementOutline, useDepartementEase, useDepartementMask } from "./Departements";
 import { useBurnMask } from "./BurnMask";
 import { SelectedFire } from "./SelectedFire";
 import { FireMarkers } from "./FireMarkers";
@@ -189,14 +192,39 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
   const live = useRecentDetections(showLive);
   const liveColumns = useMemo(() => recentToColumns(live.data), [live.data]);
   const invalidate = useThree((state) => state.invalidate);
-  // Frames are rendered on demand: redraw when the selection or the hovered fire changes.
+  // Frames are rendered on demand: redraw when a selection or a hover changes.
   useEffect(
     () =>
       useMapStore.subscribe((state, previous) => {
-        if (state.hover?.id !== previous.hover?.id || state.selectedFireId !== previous.selectedFireId) invalidate();
+        if (
+          state.hover?.id !== previous.hover?.id ||
+          state.selectedFireId !== previous.selectedFireId ||
+          state.departementsMode !== previous.departementsMode ||
+          state.hoverDepartement?.index !== previous.hoverDepartement?.index ||
+          state.departement !== previous.departement
+        )
+          invalidate();
       }),
     [invalidate],
   );
+
+  // Départements: their outlines (from the 2D map's file), the index mask, the eased hover.
+  const departementsData = useDepartements2D();
+  const departements = useMemo(
+    () => (departementsData.data ? mapDepartements(departementsData.data.features) : null),
+    [departementsData.data],
+  );
+  const departementMask = useDepartementMask(
+    departements,
+    detail.dem === 500 ? { width: 2320, height: 2180 } : { width: 1160, height: 1090 },
+  );
+  const ease = useDepartementEase();
+  const departementsMode = useMapStore((state) => state.departementsMode);
+  const hoverIndex = useMapStore((state) => (state.departementsMode ? (state.hoverDepartement?.index ?? 0) : 0));
+  const chosenSlug = useMapStore((state) => state.departement);
+  const chosen = departements?.find((d) => d.slug === chosenSlug) ?? null;
+  const hovered = hoverIndex ? (departements?.[hoverIndex - 1] ?? null) : null;
+  const outlined = [...new Set([chosen, hovered].filter((d) => d !== null))];
 
   return (
     <>
@@ -211,6 +239,7 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
         showHistory={showHistory}
         dayRange={dayRange}
         imagery={imagery}
+        departements={{ mask: departementMask, ease, selectedIndex: chosen?.index ?? 0 }}
       />
       <Borders
         borders={borders}
@@ -218,14 +247,34 @@ function Scene({ terrain, mask, borders, detail }: SceneProps) {
         exaggeration={exaggeration}
         maxSegmentKm={terrain.meta.pixelSizeM / 1000}
       />
-      {showLive && liveColumns && (
+      {outlined.map((departement) => (
+        <DepartementOutline
+          key={departement.index}
+          departement={departement}
+          heightTexture={textures.height}
+          exaggeration={exaggeration}
+          maxSegmentKm={terrain.meta.pixelSizeM / 1000}
+          ease={ease}
+        />
+      ))}
+      {/* In the département mode the fires step back: their burnt ground stays, their markers go. */}
+      {!departementsMode && showLive && liveColumns && (
         <FirePoints detections={liveColumns} fixedDay={0} heightTexture={textures.height} exaggeration={exaggeration} />
       )}
-      {selected && <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />}
-      {fires && (
+      {!departementsMode && selected && (
+        <SelectedFire fire={selected} heightTexture={textures.height} exaggeration={exaggeration} />
+      )}
+      {!departementsMode && fires && (
         <FireMarkers fires={fires} heightTexture={textures.height} exaggeration={exaggeration} dayRange={dayRange} />
       )}
-      <MapProbe terrain={terrain} mask={mask} exaggeration={exaggeration} fires={visibleFires} />
+      <MapProbe
+        terrain={terrain}
+        mask={mask}
+        exaggeration={exaggeration}
+        fires={visibleFires}
+        departements={departements}
+        departementsMode={departementsMode}
+      />
     </>
   );
 }
